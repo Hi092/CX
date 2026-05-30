@@ -1,0 +1,89 @@
+/* 店铺设置页样式 */
+
+.form-card {
+  background: #fff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  width: 180rpx;
+  font-size: 28rpx;
+  color: #333;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  font-size: 28rpx;
+  text-align: right;
+}
+
+/* 时间选择器 */
+.time-picker {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.time-btn {
+  background: #f5f5f5;
+  padding: 10rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.time-divider {
+  margin: 0 15rpx;
+  color: #999;
+}
+
+/* 价格输入 */
+.price-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.price-input .symbol {
+  font-size: 32rpx;
+  color: #FF6B00;
+  margin-right: 10rpx;
+}
+
+.price-input .input {
+  text-align: right;
+}
+
+/* 保存按钮 */
+.btn-section {
+  padding: 40rpx 20rpx;
+}
+
+.save-btn {
+  background: #FF6B00;
+  color: #fff;
+  border: none;
+  border-radius: 50rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+}
+
+.save-btn::after {
+  border: none;
+}

@@ -1,0 +1,76 @@
+<!--店铺设置页面-->
+<view class="container">
+  <view class="form-card">
+    <!-- 店铺名称 -->
+    <view class="form-item">
+      <text class="label">店铺名称</text>
+      <input class="input" placeholder="请输入店铺名称" 
+             bindinput="onNameInput" value="{{shopName}}"/>
+    </view>
+
+    <!-- 联系电话 -->
+    <view class="form-item">
+      <text class="label">联系电话</text>
+      <input class="input" type="number" placeholder="请输入手机号" 
+             bindinput="onPhoneInput" value="{{shopPhone}}"/>
+    </view>
+
+    <!-- 营业时间 -->
+    <view class="form-item">
+      <text class="label">营业时间</text>
+      <view class="time-picker">
+        <picker mode="time" value="{{openTime}}" bindchange="onOpenTimeChange">
+          <text class="time-btn">{{openTime}}</text>
+        </picker>
+        <text class="time-divider">至</text>
+        <picker mode="time" value="{{closeTime}}" bindchange="onCloseTimeChange">
+          <text class="time-btn">{{closeTime}}</text>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 起送价 -->
+    <view class="form-item">
+      <text class="label">起送价</text>
+      <view class="price-input">
+        <text class="symbol">¥</text>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onMinPriceInput" value="{{minPrice}}"/>
+      </view>
+    </view>
+
+    <!-- 配送费 -->
+    <view class="form-item">
+      <text class="label">配送费</text>
+      <view class="price-input">
+        <text class="symbol">¥</text>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
+      </view>
+    </view>
+
+    <!-- 免配送费金额 -->
+    <view class="form-item">
+      <text class="label">满额免配送</text>
+      <view class="price-input">
+        <text class="symbol">¥</text>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
+      </view>
+    </view>
+
+    <!-- 配送范围 -->
+    <view class="form-item">
+      <text class="label">配送范围</text>
+      <input class="input" placeholder="如：幸福小区" 
+             bindinput="onRangeInput" value="{{deliveryRange}}"/>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="btn-section">
+    <button class="save-btn" bindtap="saveSettings" loading="{{loading}}">
+      保存设置
+    </button>
+  </view>
+</view>

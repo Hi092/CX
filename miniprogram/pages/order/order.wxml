@@ -1,0 +1,84 @@
+<!--订单确认页-->
+<view class="container">
+  <!-- 收货地址 -->
+  <view class="address-card" bindtap="chooseAddress">
+    <block wx:if="{{address}}">
+      <view class="address-info">
+        <view class="address-top">
+          <text class="name">{{address.name}}</text>
+          <text class="phone">{{address.phone}}</text>
+        </view>
+        <view class="address-detail">
+          📍 {{address.community}} {{address.building}}栋 {{address.unit}}单元 {{address.room}}
+        </view>
+      </view>
+      <text class="arrow">›</text>
+    </block>
+    <block wx:else>
+      <view class="no-address">
+        <text>📍 请选择收货地址</text>
+        <text class="arrow">›</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="order-card">
+    <view class="card-title">商品清单</view>
+    <view class="order-item" wx:for="{{items}}" wx:key="_id">
+      <image src="{{item.image || '/images/default.png'}}" class="item-img" mode="aspectFill"/>
+      <view class="item-info">
+        <text class="item-name">{{item.name}}</text>
+        <view class="item-bottom">
+          <view class="price">
+            <text class="symbol">¥</text>
+            <text class="num">{{item.price}}</text>
+          </view>
+          <text class="item-qty">x{{item.quantity}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="remark-card">
+    <text class="remark-label">备注</text>
+    <input class="remark-input" placeholder="选填，有什么要交代的" 
+           bindinput="onRemarkInput" value="{{remark}}"/>
+  </view>
+
+  <!-- 价格明细 -->
+  <view class="price-card">
+    <view class="price-row">
+      <text>商品金额</text>
+      <text>¥{{totalPrice}}</text>
+    </view>
+    <view class="price-row">
+      <text>配送费</text>
+      <text wx:if="{{totalPrice >= 20}}" class="free">免配送费</text>
+      <text wx:else>¥{{deliveryFee}}</text>
+    </view>
+    <view class="divider"></view>
+    <view class="price-row total">
+      <text>实付金额</text>
+      <text class="price">
+        <text class="symbol">¥</text>
+        <text class="num">{{totalPrice >= 20 ? totalPrice : (totalPrice * 1 + deliveryFee * 1).toFixed(2)}}</text>
+      </text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-bar">
+    <view class="submit-info">
+      <text>合计: </text>
+      <text class="price">
+        <text class="symbol">¥</text>
+        <text class="num">{{totalPrice >= 20 ? totalPrice : (totalPrice * 1 + deliveryFee * 1).toFixed(2)}}</text>
+      </text>
+    </view>
+    <button class="submit-btn" bindtap="submitOrder" loading="{{loading}}">
+      提交订单
+    </button>
+  </view>
+</view>

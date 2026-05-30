@@ -1,0 +1,174 @@
+/* 购物车样式 */
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background: #fff;
+  margin-bottom: 20rpx;
+  border-radius: 16rpx;
+}
+
+.clear-btn {
+  color: #999;
+  font-size: 26rpx;
+}
+
+/* 购物车商品项 */
+.cart-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 2rpx;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  font-size: 24rpx;
+  color: #fff;
+}
+
+.checkbox.checked {
+  background: #FF6B00;
+  border-color: #FF6B00;
+}
+
+.cart-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  background: #f5f5f5;
+}
+
+.cart-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 160rpx;
+}
+
+.cart-name {
+  font-size: 28rpx;
+  color: #333;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.cart-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 数量控制 */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.qty-btn {
+  width: 48rpx;
+  height: 48rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.qty-num {
+  font-size: 28rpx;
+  min-width: 40rpx;
+  text-align: center;
+}
+
+/* 底部结算栏 */
+.cart-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.select-all {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 28rpx;
+}
+
+.total {
+  flex: 1;
+  text-align: right;
+  margin-right: 20rpx;
+  font-size: 28rpx;
+}
+
+.checkout-btn {
+  background: #FF6B00;
+  color: #fff;
+  border: none;
+  border-radius: 50rpx;
+  padding: 16rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.checkout-btn.disabled {
+  background: #ccc;
+}
+
+/* 空状态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty .icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty .text {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.empty .btn-primary {
+  margin-top: 20rpx;
+}
+
+/* 去逛逛按钮 */
+.go-shopping {
+  background: #FF6B00;
+  color: #fff;
+  border: none;
+  border-radius: 50rpx;
+  padding: 20rpx 80rpx;
+  font-size: 30rpx;
+}
