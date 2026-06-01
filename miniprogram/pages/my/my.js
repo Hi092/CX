@@ -1,123 +1,79 @@
 // 我的页面
-const db = wx.cloud.database()
-const app = getApp()
-
 Page({
   data: {
     userInfo: null,
-    isAdmin: false,
-    orderCount: {
-      pending: 0,
-      delivering: 0,
-      completed: 0
-    },
-    menuList: [
-      { icon: '📋', text: '全部订单', url: '/pages/my/orders' },
-      { icon: '📍', text: '收货地址', url: '/pages/my/address' },
-      { icon: '💬', text: '联系商家', action: 'contact' },
-      { icon: '⚙️', text: '设置', url: '/pages/my/settings' }
-    ]
-  },
-
-  onLoad: function () {
-    this.checkLogin()
+    themeColor: '#4A90D9',
+    tapCount: 0,
+    tapTimer: null,
+    showModal: false,
+    pwdInput: ''
   },
 
   onShow: function () {
-    if (this.data.userInfo) {
-      this.getOrderCount()
-    }
+    var info = wx.getStorageSync('userInfo')
+    if (info) this.setData({ userInfo: info })
+    var s = wx.getStorageSync('shopSettings')
+    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
   },
 
-  // 检查登录状态
-  checkLogin: function () {
-    const userInfo = wx.getStorageSync('userInfo')
-    if (userInfo) {
-      this.setData({ userInfo })
-      this.checkAdmin()
-      this.getOrderCount()
-    }
-  },
-
-  // 微信登录
   login: function () {
+    var self = this
     wx.getUserProfile({
-      desc: '用于完善个人资料',
-      success: (res) => {
-        const userInfo = res.userInfo
-        wx.setStorageSync('userInfo', userInfo)
-        this.setData({ userInfo })
-        
-        // 获取openid
-        wx.cloud.callFunction({
-          name: 'login',
-          data: {}
-        }).then(loginRes => {
-          const openid = loginRes.result.openid
-          wx.setStorageSync('openid', openid)
-          this.checkAdmin()
-          this.getOrderCount()
-        })
+      desc: '用于展示用户信息',
+      success: function (res) {
+        wx.setStorageSync('userInfo', res.userInfo)
+        self.setData({ userInfo: res.userInfo })
+      },
+      fail: function () {
+        var info = { nickName: '微信用户', avatarUrl: '' }
+        wx.setStorageSync('userInfo', info)
+        self.setData({ userInfo: info })
       }
     })
   },
 
-  // 检查是否是管理员
-  checkAdmin: function () {
-    const openid = wx.getStorageSync('openid')
-    // 这里填你自己的openid
-    const adminOpenid = 'YOUR_OPENID_HERE'
-    const isAdmin = openid === adminOpenid
-    this.setData({ isAdmin })
-    app.globalData.isAdmin = isAdmin
+  goOrders: function (e) {
+    var status = e.currentTarget.dataset.status || ''
+    var url = '/pages/my/orders/orders'
+    if (status) url += '?status=' + status
+    wx.navigateTo({ url: url })
   },
 
-  // 获取订单数量
-  getOrderCount: function () {
-    // 这里简化处理，实际应该查询云数据库
-    this.setData({
-      orderCount: {
-        pending: 2,
-        delivering: 1,
-        completed: 5
-      }
-    })
+  goAddress: function () {
+    wx.navigateTo({ url: '/pages/my/address/address' })
   },
 
-  // 跳转页面
-  goPage: function (e) {
-    const { url, action } = e.currentTarget.dataset
-    if (action === 'contact') {
-      // 联系商家
-      wx.makePhoneCall({
-        phoneNumber: '13800138000' // 商家电话
-      })
-    } else if (url) {
-      wx.navigateTo({ url })
+  callShop: function () {
+    wx.makePhoneCall({ phoneNumber: '13800138000' })
+  },
+
+  goSettings: function () {
+    wx.navigateTo({ url: '/pages/my/settings/settings' })
+  },
+
+  onVersionTap: function () {
+    var self = this
+    var c = this.data.tapCount + 1
+    if (this.data.tapTimer) clearTimeout(this.data.tapTimer)
+    var t = setTimeout(function () { self.setData({ tapCount: 0 }) }, 2000)
+    this.setData({ tapCount: c, tapTimer: t })
+    if (c >= 5) this.setData({ showModal: true, tapCount: 0 })
+  },
+
+  onPwdInput: function (e) { this.setData({ pwdInput: e.detail.value }) },
+
+  doVerify: function () {
+    var pwd = this.data.pwdInput
+    if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
+    if (pwd === '123456') {
+      this.closeModal()
+      wx.setStorageSync('isShopOwner', true)
+      wx.showToast({ title: '验证成功', icon: 'success' })
+      setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+    } else {
+      wx.showToast({ title: '密码错误', icon: 'none' })
     }
   },
 
-  // 进入商家管理
-  goAdmin: function () {
-    wx.navigateTo({
-      url: '/pages/admin/orders/orders'
-    })
-  },
-
-  // 退出登录
-  logout: function () {
-    wx.showModal({
-      title: '提示',
-      content: '确定要退出登录吗？',
-      success: (res) => {
-        if (res.confirm) {
-          wx.clearStorageSync()
-          this.setData({
-            userInfo: null,
-            isAdmin: false
-          })
-        }
-      }
-    })
-  }
+  closeModal: function () { this.setData({ showModal: false, pwdInput: '' }) }
 })

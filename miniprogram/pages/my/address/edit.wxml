@@ -1,0 +1,40 @@
+<!--地址编辑-->
+<view class="container">
+  <view class="form-card">
+    <view class="form-item">
+      <text class="label">收货人</text>
+      <input class="input" placeholder="请输入姓名" bindinput="onNameInput" value="{{name}}"/>
+    </view>
+    <view class="form-item">
+      <text class="label">手机号</text>
+      <input class="input" type="number" maxlength="11" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{phone}}"/>
+    </view>
+    <view class="form-item">
+      <text class="label">小区</text>
+      <input class="input" placeholder="如：幸福小区" bindinput="onCommunityInput" value="{{community}}"/>
+    </view>
+    <view class="form-item">
+      <text class="label">楼号</text>
+      <input class="input" placeholder="如：3" bindinput="onBuildingInput" value="{{building}}"/>
+    </view>
+    <view class="form-item">
+      <text class="label">单元</text>
+      <input class="input" placeholder="如：2（选填）" bindinput="onUnitInput" value="{{unit}}"/>
+    </view>
+    <view class="form-item">
+      <text class="label">门牌号</text>
+      <input class="input" placeholder="如：502" bindinput="onRoomInput" value="{{room}}"/>
+    </view>
+    <view class="form-item" bindtap="toggleDefault">
+      <text class="label">默认地址</text>
+      <view class="checkbox {{isDefault ? 'checked' : ''}}" 
+            style="{{isDefault ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
+        <text wx:if="{{isDefault}}">✓</text>
+      </view>
+    </view>
+  </view>
+  <view class="btn-section">
+    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveAddress" loading="{{loading}}">保存地址</button>
+    <button class="delete-btn" wx:if="{{isEdit}}" bindtap="deleteAddress">删除地址</button>
+  </view>
+</view>

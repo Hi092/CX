@@ -1,6 +1,33 @@
 <!--店铺设置页面-->
 <view class="container">
   <view class="form-card">
+    <!-- Banner图 -->
+    <view class="section-header">
+      <text class="section-title">首页Banner</text>
+    </view>
+    <view class="banner-section">
+      <!-- 有图时 -->
+      <view class="banner-preview" wx:if="{{bannerUrl}}">
+        <image class="banner-thumb" src="{{bannerUrl}}" mode="aspectFill"/>
+        <view class="banner-overlay">
+          <view class="banner-btn change" bindtap="chooseBanner">更换</view>
+          <view class="banner-btn remove" bindtap="removeBanner">移除</view>
+        </view>
+      </view>
+      <!-- 无图时 -->
+      <view class="banner-add" bindtap="chooseBanner" wx:else>
+        <text class="add-icon">+</text>
+        <text class="add-text">{{uploading ? '上传中...' : '从相册选择'}}</text>
+      </view>
+    </view>
+
+    <!-- Banner文字 -->
+    <view class="form-item">
+      <text class="label">Banner文字</text>
+      <input class="input" placeholder="如：邻里优选 · 新鲜送到家" 
+             bindinput="onBannerTextInput" value="{{bannerText}}"/>
+    </view>
+
     <!-- 店铺名称 -->
     <view class="form-item">
       <text class="label">店铺名称</text>
@@ -67,9 +94,44 @@
     </view>
   </view>
 
+  <!-- 主题颜色 -->
+  <view class="form-card">
+    <view class="section-header">
+      <text class="section-title">主题颜色</text>
+      <view class="color-preview" style="background:{{themeColor}}"></view>
+    </view>
+    <view class="color-grid">
+      <view class="color-item {{themeColor === item ? 'active' : ''}}" 
+            wx:for="{{colorList}}" wx:key="*this"
+            style="background:{{item}}" 
+            bindtap="selectColor" data-color="{{item}}">
+        <text class="color-check" wx:if="{{themeColor === item}}">✓</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类管理 -->
+  <view class="form-card">
+    <view class="section-header">
+      <text class="section-title">商品分类</text>
+      <view class="add-btn" style="color:{{themeColor}};border:1px solid {{themeColor}}" bindtap="addCategory">+ 添加</view>
+    </view>
+    <view class="category-list">
+      <view class="category-item" wx:for="{{categories}}" wx:key="index">
+        <text class="cat-name">{{item}}</text>
+        <view class="cat-actions">
+          <view class="cat-del" catchtap="deleteCategory" data-index="{{index}}">✕</view>
+        </view>
+      </view>
+      <view class="empty-cat" wx:if="{{categories.length === 0}}">
+        <text>暂无分类，点击上方添加</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 保存按钮 -->
   <view class="btn-section">
-    <button class="save-btn" bindtap="saveSettings" loading="{{loading}}">
+    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveSettings" loading="{{loading}}">
       保存设置
     </button>
   </view>

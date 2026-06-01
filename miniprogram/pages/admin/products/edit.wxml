@@ -16,35 +16,24 @@
 
   <!-- 表单 -->
   <view class="form-card">
-    <!-- 商品名称 -->
     <view class="form-item">
       <text class="label">商品名称</text>
-      <input class="input" placeholder="请输入商品名称" 
-             bindinput="onNameInput" value="{{name}}"/>
+      <input class="input" placeholder="请输入商品名称" bindinput="onNameInput" value="{{name}}"/>
     </view>
-
-    <!-- 价格 -->
     <view class="form-item">
       <text class="label">价格</text>
       <view class="price-input">
-        <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0.00" 
-               bindinput="onPriceInput" value="{{price}}"/>
+        <text class="symbol" style="color:{{themeColor}}">¥</text>
+        <input class="input" type="digit" placeholder="0.00" bindinput="onPriceInput" value="{{price}}"/>
       </view>
     </view>
-
-    <!-- 库存 -->
     <view class="form-item">
       <text class="label">库存</text>
-      <input class="input" type="number" placeholder="请输入库存数量" 
-             bindinput="onStockInput" value="{{stock}}"/>
+      <input class="input" type="number" placeholder="请输入库存数量" bindinput="onStockInput" value="{{stock}}"/>
     </view>
-
-    <!-- 分类 -->
     <view class="form-item">
       <text class="label">分类</text>
-      <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" 
-              bindchange="onCategoryChange">
+      <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
         <view class="picker">
           <text wx:if="{{category}}">{{category}}</text>
           <text wx:else class="placeholder">请选择分类</text>
@@ -52,18 +41,15 @@
         </view>
       </picker>
     </view>
-
-    <!-- 描述 -->
     <view class="form-item textarea-item">
       <text class="label">商品描述</text>
-      <textarea class="textarea" placeholder="选填，商品描述信息" 
-                bindinput="onDescInput" value="{{description}}"/>
+      <textarea class="textarea" placeholder="选填，商品描述信息" bindinput="onDescInput" value="{{description}}"/>
     </view>
   </view>
 
   <!-- 保存按钮 -->
   <view class="btn-section">
-    <button class="save-btn" bindtap="saveProduct" loading="{{loading}}">
+    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveProduct" loading="{{loading}}">
       {{isEdit ? '保存修改' : '添加商品'}}
     </button>
   </view>

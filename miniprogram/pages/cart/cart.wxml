@@ -4,63 +4,82 @@
   <view class="empty" wx:if="{{cart.length === 0}}">
     <view class="icon">🛒</view>
     <text class="text">购物车空空如也</text>
-    <button class="btn-primary" bindtap="goShopping">去逛逛</button>
+    <button class="btn-primary" bindtap="goShopping" style="background:{{themeColor}}">去逛逛</button>
   </view>
 
   <!-- 购物车列表 -->
   <block wx:else>
     <!-- 头部 -->
     <view class="cart-header">
-      <text>购物车 ({{totalCount}}件)</text>
+      <text>购物车({{totalCount}}件)</text>
       <text class="clear-btn" bindtap="clearCart">清空</text>
     </view>
 
     <!-- 商品列表 -->
-    <view class="cart-item" wx:for="{{cart}}" wx:key="_id">
-      <view class="checkbox {{item.selected ? 'checked' : ''}}" 
-            bindtap="toggleSelect" data-index="{{index}}">
-        <text wx:if="{{item.selected}}">✓</text>
-      </view>
-      
-      <image src="{{item.image || '/images/default.png'}}" class="cart-img" mode="aspectFill"/>
-      
-      <view class="cart-info">
-        <text class="cart-name">{{item.name}}</text>
-        <view class="cart-bottom">
-          <view class="price">
-            <text class="symbol">¥</text>
-            <text class="num">{{item.price}}</text>
-          </view>
-          <view class="quantity-control">
-            <view class="qty-btn" bindtap="decrease" data-index="{{index}}">-</view>
-            <text class="qty-num">{{item.quantity}}</text>
-            <view class="qty-btn" bindtap="increase" data-index="{{index}}">+</view>
+    <scroll-view class="cart-list" scroll-y>
+      <view class="cart-item" wx:for="{{cart}}" wx:key="_id">
+        <view class="checkbox {{item.selected ? 'checked' : ''}}" 
+              bindtap="toggleSelect" data-index="{{index}}"
+              style="{{item.selected ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
+        </view>
+        
+        <view class="cart-info">
+          <text class="cart-name">{{item.name}}</text>
+          <view class="cart-bottom">
+            <view class="price" style="color:{{themeColor}}">
+              <text class="symbol">¥</text>
+              <text class="num">{{item.price}}</text>
+            </view>
+            <view class="quantity-control">
+              <view class="qty-btn minus" bindtap="decrease" data-index="{{index}}">-</view>
+              <text class="qty-num">{{item.quantity}}</text>
+              <view class="qty-btn plus" bindtap="increase" data-index="{{index}}" style="background:{{themeColor}}">+</view>
+            </view>
           </view>
         </view>
       </view>
-    </view>
+    </scroll-view>
 
     <!-- 底部结算栏 -->
     <view class="cart-footer">
-      <view class="select-all" bindtap="toggleSelectAll">
-        <view class="checkbox {{selectAll ? 'checked' : ''}}">
-          <text wx:if="{{selectAll}}">✓</text>
+      <view class="footer-tip" wx:if="{{totalPrice < minPrice}}">
+        <text>还差{{diffPrice}}起送，</text>
+        <text class="go-shop" bindtap="goShopping" style="color:{{themeColor}}">去凑单 ›</text>
+      </view>
+      <view class="footer-tip ready" wx:else>
+        <text>已满起送价，可下单</text>
+      </view>
+      
+      <view class="footer-main">
+        <view class="select-area" bindtap="toggleSelectAll">
+          <view class="checkbox {{selectAll ? 'checked' : ''}}"
+                style="{{selectAll ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
+            <text wx:if="{{selectAll}}">✓</text>
+          </view>
+          <text>全选</text>
         </view>
-        <text>全选</text>
+        
+        <view class="price-area">
+          <view class="total">
+            <text class="label">合计</text>
+            <text class="price" style="color:{{themeColor}}">
+              <text class="symbol">¥</text>
+              <text class="num">{{totalPrice}}</text>
+            </text>
+          </view>
+          <view class="delivery">
+            <text wx:if="{{totalPrice >= freeDeliveryPrice}}">免配送费</text>
+            <text wx:else>配送费¥{{deliveryFee}}</text>
+          </view>
+        </view>
+        
+        <view class="checkout-btn {{totalCount > 0 && totalPrice >= minPrice ? '' : 'disabled'}}" 
+              bindtap="checkout"
+              style="{{totalCount > 0 && totalPrice >= minPrice ? 'background:' + themeColor : ''}}">
+          去结算
+        </view>
       </view>
-      
-      <view class="total">
-        <text>合计: </text>
-        <text class="price">
-          <text class="symbol">¥</text>
-          <text class="num">{{totalPrice}}</text>
-        </text>
-      </view>
-      
-      <button class="checkout-btn {{totalCount > 0 ? '' : 'disabled'}}" 
-              bindtap="checkout">
-        去结算({{totalCount}})
-      </button>
     </view>
   </block>
 </view>

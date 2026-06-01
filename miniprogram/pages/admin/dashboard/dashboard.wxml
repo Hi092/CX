@@ -1,0 +1,63 @@
+<!--商家后台首页-->
+<view class="container">
+  <!-- 头部 -->
+  <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+    <view class="shop-info">
+      <text class="shop-name">{{shopName}}</text>
+      <text class="shop-status">营业中</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <text class="stat-num" style="color:{{themeColor}}">{{todayOrders}}</text>
+      <text class="stat-label">今日订单</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-num" style="color:{{themeColor}}">¥{{todayIncome}}</text>
+      <text class="stat-label">今日收入</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-num" style="color:{{themeColor}}">{{totalProducts}}</text>
+      <text class="stat-label">商品数量</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-num" style="color:{{themeColor}}">{{pendingOrders}}</text>
+      <text class="stat-label">待配送</text>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="menu-card">
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/orders/orders">
+      <text class="menu-icon">📋</text>
+      <view class="menu-info">
+        <text class="menu-title">订单管理</text>
+        <text class="menu-desc">查看和处理订单</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/products/products">
+      <text class="menu-icon">📦</text>
+      <view class="menu-info">
+        <text class="menu-title">商品管理</text>
+        <text class="menu-desc">添加、编辑商品</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/settings/settings">
+      <text class="menu-icon">⚙️</text>
+      <view class="menu-info">
+        <text class="menu-title">店铺设置</text>
+        <text class="menu-desc">营业时间、配送范围</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 退出商家模式 -->
+  <view class="logout-btn" bindtap="exitAdmin" style="color:{{themeColor}}">
+    退出商家模式
+  </view>
+</view>

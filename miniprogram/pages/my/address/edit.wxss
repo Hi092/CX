@@ -1,0 +1,13 @@
+/* 地址编辑页 */
+.container { background: #f5f5f5; min-height: 100vh; padding: 20rpx; }
+.form-card { background: #fff; border-radius: 16rpx; overflow: hidden; }
+.form-item { display: flex; align-items: center; padding: 28rpx 24rpx; border-bottom: 1rpx solid #f5f5f5; }
+.form-item:last-child { border-bottom: none; }
+.label { width: 140rpx; font-size: 28rpx; color: #333; flex-shrink: 0; }
+.input { flex: 1; font-size: 28rpx; }
+.checkbox { width: 40rpx; height: 40rpx; border: 3rpx solid #ddd; border-radius: 8rpx; display: flex; align-items: center; justify-content: center; font-size: 24rpx; color: #fff; }
+.btn-section { margin-top: 40rpx; }
+.save-btn { color: #fff; border: none; border-radius: 50rpx; font-size: 30rpx; margin-bottom: 20rpx; }
+.save-btn::after { border: none; }
+.delete-btn { background: #fff; color: #ff4d4f; border: 1rpx solid #ff4d4f; border-radius: 50rpx; font-size: 30rpx; }
+.delete-btn::after { border: none; }

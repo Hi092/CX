@@ -1,53 +1,71 @@
 <!--分类页面-->
 <view class="container">
+  <!-- 顶部Banner图 -->
+  <view class="banner-wrap">
+    <image class="banner-img" src="{{bannerUrl}}" mode="aspectFill" wx:if="{{bannerUrl}}"/>
+    <view class="banner-default" wx:else style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+      <text class="banner-text">{{bannerText}}</text>
+    </view>
+  </view>
+
   <!-- 搜索栏 -->
   <view class="search-bar">
-    <input class="search-input" placeholder="🔍 搜索商品" 
-           bindinput="onSearch" value="{{searchKey}}"/>
+    <input class="search-input" placeholder="搜索商品..." value="{{searchKey}}" bindinput="onSearch"/>
   </view>
 
   <view class="main-content">
     <!-- 左侧分类 -->
-    <scroll-view class="sidebar" scroll-y>
-      <view class="sidebar-item {{index === currentCategory ? 'active' : ''}}"
+    <scroll-view class="category-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="category-item {{currentCategory === index ? 'active' : ''}}" 
             wx:for="{{categories}}" wx:key="id"
-            bindtap="switchCategory" data-index="{{index}}">
-        <text class="sidebar-icon">{{item.icon}}</text>
-        <text class="sidebar-text">{{item.name}}</text>
+            bindtap="switchCategory" data-index="{{index}}"
+            style="{{currentCategory === index ? 'color:' + themeColor + ';background:#fff' : ''}}">
+        <view class="active-bar" wx:if="{{currentCategory === index}}" style="background:{{themeColor}}"></view>
+        <text>{{item.name}}</text>
       </view>
     </scroll-view>
 
     <!-- 右侧商品 -->
-    <scroll-view class="content" scroll-y>
-      <!-- 加载中 -->
-      <view class="loading" wx:if="{{loading}}">
-        <text>加载中...</text>
-      </view>
-
-      <!-- 商品列表 -->
-      <view class="product-list" wx:if="{{!loading}}">
-        <view class="product-item" wx:for="{{products}}" wx:key="_id"
-              bindtap="goDetail" data-id="{{item._id}}">
-          <image src="{{item.image || '/images/default.png'}}" class="product-img" mode="aspectFill"/>
-          <view class="product-info">
-            <text class="product-name">{{item.name}}</text>
-            <text class="product-desc">{{item.description}}</text>
-            <view class="product-bottom">
-              <view class="price">
-                <text class="symbol">¥</text>
-                <text class="num">{{item.price}}</text>
-              </view>
-              <view class="add-btn" catchtap="addToCart" data-product="{{item}}">+</view>
-            </view>
+    <scroll-view class="product-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="product-item" wx:for="{{products}}" wx:key="_id">
+        <image class="product-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
+        <view class="product-img-placeholder" wx:else>📦</view>
+        <view class="product-info">
+          <text class="product-name">{{item.name}}</text>
+          <text class="product-desc">{{item.category}}</text>
+          <view class="product-bottom">
+            <text class="product-price" style="color:{{themeColor}}">¥{{item.price}}</text>
+            <view class="add-btn" catchtap="addToCart" data-product="{{item}}" style="background:{{themeColor}}">+</view>
           </view>
         </view>
       </view>
-
-      <!-- 空状态 -->
-      <view class="empty" wx:if="{{!loading && products.length === 0}}">
-        <text class="icon">📦</text>
-        <text class="text">暂无商品</text>
+      <view class="empty-tip" wx:if="{{products.length === 0}}">
+        <text>暂无商品</text>
       </view>
     </scroll-view>
+  </view>
+</view>
+
+<!-- 飞入小球 -->
+<view wx:for="{{balls}}" wx:key="id" class="ball {{item.show ? 'show' : ''}}"
+      style="left:{{item.x}}px;top:{{item.y}}px;">
+  <view class="ball-inner" style="background:{{themeColor}};box-shadow:0 2px 8px {{themeColor}}99"></view>
+</view>
+
+<!-- 底部购物车栏 -->
+<view class="cart-float" wx:if="{{totalCount > 0}}">
+  <view class="cart-left">
+    <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
+      <text class="cart-icon">🛒</text>
+      <view class="cart-badge" wx:if="{{totalCount > 0}}" style="background:{{themeColor}}">{{totalCount}}</view>
+    </view>
+    <view class="cart-price">
+      <text class="price-num">¥{{totalPrice}}</text>
+      <text class="price-desc" wx:if="{{totalPrice < minPrice}}">差¥{{diffPrice}}起送</text>
+      <text class="price-desc ready" wx:else>已满起送价</text>
+    </view>
+  </view>
+  <view class="cart-right">
+    <view class="checkout-btn" bindtap="goCheckout" style="background:{{themeColor}};color:#fff">去结算</view>
   </view>
 </view>

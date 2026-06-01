@@ -1,7 +1,7 @@
 <!--首页-->
 <view class="container">
   <!-- 搜索栏 -->
-  <view class="search-bar" bindtap="onSearch">
+  <view class="search-bar" style="background:{{themeColor}}" bindtap="onSearch">
     <view class="search-input">
       <text class="search-icon">🔍</text>
       <text class="search-placeholder">搜索商品...</text>
@@ -19,9 +19,8 @@
   <view class="section">
     <view class="section-title">商品分类</view>
     <view class="category-grid">
-      <view class="category-item" wx:for="{{categories}}" wx:key="id" 
-            bindtap="goCategory" data-id="{{item.id}}">
-        <view class="category-icon">{{item.icon}}</view>
+      <view class="category-item" wx:for="{{categories}}" wx:key="id" bindtap="goCategory" data-id="{{item.id}}">
+        <view class="category-icon" style="background:{{themeColor}}22">{{item.icon}}</view>
         <text class="category-name">{{item.name}}</text>
       </view>
     </view>
@@ -34,8 +33,7 @@
       <text class="more">更多 ›</text>
     </view>
     <view class="product-grid">
-      <view class="product-card" wx:for="{{hotProducts}}" wx:key="_id"
-            bindtap="goDetail" data-id="{{item._id}}">
+      <view class="product-card" wx:for="{{hotProducts}}" wx:key="_id" bindtap="goDetail" data-id="{{item._id}}">
         <image src="{{item.image || '/images/default.png'}}" class="product-img" mode="aspectFill"/>
         <view class="product-info">
           <text class="product-name">{{item.name}}</text>
@@ -44,7 +42,7 @@
               <text class="symbol">¥</text>
               <text class="num">{{item.price}}</text>
             </view>
-            <view class="add-btn" catchtap="addToCart" data-product="{{item}}">+</view>
+            <view class="add-btn" style="background:{{themeColor}}" catchtap="addToCart" data-product="{{item}}">+</view>
           </view>
         </view>
       </view>
@@ -58,8 +56,7 @@
       <text class="more">更多 ›</text>
     </view>
     <view class="product-grid">
-      <view class="product-card" wx:for="{{newProducts}}" wx:key="_id"
-            bindtap="goDetail" data-id="{{item._id}}">
+      <view class="product-card" wx:for="{{newProducts}}" wx:key="_id" bindtap="goDetail" data-id="{{item._id}}">
         <image src="{{item.image || '/images/default.png'}}" class="product-img" mode="aspectFill"/>
         <view class="product-info">
           <text class="product-name">{{item.name}}</text>
@@ -68,7 +65,7 @@
               <text class="symbol">¥</text>
               <text class="num">{{item.price}}</text>
             </view>
-            <view class="add-btn" catchtap="addToCart" data-product="{{item}}">+</view>
+            <view class="add-btn" style="background:{{themeColor}}" catchtap="addToCart" data-product="{{item}}">+</view>
           </view>
         </view>
       </view>
@@ -76,7 +73,4 @@
   </view>
 </view>
 
-<!-- 加载中 -->
-<view class="loading" wx:if="{{loading}}">
-  <text>加载中...</text>
-</view>
+<view class="loading" wx:if="{{loading}}"><text>加载中...</text></view>

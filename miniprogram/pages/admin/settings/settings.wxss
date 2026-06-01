@@ -1,89 +1,47 @@
-/* 店铺设置页样式 */
+/* 店铺设置 */
+page { background: #f5f5f5; }
+.container { padding: 10px; }
+.form-card { background: #fff; border-radius: 10px; padding: 0 14px; margin-bottom: 10px; }
+.form-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+.form-item:last-child { border-bottom: none; }
+.label { font-size: 15px; color: #333; width: 80px; flex-shrink: 0; }
+.input { flex: 1; font-size: 15px; text-align: right; }
+.time-picker { flex: 1; display: flex; align-items: center; justify-content: flex-end; }
+.time-btn { background: #f5f5f5; padding: 6px 12px; border-radius: 6px; font-size: 14px; color: #333; }
+.time-divider { margin: 0 8px; color: #999; font-size: 14px; }
+.price-input { flex: 1; display: flex; align-items: center; justify-content: flex-end; }
+.symbol { font-size: 15px; margin-right: 4px; }
 
-.form-card {
-  background: #fff;
-  margin: 20rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-}
+/* Banner选择 */
+.banner-section { padding: 14px 0; }
+.banner-preview { position: relative; border-radius: 10px; overflow: hidden; }
+.banner-thumb { width: 100%; height: 140px; }
+.banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; display: flex; gap: 0; }
+.banner-btn { flex: 1; text-align: center; padding: 10px; font-size: 14px; color: #fff; }
+.banner-btn.change { background: rgba(0,0,0,0.5); }
+.banner-btn.remove { background: rgba(255,77,79,0.85); }
+.banner-add { border: 2px dashed #ddd; border-radius: 10px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.add-icon { font-size: 36px; color: #ccc; line-height: 1; }
+.add-text { font-size: 14px; color: #999; margin-top: 6px; }
 
-.form-item {
-  display: flex;
-  align-items: center;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f5f5f5;
-}
+/* 主题颜色 */
+.color-preview { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); }
+.color-grid { display: flex; flex-wrap: wrap; padding: 14px 0; gap: 12px; }
+.color-item { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; }
+.color-item.active { border-color: rgba(0,0,0,0.3); transform: scale(1.1); }
+.color-check { color: #fff; font-size: 18px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
-.form-item:last-child {
-  border-bottom: none;
-}
-
-.label {
-  width: 180rpx;
-  font-size: 28rpx;
-  color: #333;
-  flex-shrink: 0;
-}
-
-.input {
-  flex: 1;
-  font-size: 28rpx;
-  text-align: right;
-}
-
-/* 时间选择器 */
-.time-picker {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.time-btn {
-  background: #f5f5f5;
-  padding: 10rpx 20rpx;
-  border-radius: 8rpx;
-  font-size: 28rpx;
-}
-
-.time-divider {
-  margin: 0 15rpx;
-  color: #999;
-}
-
-/* 价格输入 */
-.price-input {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.price-input .symbol {
-  font-size: 32rpx;
-  color: #FF6B00;
-  margin-right: 10rpx;
-}
-
-.price-input .input {
-  text-align: right;
-}
+/* 分类管理 */
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+.section-title { font-size: 15px; color: #333; font-weight: 600; }
+.add-btn { font-size: 14px; padding: 4px 10px; border-radius: 14px; }
+.category-list { padding: 6px 0; }
+.category-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
+.cat-name { font-size: 14px; color: #333; }
+.cat-del { width: 22px; height: 22px; border-radius: 50%; background: #f5f5f5; color: #999; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.empty-cat { text-align: center; padding: 16px; color: #ccc; font-size: 13px; }
 
 /* 保存按钮 */
-.btn-section {
-  padding: 40rpx 20rpx;
-}
-
-.save-btn {
-  background: #FF6B00;
-  color: #fff;
-  border: none;
-  border-radius: 50rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  font-size: 32rpx;
-}
-
-.save-btn::after {
-  border: none;
-}
+.btn-section { padding: 20px 0; }
+.save-btn { color: #fff; border: none; border-radius: 25px; font-size: 16px; font-weight: 600; padding: 12px 0; }
+.save-btn::after { border: none; }

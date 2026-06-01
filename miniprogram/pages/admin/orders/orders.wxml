@@ -1,7 +1,7 @@
 <!--商家订单管理-->
 <view class="container">
   <!-- 统计卡片 -->
-  <view class="stats-card">
+  <view class="stats-card" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
     <view class="stat-item">
       <text class="stat-num">{{stats.todayOrders}}</text>
       <text class="stat-label">今日订单</text>
@@ -15,14 +15,22 @@
 
   <!-- Tab栏 -->
   <view class="tab-bar">
-    <view class="tab {{currentTab === 'all' ? 'active' : ''}}" 
-          bindtap="switchTab" data-tab="all">全部</view>
-    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" 
-          bindtap="switchTab" data-tab="pending">待配送</view>
-    <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" 
-          bindtap="switchTab" data-tab="delivering">配送中</view>
-    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" 
-          bindtap="switchTab" data-tab="completed">已完成</view>
+    <view class="tab {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text style="{{currentTab === 'all' ? 'color:' + themeColor : ''}}">全部</text>
+      <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
+    </view>
+    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
+      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待配送</text>
+      <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
+    </view>
+    <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
+      <text style="{{currentTab === 'delivering' ? 'color:' + themeColor : ''}}">配送中</text>
+      <view class="tab-line" wx:if="{{currentTab === 'delivering'}}" style="background:{{themeColor}}"></view>
+    </view>
+    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
+      <text style="{{currentTab === 'completed' ? 'color:' + themeColor : ''}}">已完成</text>
+      <view class="tab-line" wx:if="{{currentTab === 'completed'}}" style="background:{{themeColor}}"></view>
+    </view>
   </view>
 
   <!-- 订单列表 -->
@@ -31,7 +39,8 @@
       <!-- 订单头 -->
       <view class="order-header">
         <text class="order-no">订单号: {{item.orderNo}}</text>
-        <text class="order-status {{item.statusClass}}">{{item.statusText}}</text>
+        <text class="order-status {{item.statusClass}}" 
+              style="{{item.status === 'pending' ? 'background:' + themeColor + '22;color:' + themeColor : ''}}">{{item.statusText}}</text>
       </view>
       
       <!-- 收货人信息 -->
@@ -57,14 +66,14 @@
       <view class="order-footer">
         <view class="order-time">{{item.createTimeText}}</view>
         <view class="order-price">
-          合计: <text class="price">¥{{item.finalPrice}}</text>
+          合计: <text class="price" style="color:{{themeColor}}">¥{{item.finalPrice}}</text>
         </view>
       </view>
       
       <!-- 操作按钮 -->
       <view class="order-actions">
         <block wx:if="{{item.status === 'pending'}}">
-          <button class="action-btn primary" bindtap="startDelivery" data-id="{{item._id}}">
+          <button class="action-btn primary" style="background:{{themeColor}}" bindtap="startDelivery" data-id="{{item._id}}">
             开始配送
           </button>
         </block>
