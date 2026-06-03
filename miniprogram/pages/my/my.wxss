@@ -1,4 +1,5 @@
 /* 我的页面样式 */
+.container { padding: 0; margin: 0; width: 100%; box-sizing: border-box; }
 
 /* 用户头部：浅橙到白色渐变（与首页一致） */
 .user-header {
