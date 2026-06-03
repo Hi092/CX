@@ -147,21 +147,16 @@
   text-align: center;
 }
 
-/* 底部结算栏 — bottom:0贴底，padding推内容避开tab栏 */
+/* 底部结算栏 */
 .cart-footer {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
-  padding-bottom: 50px;
-}
-
-.footer-main {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 30rpx 0;
 }
 
 .footer-tip {
@@ -178,6 +173,10 @@
   font-weight: bold;
 }
 
+.footer-main {
+  display: flex;
+  align-items: center;
+}
 
 .select-area {
   display: flex;

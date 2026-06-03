@@ -70,23 +70,21 @@ module.exports.f = f;
   <view class="ball-inner" style="background:{{themeColor}};box-shadow:0 2px 8px {{themeColor}}99"></view>
 </view>
 
-<!-- 底部悬浮购物车栏 — bottom:0贴底，padding推内容上去 -->
+<!-- 底部悬浮购物车栏 -->
 <view class="cart-float" wx:if="{{totalCount > 0}}" bindtap="toggleCartPopup">
-  <view class="cart-inner">
-    <view class="cart-left">
-      <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
-        <text class="cart-icon">🛒</text>
-        <view class="cart-badge" wx:if="{{totalCount > 0}}" style="background:{{themeColor}}">{{totalCount}}</view>
-      </view>
-      <view class="cart-price">
-        <text class="price-num">¥{{totalPrice}}</text>
-        <text class="price-desc" wx:if="{{totalPrice < minPrice}}">差¥{{diffPrice}}起送</text>
-        <text class="price-desc ready" wx:else>已满起送价</text>
-      </view>
+  <view class="cart-left">
+    <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
+      <text class="cart-icon">🛒</text>
+      <view class="cart-badge" wx:if="{{totalCount > 0}}" style="background:{{themeColor}}">{{totalCount}}</view>
     </view>
-    <view class="cart-right" catchtap="goCheckout">
-      <view class="checkout-btn" style="background:{{themeColor}};color:#fff">去结算</view>
+    <view class="cart-price">
+      <text class="price-num">¥{{totalPrice}}</text>
+      <text class="price-desc" wx:if="{{totalPrice < minPrice}}">差¥{{diffPrice}}起送</text>
+      <text class="price-desc ready" wx:else>已满起送价</text>
     </view>
+  </view>
+  <view class="cart-right" catchtap="goCheckout">
+    <view class="checkout-btn" style="background:{{themeColor}};color:#fff">去结算</view>
   </view>
 </view>
 
@@ -111,7 +109,6 @@ module.exports.f = f;
             <view class="popup-qty-btn plus" catchtap="popupIncrease" data-index="{{index}}" style="background:{{themeColor}}">+</view>
           </view>
         </view>
-        <!-- 用WXS修复浮点精度 -->
         <text class="popup-subtotal">小计: ¥{{s.f(item.price, item.quantity)}}</text>
       </view>
     </view>
