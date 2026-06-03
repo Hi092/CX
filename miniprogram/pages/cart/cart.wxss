@@ -1,4 +1,4 @@
-/* 购物车样式 */
+/* 购物车样�?*/
 .container { background: #f5f5f5; min-height: 100vh; padding: 0; width: 100%; box-sizing: border-box; }
 
 .cart-header {
@@ -147,7 +147,7 @@
   text-align: center;
 }
 
-/* 底部结算栏 */
+/* 底部结算�?*/
 .cart-footer {
   position: fixed;
   bottom: 0;
@@ -155,7 +155,7 @@
   right: 0;
   background: #fff;
   padding: 20rpx 30rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  padding-bottom: 0;
   box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
 }
 
@@ -223,7 +223,7 @@
   background: #ccc;
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty {
   display: flex;
   flex-direction: column;
