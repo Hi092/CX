@@ -3,8 +3,8 @@
 /* 用户头部：浅橙到白色渐变（与首页一致） */
 .user-header {
   background: linear-gradient(180deg, #FFF3E6, #FFFFFF);
-  padding: 60rpx 40rpx 50rpx;
-  padding-top: calc(60rpx + env(safe-area-inset-top));
+  padding: 72rpx 40rpx 50rpx;
+  padding-top: calc(72rpx + env(safe-area-inset-top));
   display: flex;
   align-items: center;
   width: 100%;
