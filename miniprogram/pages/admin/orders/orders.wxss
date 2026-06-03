@@ -1,5 +1,7 @@
 /* 商家订单管理样式 */
-.stats-card { display: flex; padding: 40rpx; margin: 20rpx; border-radius: 16rpx; color: #fff; }
+.container { background: #f5f5f5; min-height: 100vh; padding: 0; width: 100%; box-sizing: border-box; }
+
+.stats-card { display: flex; padding: 40rpx; padding-top: calc(40rpx + env(safe-area-inset-top)); margin: 0; border-radius: 0 0 24rpx 24rpx; color: #fff; width: 100%; box-sizing: border-box; }
 .stat-item { flex: 1; text-align: center; }
 .stat-num { font-size: 48rpx; font-weight: bold; display: block; margin-bottom: 10rpx; }
 .stat-label { font-size: 24rpx; opacity: 0.8; }
