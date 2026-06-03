@@ -1,7 +1,19 @@
-.container { background: #f5f5f5; min-height: 100vh; padding: 20rpx; }
+/* 设置页样式 */
+.container { background: #f5f5f5; min-height: 100vh; padding: 20rpx; padding-top: calc(20rpx + env(safe-area-inset-top)); width: 100%; box-sizing: border-box; }
 .settings-card { background: #fff; border-radius: 16rpx; overflow: hidden; margin-bottom: 30rpx; }
 .settings-item { display: flex; justify-content: space-between; padding: 30rpx; border-bottom: 1rpx solid #f5f5f5; }
 .settings-item:last-child { border-bottom: none; }
 .settings-label { color: #333; font-size: 30rpx; }
 .settings-value { color: #999; font-size: 30rpx; }
 .logout-btn { text-align: center; padding: 30rpx; background: #fff; border-radius: 16rpx; font-size: 30rpx; }
+
+/* 弹窗 */
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; display: flex; align-items: center; justify-content: center; }
+.modal-mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); }
+.modal-box { position: relative; background: #fff; border-radius: 24rpx; padding: 40rpx; width: 560rpx; z-index: 1; }
+.modal-title { font-size: 32rpx; font-weight: bold; text-align: center; margin-bottom: 20rpx; }
+.modal-content { font-size: 28rpx; color: #666; text-align: center; margin-bottom: 30rpx; }
+.modal-btns { display: flex; gap: 20rpx; }
+.modal-btn { flex: 1; text-align: center; padding: 18rpx 0; border-radius: 40rpx; font-size: 28rpx; }
+.modal-btn.cancel { background: #f5f5f5; color: #666; }
+.modal-btn.confirm { color: #fff; }

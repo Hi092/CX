@@ -59,6 +59,24 @@ Page({
     wx.navigateTo({ url: '/pages/my/settings/settings' })
   },
 
+  changeAvatar: function () {
+    var self = this
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: function (res) {
+        var filePath = res.tempFiles[0].tempFilePath
+        var info = self.data.userInfo || { nickName: '微信用户' }
+        info.avatarUrl = filePath
+        wx.setStorageSync('userInfo', info)
+        self.setData({ userInfo: info })
+        wx.showToast({ title: '头像已更换', icon: 'success' })
+      }
+    })
+  },
+
   onVersionTap: function () {
     var self = this
     var c = this.data.tapCount + 1

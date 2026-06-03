@@ -1,20 +1,21 @@
 /* 我的页面样式 */
 
-/* 用户头部（加高） */
+/* 用户头部：浅橙到白色渐变（与首页一致） */
 .user-header {
+  background: linear-gradient(180deg, #FFF3E6, #FFFFFF);
   padding: 60rpx 40rpx 50rpx;
   padding-top: calc(60rpx + env(safe-area-inset-top));
   display: flex;
   align-items: center;
-  margin: -20rpx -20rpx 20rpx;
-  border-radius: 0 0 30rpx 30rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .avatar {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  border: 4rpx solid rgba(255,255,255,0.5);
+  border: 4rpx solid #FFD9B3;
   margin-right: 24rpx;
   flex-shrink: 0;
   overflow: hidden;
@@ -24,7 +25,8 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255,255,255,0.3);
+  background: #FFF3E6;
+  border: 2rpx solid #FFD9B3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,7 +38,7 @@
 .nickname {
   font-size: 36rpx;
   font-weight: bold;
-  color: #fff;
+  color: #333;
 }
 
 .login-area {
@@ -45,7 +47,7 @@
 
 .login-btn {
   background: transparent;
-  color: #fff;
+  color: #FF8C40;
   border: 2rpx solid #FFD9B3;
   border-radius: 40rpx;
   padding: 12rpx 40rpx;

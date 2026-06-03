@@ -228,6 +228,21 @@ Page({
     this.setData({ showCartPopup: false })
   },
 
+  clearCartPopup: function () {
+    var self = this
+    wx.showModal({
+      title: '提示', content: '确定清空购物车？',
+      success: function (res) {
+        if (res.confirm) {
+          wx.removeStorageSync('cart')
+          self.calcCart()
+          self.updateCartBadge()
+          self.setData({ showCartPopup: false })
+        }
+      }
+    })
+  },
+
   // 弹窗内加减
   popupIncrease: function (e) {
     var index = e.currentTarget.dataset.index

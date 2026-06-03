@@ -5,7 +5,7 @@
       <text class="settings-label">账号</text>
       <text class="settings-value">{{userInfo.nickName || '未登录'}}</text>
     </view>
-    <view class="settings-item">
+    <view class="settings-item" bindtap="onVersionTap">
       <text class="settings-label">版本</text>
       <text class="settings-value">v1.0.0</text>
     </view>
@@ -16,4 +16,17 @@
   </view>
   
   <view class="logout-btn" wx:if="{{userInfo}}" bindtap="logout" style="color:{{themeColor}}">退出登录</view>
+
+  <!-- 退出登录弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-mask" bindtap="closeLogoutModal"></view>
+    <view class="modal-box">
+      <view class="modal-title">退出登录</view>
+      <view class="modal-content">确定退出？退出后将清除所有本地数据。</view>
+      <view class="modal-btns">
+        <view class="modal-btn cancel" bindtap="closeLogoutModal">取消</view>
+        <view class="modal-btn confirm" bindtap="doLogout" style="background:{{themeColor}}">确定</view>
+      </view>
+    </view>
+  </view>
 </view>

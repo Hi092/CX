@@ -1,5 +1,5 @@
 /* 购物车样式 */
-.container { background: #f5f5f5; min-height: 100vh; }
+.container { background: #f5f5f5; min-height: 100vh; padding: 0; width: 100%; box-sizing: border-box; }
 
 .cart-header {
   display: flex;
@@ -9,6 +9,15 @@
   padding-top: calc(24rpx + env(safe-area-inset-top));
   background: linear-gradient(180deg, #FFF3E6, #FFFFFF);
   margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clear-btn {
+  color: #999;
+  font-size: 26rpx;
+  padding-right: 20rpx;
+  padding-top: 10rpx;
 }
 
 .cart-title {
