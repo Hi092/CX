@@ -6,31 +6,22 @@
   </view>
 
   <view class="form-card">
-    <!-- Banner图 -->
+    <!-- 商家头像 -->
     <view class="section-header">
-      <text class="section-title">首页Banner</text>
+      <text class="section-title">商家头像</text>
     </view>
     <view class="banner-section">
-      <!-- 有图时 -->
-      <view class="banner-preview" wx:if="{{bannerUrl}}">
-        <image class="banner-thumb" src="{{bannerUrl}}" mode="aspectFill"/>
+      <view class="banner-preview" wx:if="{{shopAvatar}}">
+        <image class="banner-thumb" src="{{shopAvatar}}" mode="aspectFill"/>
         <view class="banner-overlay">
-          <view class="banner-btn change" bindtap="chooseBanner">更换</view>
-          <view class="banner-btn remove" bindtap="removeBanner">移除</view>
+          <view class="banner-btn change" bindtap="chooseAvatar">更换</view>
+          <view class="banner-btn remove" bindtap="removeAvatar">移除</view>
         </view>
       </view>
-      <!-- 无图时 -->
-      <view class="banner-add" bindtap="chooseBanner" wx:else>
+      <view class="banner-add" bindtap="chooseAvatar" wx:else>
         <text class="add-icon">+</text>
         <text class="add-text">{{uploading ? '上传中...' : '从相册选择'}}</text>
       </view>
-    </view>
-
-    <!-- Banner文字 -->
-    <view class="form-item">
-      <text class="label">Banner文字</text>
-      <input class="input" placeholder="如：邻里优选 · 新鲜送到家" 
-             bindinput="onBannerTextInput" value="{{bannerText}}"/>
     </view>
 
     <!-- 店铺名称 -->
@@ -38,6 +29,18 @@
       <text class="label">店铺名称</text>
       <input class="input" placeholder="请输入店铺名称" 
              bindinput="onNameInput" value="{{shopName}}"/>
+    </view>
+
+    <!-- 营业状态 -->
+    <view class="form-item">
+      <text class="label">营业状态</text>
+      <picker mode="selector" range="{{statusList}}" bindchange="onStatusChange">
+        <view class="status-picker">
+          <text class="status-dot {{shopStatus === '营业中' ? 'open' : 'closed'}}"></text>
+          <text class="status-text">{{shopStatus}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
     </view>
 
     <!-- 联系电话 -->

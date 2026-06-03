@@ -3,8 +3,17 @@
   <!-- 头部 -->
   <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
     <view class="shop-info">
-      <text class="shop-name">{{shopName}}</text>
-      <text class="shop-status">营业中</text>
+      <view class="shop-info-left">
+        <image class="shop-avatar" src="{{shopAvatar}}" mode="aspectFill" wx:if="{{shopAvatar}}"/>
+        <view class="shop-avatar-default" wx:else>🏪</view>
+      </view>
+      <view class="shop-info-center">
+        <text class="shop-name">{{shopName}}</text>
+        <view class="shop-status-tag {{shopStatus === '营业中' ? 'open' : 'closed'}}">
+          <text class="status-dot"></text>
+          <text>{{shopStatus}}</text>
+        </view>
+      </view>
     </view>
   </view>
 

@@ -2,10 +2,10 @@ var db = wx.cloud.database()
 
 Page({
   data: {
-    bannerUrl: '',
-    bannerText: '邻里优选 · 新鲜送到家',
+    shopAvatar: '',
     shopName: '邻里优选',
     shopPhone: '',
+    shopStatus: '营业中',
     openTime: '08:00',
     closeTime: '23:00',
     minPrice: 20,
@@ -19,19 +19,19 @@ Page({
       '#9C27B0', '#FF9800', '#00BCD4', '#607D8B',
       '#795548', '#333333'
     ],
+    statusList: ['营业中', '歇业'],
     loading: false,
     uploading: false
   },
 
   onLoad: function () {
-    // 1. 先从本地缓存回填，秒开页面
     var cached = wx.getStorageSync('shopSettings')
     if (cached) {
       this.setData({
-        bannerUrl: cached.bannerUrl || '',
-        bannerText: cached.bannerText || '邻里优选 · 新鲜送到家',
+        shopAvatar: cached.shopAvatar || '',
         shopName: cached.shopName || '邻里优选',
         shopPhone: cached.shopPhone || '',
+        shopStatus: cached.shopStatus || '营业中',
         openTime: cached.openTime || '08:00',
         closeTime: cached.closeTime || '23:00',
         minPrice: cached.minPrice || 20,
@@ -45,7 +45,6 @@ Page({
     if (cachedCats && cachedCats.length > 0) {
       this.setData({ categories: cachedCats })
     }
-    // 2. 再从数据库拉最新（静默覆盖）
     this.getSettings()
   },
 
@@ -54,10 +53,10 @@ Page({
     db.collection('settings').doc('shop').get().then(function (res) {
       if (res.data) {
         self.setData({
-          bannerUrl: res.data.bannerUrl || '',
-          bannerText: res.data.bannerText || '邻里优选 · 新鲜送到家',
+          shopAvatar: res.data.shopAvatar || res.data.bannerUrl || '',
           shopName: res.data.shopName || '邻里优选',
           shopPhone: res.data.shopPhone || '',
+          shopStatus: res.data.shopStatus || '营业中',
           openTime: res.data.openTime || '08:00',
           closeTime: res.data.closeTime || '23:00',
           minPrice: res.data.minPrice || 20,
@@ -71,7 +70,7 @@ Page({
     }).catch(function () {})
   },
 
-  chooseBanner: function () {
+  chooseAvatar: function () {
     var self = this
     wx.chooseMedia({
       count: 1,
@@ -80,21 +79,21 @@ Page({
       sizeType: ['compressed'],
       success: function (res) {
         var filePath = res.tempFiles[0].tempFilePath
-        self.uploadBanner(filePath)
+        self.uploadAvatar(filePath)
       }
     })
   },
 
-  uploadBanner: function (filePath) {
+  uploadAvatar: function (filePath) {
     var self = this
     self.setData({ uploading: true })
     wx.showLoading({ title: '上传中...' })
-    var cloudPath = 'banner/banner_' + Date.now() + filePath.match(/\.[^.]+$/)[0]
+    var cloudPath = 'avatar/avatar_' + Date.now() + filePath.match(/\.[^.]+$/)[0]
     wx.cloud.uploadFile({
       cloudPath: cloudPath,
       filePath: filePath,
       success: function (res) {
-        self.setData({ bannerUrl: res.fileID, uploading: false })
+        self.setData({ shopAvatar: res.fileID, uploading: false })
         wx.hideLoading()
         wx.showToast({ title: '上传成功', icon: 'success' })
       },
@@ -107,16 +106,19 @@ Page({
     })
   },
 
-  removeBanner: function () {
+  removeAvatar: function () {
     var self = this
     wx.showModal({
-      title: '提示', content: '确定移除Banner图？',
-      success: function (res) { if (res.confirm) self.setData({ bannerUrl: '' }) }
+      title: '提示', content: '确定移除商家头像？',
+      success: function (res) { if (res.confirm) self.setData({ shopAvatar: '' }) }
     })
   },
 
+  onStatusChange: function (e) {
+    this.setData({ shopStatus: this.data.statusList[e.detail.value] })
+  },
+
   onNameInput: function (e) { this.setData({ shopName: e.detail.value }) },
-  onBannerTextInput: function (e) { this.setData({ bannerText: e.detail.value }) },
   onPhoneInput: function (e) { this.setData({ shopPhone: e.detail.value }) },
   onOpenTimeChange: function (e) { this.setData({ openTime: e.detail.value }) },
   onCloseTimeChange: function (e) { this.setData({ closeTime: e.detail.value }) },
@@ -165,12 +167,11 @@ Page({
     if (!d.shopName) { wx.showToast({ title: '请输入店铺名称', icon: 'none' }); return }
     this.setData({ loading: true })
 
-    // 整理所有设置项
     var settingsData = {
-      bannerUrl: d.bannerUrl,
-      bannerText: d.bannerText,
+      shopAvatar: d.shopAvatar,
       shopName: d.shopName,
       shopPhone: d.shopPhone,
+      shopStatus: d.shopStatus,
       openTime: d.openTime,
       closeTime: d.closeTime,
       minPrice: d.minPrice,
@@ -181,12 +182,10 @@ Page({
       themeColor: d.themeColor
     }
 
-    // 存入本地缓存
     wx.setStorageSync('shopSettings', settingsData)
     wx.setStorageSync('shopCategories', d.categories)
     wx.removeStorageSync('productsCache')
 
-    // 同步到云数据库
     var self = this
     wx.cloud.callFunction({
       name: 'updateSettings',
@@ -197,7 +196,6 @@ Page({
         setTimeout(function () { wx.navigateBack() }, 1000)
       },
       fail: function () {
-        // 云端失败不影响本地，仍然提示成功
         self.setData({ loading: false })
         wx.showToast({ title: '设置已保存', icon: 'success' })
         setTimeout(function () { wx.navigateBack() }, 1000)

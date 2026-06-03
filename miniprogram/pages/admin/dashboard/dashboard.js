@@ -4,8 +4,10 @@ var db = wx.cloud.database()
 Page({
   data: {
     shopName: '我的店铺',
+    shopAvatar: '',
+    shopStatus: '营业中',
     todayOrders: 0,
-    todayIncome: 0,
+    todayIncome: '0.00',
     totalProducts: 0,
     pendingOrders: 0,
     themeColor: '#4A90D9'
@@ -19,6 +21,7 @@ Page({
 
   onShow: function () {
     this.loadTheme()
+    this.loadShopInfo()
     this.loadStats()
   },
 
@@ -38,9 +41,23 @@ Page({
 
   loadShopInfo: function () {
     var self = this
+    // 先读缓存
+    var cached = wx.getStorageSync('shopSettings')
+    if (cached) {
+      self.setData({
+        shopName: cached.shopName || '我的店铺',
+        shopAvatar: cached.shopAvatar || '',
+        shopStatus: cached.shopStatus || '营业中'
+      })
+    }
+    // 再读数据库
     db.collection('settings').doc('shop').get().then(function (res) {
-      if (res.data && res.data.shopName) {
-        self.setData({ shopName: res.data.shopName })
+      if (res.data) {
+        self.setData({
+          shopName: res.data.shopName || '我的店铺',
+          shopAvatar: res.data.shopAvatar || res.data.bannerUrl || '',
+          shopStatus: res.data.shopStatus || '营业中'
+        })
       }
     }).catch(function () {})
   },
@@ -57,25 +74,30 @@ Page({
         var orders = res.data
         var income = 0
         var pending = 0
+        var totalOrders = orders.length
         for (var i = 0; i < orders.length; i++) {
-          // 今日收入：只统计已完成订单的实付金额
-          if (orders[i].status === 'completed') {
+          var status = orders[i].status
+          // 今日收入：统计已支付+配送中+已完成的订单
+          if (status === 'completed' || status === 'paid' || status === 'delivering') {
             income += (orders[i].finalPrice || orders[i].totalPrice || 0)
           }
-          if (orders[i].status === 'pending' || orders[i].status === 'delivering') pending++
+          if (status === 'pending' || status === 'paid' || status === 'delivering') pending++
         }
         self.setData({
-          todayOrders: orders.length,
+          todayOrders: totalOrders,
           todayIncome: income.toFixed(2),
           pendingOrders: pending
         })
+      }).catch(function (err) {
+        console.error('loadStats失败', err)
+        self.setData({ todayOrders: 0, todayIncome: '0.00', pendingOrders: 0 })
       })
 
     db.collection('products')
       .count()
       .then(function (res) {
         self.setData({ totalProducts: res.total })
-      })
+      }).catch(function () {})
   },
 
   goPage: function (e) {

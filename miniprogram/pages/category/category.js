@@ -4,6 +4,8 @@ var db = wx.cloud.database()
 Page({
   data: {
     shopName: '邻里优选',
+    shopAvatar: '',
+    shopStatus: '营业中',
     shopPhone: '',
     themeColor: '#4A90D9',
     categories: [],
@@ -39,6 +41,8 @@ Page({
     if (s) {
       if (s.themeColor) this.setData({ themeColor: s.themeColor })
       if (s.shopName) this.setData({ shopName: s.shopName })
+      if (s.shopAvatar !== undefined) this.setData({ shopAvatar: s.shopAvatar || '' })
+      if (s.shopStatus) this.setData({ shopStatus: s.shopStatus })
       if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
     }
   },
@@ -55,6 +59,8 @@ Page({
         var tc = res.data.themeColor || '#4A90D9'
         self.setData({
           shopName: res.data.shopName || '邻里优选',
+          shopAvatar: res.data.shopAvatar || res.data.bannerUrl || '',
+          shopStatus: res.data.shopStatus || '营业中',
           shopPhone: res.data.shopPhone || '',
           themeColor: tc,
           minPrice: res.data.minPrice || 20,
@@ -67,8 +73,8 @@ Page({
           deliveryFee: res.data.deliveryFee || 3,
           freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
           themeColor: tc,
-          bannerUrl: res.data.bannerUrl || '',
-          bannerText: res.data.bannerText || '邻里优选 · 新鲜送到家',
+          shopAvatar: res.data.shopAvatar || res.data.bannerUrl || '',
+          shopStatus: res.data.shopStatus || '营业中',
           shopName: res.data.shopName || '邻里优选',
           shopPhone: res.data.shopPhone || ''
         })
@@ -215,7 +221,6 @@ Page({
     else wx.removeTabBarBadge({ index: 1 })
   },
 
-  // 弹出购物车弹窗
   toggleCartPopup: function () {
     if (this.data.totalCount === 0) {
       wx.showToast({ title: '购物车是空的', icon: 'none' })
@@ -243,7 +248,6 @@ Page({
     })
   },
 
-  // 弹窗内加减
   popupIncrease: function (e) {
     var index = e.currentTarget.dataset.index
     var cart = wx.getStorageSync('cart') || []
@@ -270,7 +274,6 @@ Page({
     if (cart.length === 0) this.setData({ showCartPopup: false })
   },
 
-  // 弹窗去结算
   popupCheckout: function () {
     if (parseFloat(this.data.totalPrice) < this.data.minPrice) {
       wx.showToast({ title: '还差' + this.data.diffPrice + '元起送', icon: 'none' })
