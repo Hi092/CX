@@ -1,3 +1,11 @@
+<!-- WXS: 价格精度工具 -->
+<wxs module="s">
+var f = function(p, q) {
+  return Math.round(p * q * 100) / 100;
+}
+module.exports.f = f;
+</wxs>
+
 <!--购物车页面-->
 <view class="container">
   <!-- 空购物车 -->
@@ -34,7 +42,7 @@
               <text class="symbol">¥</text>
               <text class="num">{{item.price}}</text>
             </view>
-            <text class="cart-subtotal">小计: ¥{{item.price * item.quantity}}</text>
+            <text class="cart-subtotal">小计: ¥{{s.f(item.price, item.quantity)}}</text>
           </view>
           <view class="quantity-control">
             <view class="qty-btn minus" bindtap="decrease" data-index="{{index}}">-</view>

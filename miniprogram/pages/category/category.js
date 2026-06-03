@@ -151,7 +151,7 @@ Page({
       if (cart[i]._id === product._id) { idx = i; break }
     }
     if (idx > -1) { cart[idx].quantity++ }
-    else { cart.push({ _id: product._id, name: product.name, price: product.price, image: product.image, quantity: 1 }) }
+    else { cart.push({ _id: product._id, name: product.name, price: Math.round(product.price * 100) / 100, image: product.image, quantity: 1 }) }
     wx.setStorageSync('cart', cart)
     this.calcCart()
     this.updateCartBadge()

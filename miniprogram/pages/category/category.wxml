@@ -1,3 +1,11 @@
+<!-- WXS: 价格精度工具 -->
+<wxs module="s">
+var f = function(p, q) {
+  return Math.round(p * q * 100) / 100;
+}
+module.exports.f = f;
+</wxs>
+
 <!--分类页面（默认启动页）-->
 <view class="container">
   <!-- 顶部通栏：浅橙到白色渐变 -->
@@ -62,7 +70,7 @@
   <view class="ball-inner" style="background:{{themeColor}};box-shadow:0 2px 8px {{themeColor}}99"></view>
 </view>
 
-<!-- 底部悬浮购物车栏 -->
+<!-- 底部悬浮购物车栏（高于tab栏） -->
 <view class="cart-float" wx:if="{{totalCount > 0}}" bindtap="toggleCartPopup">
   <view class="cart-left">
     <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
@@ -101,7 +109,8 @@
             <view class="popup-qty-btn plus" catchtap="popupIncrease" data-index="{{index}}" style="background:{{themeColor}}">+</view>
           </view>
         </view>
-        <text class="popup-subtotal">小计: ¥{{item.price * item.quantity}}</text>
+        <!-- 用WXS修复浮点精度 -->
+        <text class="popup-subtotal">小计: ¥{{s.f(item.price, item.quantity)}}</text>
       </view>
     </view>
   </scroll-view>
