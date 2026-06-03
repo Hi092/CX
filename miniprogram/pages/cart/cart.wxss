@@ -155,7 +155,7 @@
   right: 0;
   background: #fff;
   box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
-  padding-bottom: calc(50px + env(safe-area-inset-bottom));
+  padding-bottom: 50px;
 }
 
 .footer-main {
@@ -178,10 +178,6 @@
   font-weight: bold;
 }
 
-.footer-main {
-  display: flex;
-  align-items: center;
-}
 
 .select-area {
   display: flex;
