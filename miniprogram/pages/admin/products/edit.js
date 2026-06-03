@@ -11,7 +11,7 @@ Page({
     category: '',
     description: '',
     image: '',
-    categories: ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
+    categories: [],
     categoryIndex: 0,
     loading: false,
     themeColor: '#4A90D9'
@@ -20,6 +20,11 @@ Page({
   onLoad: function (options) {
     var s = wx.getStorageSync('shopSettings')
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    var cachedCats = wx.getStorageSync('shopCategories')
+    if (cachedCats && cachedCats.length > 0) {
+      this.setData({ categories: cachedCats })
+    }
+    this.loadCategories()
     if (options.id) {
       this.setData({ id: options.id, isEdit: true })
       wx.setNavigationBarTitle({ title: '编辑商品' })
@@ -27,6 +32,24 @@ Page({
     } else {
       wx.setNavigationBarTitle({ title: '添加商品' })
     }
+  },
+
+  loadCategories: function () {
+    var self = this
+    db.collection('settings').doc('shop').get().then(function (res) {
+      if (res.data && res.data.categories && res.data.categories.length > 0) {
+        self.setData({ categories: res.data.categories })
+        wx.setStorageSync('shopCategories', res.data.categories)
+        if (self.data.isEdit && self.data.category) {
+          var idx = res.data.categories.indexOf(self.data.category)
+          if (idx > -1) self.setData({ categoryIndex: idx })
+        }
+      }
+    }).catch(function () {
+      if (self.data.categories.length === 0) {
+        self.setData({ categories: ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'] })
+      }
+    })
   },
 
   getProduct: function (id) {

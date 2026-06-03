@@ -205,7 +205,7 @@ Page({
     var totalCount = 0, totalPrice = 0
     for (var i = 0; i < cart.length; i++) {
       totalCount += cart[i].quantity
-      totalPrice += cart[i].price * cart[i].quantity
+      totalPrice += Math.round(cart[i].price * cart[i].quantity * 100) / 100
     }
     this.setData({
       totalCount: totalCount,

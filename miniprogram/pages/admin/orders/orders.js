@@ -57,7 +57,7 @@ Page({
       var income = 0
       // 今日收入：只统计已完成订单的实付金额
       for (var i = 0; i < orders.length; i++) {
-        if (orders[i].status === 'completed') {
+        if (orders[i].status === 'completed' || orders[i].status === 'paid' || orders[i].status === 'delivering') {
           income += (orders[i].finalPrice || orders[i].totalPrice || 0)
         }
       }

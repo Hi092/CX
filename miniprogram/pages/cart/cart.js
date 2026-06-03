@@ -104,8 +104,8 @@ Page({
   updateCartBadge: function () {
     var cart = this.data.cart, count = 0
     for (var i = 0; i < cart.length; i++) count += cart[i].quantity
-    if (count > 0) wx.setTabBarBadge({ index: 2, text: count.toString() })
-    else wx.removeTabBarBadge({ index: 2 })
+    if (count > 0) wx.setTabBarBadge({ index: 1, text: count.toString() })
+    else wx.removeTabBarBadge({ index: 1 })
   },
 
   clearCart: function () {

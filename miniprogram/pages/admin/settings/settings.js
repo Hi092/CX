@@ -195,10 +195,10 @@ Page({
         wx.showToast({ title: '设置已保存', icon: 'success' })
         setTimeout(function () { wx.navigateBack() }, 1000)
       },
-      fail: function () {
+      fail: function (err) {
+        console.error('updateSettings失败', err)
         self.setData({ loading: false })
-        wx.showToast({ title: '设置已保存', icon: 'success' })
-        setTimeout(function () { wx.navigateBack() }, 1000)
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' })
       }
     })
   }
