@@ -1,4 +1,5 @@
 {
+  "entryPagePath": "pages/category/category",
   "pages": [
     "pages/category/category",
     "pages/cart/cart",
@@ -17,13 +18,13 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FF6B00",
-    "navigationBarTitleText": "邻居优选",
-    "navigationBarTextStyle": "white"
+    "navigationBarBackgroundColor": "#FFF3E6",
+    "navigationBarTitleText": "邻里优选",
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "color": "#999",
-    "selectedColor": "#FF6B00",
+    "selectedColor": "#FF8C40",
     "backgroundColor": "#fff",
     "borderStyle": "black",
     "list": [

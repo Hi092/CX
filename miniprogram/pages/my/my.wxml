@@ -1,14 +1,17 @@
 <!--我的页面-->
 <view class="container">
-  <!-- 用户头部 -->
+  <!-- 用户头部（加高蓝色背景区） -->
   <view class="user-header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
     <block wx:if="{{userInfo}}">
-      <view class="avatar-placeholder">👤</view>
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" wx:if="{{userInfo.avatarUrl}}"/>
+      <view class="avatar-default" wx:else>👤</view>
       <view class="nickname">{{userInfo.nickName || '用户'}}</view>
     </block>
     <block wx:else>
-      <view class="avatar-placeholder">👤</view>
-      <button class="login-btn" bindtap="login">点击登录</button>
+      <view class="avatar-default">👤</view>
+      <view class="login-area">
+        <button class="login-btn" bindtap="login">点击登录</button>
+      </view>
     </block>
   </view>
 
@@ -56,7 +59,7 @@
     <text>v1.0.0</text>
   </view>
 
-  <!-- 密码弹窗 -->
+  <!-- 密码弹窗（白色圆角设计） -->
   <view class="pwd-modal" wx:if="{{showModal}}">
     <view class="pwd-mask" bindtap="closeModal"></view>
     <view class="pwd-box">

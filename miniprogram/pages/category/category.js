@@ -1,10 +1,10 @@
-// 分类页面
+// 分类页面（默认启动页）
 var db = wx.cloud.database()
 
 Page({
   data: {
-    bannerUrl: '',
-    bannerText: '邻里优选 · 新鲜送到家',
+    shopName: '邻里优选',
+    shopPhone: '',
     themeColor: '#4A90D9',
     categories: [],
     currentCategory: 0,
@@ -15,6 +15,10 @@ Page({
     totalPrice: '0.00',
     diffPrice: '0.00',
     minPrice: 20,
+    deliveryFee: 3,
+    freeDeliveryPrice: 30,
+    showCartPopup: false,
+    cartItems: [],
     balls: [
       { id: 0, show: false, x: -100, y: -100 },
       { id: 1, show: false, x: -100, y: -100 },
@@ -34,7 +38,8 @@ Page({
     var s = wx.getStorageSync('shopSettings')
     if (s) {
       if (s.themeColor) this.setData({ themeColor: s.themeColor })
-      if (s.bannerText) this.setData({ bannerText: s.bannerText })
+      if (s.shopName) this.setData({ shopName: s.shopName })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
     }
   },
 
@@ -49,10 +54,12 @@ Page({
         }
         var tc = res.data.themeColor || '#4A90D9'
         self.setData({
-          bannerUrl: res.data.bannerUrl || '',
-          bannerText: res.data.bannerText || '邻里优选 · 新鲜送到家',
+          shopName: res.data.shopName || '邻里优选',
+          shopPhone: res.data.shopPhone || '',
           themeColor: tc,
           minPrice: res.data.minPrice || 20,
+          deliveryFee: res.data.deliveryFee || 3,
+          freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
           categories: list
         })
         wx.setStorageSync('shopSettings', {
@@ -60,7 +67,10 @@ Page({
           deliveryFee: res.data.deliveryFee || 3,
           freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
           themeColor: tc,
-          bannerText: res.data.bannerText || '邻里优选 · 新鲜送到家'
+          bannerUrl: res.data.bannerUrl || '',
+          bannerText: res.data.bannerText || '邻里优选 · 新鲜送到家',
+          shopName: res.data.shopName || '邻里优选',
+          shopPhone: res.data.shopPhone || ''
         })
       }
     }).catch(function () {
@@ -194,7 +204,8 @@ Page({
     this.setData({
       totalCount: totalCount,
       totalPrice: totalPrice.toFixed(2),
-      diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2)
+      diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2),
+      cartItems: cart
     })
   },
 
@@ -204,11 +215,66 @@ Page({
     else wx.removeTabBarBadge({ index: 1 })
   },
 
+  // 弹出购物车弹窗
+  toggleCartPopup: function () {
+    if (this.data.totalCount === 0) {
+      wx.showToast({ title: '购物车是空的', icon: 'none' })
+      return
+    }
+    this.setData({ showCartPopup: !this.data.showCartPopup })
+  },
+
+  closeCartPopup: function () {
+    this.setData({ showCartPopup: false })
+  },
+
+  // 弹窗内加减
+  popupIncrease: function (e) {
+    var index = e.currentTarget.dataset.index
+    var cart = wx.getStorageSync('cart') || []
+    if (cart[index]) {
+      cart[index].quantity++
+      wx.setStorageSync('cart', cart)
+      this.calcCart()
+      this.updateCartBadge()
+    }
+  },
+
+  popupDecrease: function (e) {
+    var index = e.currentTarget.dataset.index
+    var cart = wx.getStorageSync('cart') || []
+    if (!cart[index]) return
+    if (cart[index].quantity <= 1) {
+      cart.splice(index, 1)
+    } else {
+      cart[index].quantity--
+    }
+    wx.setStorageSync('cart', cart)
+    this.calcCart()
+    this.updateCartBadge()
+    if (cart.length === 0) this.setData({ showCartPopup: false })
+  },
+
+  // 弹窗去结算
+  popupCheckout: function () {
+    if (parseFloat(this.data.totalPrice) < this.data.minPrice) {
+      wx.showToast({ title: '还差' + this.data.diffPrice + '元起送', icon: 'none' })
+      return
+    }
+    var cart = wx.getStorageSync('cart') || []
+    wx.setStorageSync('checkoutItems', cart)
+    this.setData({ showCartPopup: false })
+    wx.navigateTo({ url: '/pages/order/order' })
+  },
+
   goCheckout: function () {
     if (parseFloat(this.data.totalPrice) < this.data.minPrice) {
-      wx.showToast({ title: '满' + this.data.minPrice + '元起送', icon: 'none' }); return
+      wx.showToast({ title: '还差' + this.data.diffPrice + '元起送', icon: 'none' })
+      return
     }
-    wx.switchTab({ url: '/pages/cart/cart' })
+    var cart = wx.getStorageSync('cart') || []
+    wx.setStorageSync('checkoutItems', cart)
+    wx.navigateTo({ url: '/pages/order/order' })
   },
 
   onPullDownRefresh: function () {

@@ -1,5 +1,10 @@
 <!--店铺设置页面-->
 <view class="container">
+  <!-- 顶部主题色头部 -->
+  <view class="page-header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+    <text class="page-title">店铺设置</text>
+  </view>
+
   <view class="form-card">
     <!-- Banner图 -->
     <view class="section-header">

@@ -1,8 +1,8 @@
-// 我的页面
 Page({
   data: {
     userInfo: null,
     themeColor: '#4A90D9',
+    shopPhone: '',
     tapCount: 0,
     tapTimer: null,
     showModal: false,
@@ -13,7 +13,10 @@ Page({
     var info = wx.getStorageSync('userInfo')
     if (info) this.setData({ userInfo: info })
     var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    if (s) {
+      if (s.themeColor) this.setData({ themeColor: s.themeColor })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+    }
   },
 
   login: function () {
@@ -44,7 +47,12 @@ Page({
   },
 
   callShop: function () {
-    wx.makePhoneCall({ phoneNumber: '13800138000' })
+    var phone = this.data.shopPhone
+    if (!phone) {
+      wx.showToast({ title: '暂无商家电话', icon: 'none' })
+      return
+    }
+    wx.makePhoneCall({ phoneNumber: phone })
   },
 
   goSettings: function () {

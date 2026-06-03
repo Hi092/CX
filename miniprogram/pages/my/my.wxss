@@ -1,32 +1,195 @@
-/* 我的页面 */
-page { background: #f5f5f5; }
+/* 我的页面样式 */
 
-.user-header { padding: 50px 20px 30px; display: flex; align-items: center; }
-.avatar-placeholder { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-right: 14px; }
-.nickname { font-size: 18px; font-weight: 600; color: #fff; display: block; }
-.login-btn { background: rgba(255,255,255,0.25); color: #fff; border: none; border-radius: 22px; padding: 8px 24px; font-size: 15px; }
-.login-btn::after { border: none; }
+/* 用户头部（加高） */
+.user-header {
+  padding: 60rpx 40rpx 50rpx;
+  padding-top: calc(60rpx + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  margin: -20rpx -20rpx 20rpx;
+  border-radius: 0 0 30rpx 30rpx;
+}
 
-.order-status { display: flex; justify-content: space-around; background: #fff; padding: 18px 10px; margin: 10px; border-radius: 10px; }
-.status-item { display: flex; flex-direction: column; align-items: center; }
-.status-icon { font-size: 26px; margin-bottom: 6px; }
-.status-text { font-size: 13px; color: #666; }
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255,255,255,0.5);
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  overflow: hidden;
+}
 
-.menu-card { background: #fff; margin: 10px; border-radius: 10px; overflow: hidden; }
-.menu-item { display: flex; align-items: center; padding: 16px 14px; border-bottom: 1px solid #f5f5f5; }
-.menu-item:last-child { border-bottom: none; }
-.menu-icon { font-size: 20px; margin-right: 12px; }
-.menu-text { flex: 1; font-size: 15px; color: #333; }
-.arrow { color: #ccc; font-size: 18px; }
+.avatar-default {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
 
-.version { text-align: center; padding: 16px; color: #ddd; font-size: 12px; }
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+}
 
-.pwd-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; display: flex; align-items: center; justify-content: center; }
-.pwd-mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); }
-.pwd-box { position: relative; background: #fff; border-radius: 12px; padding: 24px; width: 280px; z-index: 1; }
-.pwd-title { font-size: 17px; font-weight: 600; text-align: center; margin-bottom: 16px; color: #333; }
-.pwd-input { background: #f5f5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 16px; }
-.pwd-btns { display: flex; gap: 10px; }
-.pwd-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 15px; }
-.pwd-btn.cancel { background: #f5f5f5; color: #666; }
-.pwd-btn.confirm { color: #fff; }
+.login-area {
+  flex: 1;
+}
+
+.login-btn {
+  background: transparent;
+  color: #fff;
+  border: 2rpx solid #FFD9B3;
+  border-radius: 40rpx;
+  padding: 12rpx 40rpx;
+  font-size: 28rpx;
+  display: inline-block;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+/* 订单状态 */
+.order-status {
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 16rpx;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-icon {
+  font-size: 48rpx;
+  margin-bottom: 10rpx;
+}
+
+.status-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 菜单卡片 */
+.menu-card {
+  background: #fff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.arrow {
+  color: #ccc;
+  font-size: 32rpx;
+}
+
+/* 版本号 */
+.version {
+  text-align: center;
+  padding: 40rpx;
+  color: #ccc;
+  font-size: 24rpx;
+}
+
+/* 密码弹窗 */
+.pwd-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pwd-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.pwd-box {
+  position: relative;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  width: 560rpx;
+  z-index: 1;
+}
+
+.pwd-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.pwd-input {
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  margin-bottom: 30rpx;
+}
+
+.pwd-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.pwd-btn {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.pwd-btn.cancel {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.pwd-btn.confirm {
+  color: #fff;
+}

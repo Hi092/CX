@@ -9,9 +9,9 @@
 
   <!-- 购物车列表 -->
   <block wx:else>
-    <!-- 头部 -->
+    <!-- 头部（带安全区域padding） -->
     <view class="cart-header">
-      <text>购物车({{totalCount}}件)</text>
+      <text class="cart-title">购物车({{totalCount}}件)</text>
       <text class="clear-btn" bindtap="clearCart">清空</text>
     </view>
 
@@ -24,6 +24,9 @@
           <text wx:if="{{item.selected}}">✓</text>
         </view>
         
+        <image class="cart-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
+        <view class="cart-img-placeholder" wx:else>📦</view>
+        
         <view class="cart-info">
           <text class="cart-name">{{item.name}}</text>
           <view class="cart-bottom">
@@ -31,11 +34,12 @@
               <text class="symbol">¥</text>
               <text class="num">{{item.price}}</text>
             </view>
-            <view class="quantity-control">
-              <view class="qty-btn minus" bindtap="decrease" data-index="{{index}}">-</view>
-              <text class="qty-num">{{item.quantity}}</text>
-              <view class="qty-btn plus" bindtap="increase" data-index="{{index}}" style="background:{{themeColor}}">+</view>
-            </view>
+            <text class="cart-subtotal">小计: ¥{{item.price * item.quantity}}</text>
+          </view>
+          <view class="quantity-control">
+            <view class="qty-btn minus" bindtap="decrease" data-index="{{index}}">-</view>
+            <text class="qty-num">{{item.quantity}}</text>
+            <view class="qty-btn plus" bindtap="increase" data-index="{{index}}" style="background:{{themeColor}}">+</view>
           </view>
         </view>
       </view>

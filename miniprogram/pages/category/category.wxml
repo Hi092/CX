@@ -1,16 +1,23 @@
-<!--分类页面-->
+<!--分类页面（默认启动页）-->
 <view class="container">
-  <!-- 顶部Banner图 -->
-  <view class="banner-wrap">
-    <image class="banner-img" src="{{bannerUrl}}" mode="aspectFill" wx:if="{{bannerUrl}}"/>
-    <view class="banner-default" wx:else style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
-      <text class="banner-text">{{bannerText}}</text>
+  <!-- 顶部通栏：浅橙到白色渐变 -->
+  <view class="shop-header">
+    <view class="shop-info-row">
+      <image class="shop-avatar" src="/images/shop-avatar.png" mode="aspectFill" wx:if="{{false}}"/>
+      <view class="shop-avatar-default">🏪</view>
+      <view class="shop-detail">
+        <text class="shop-name">{{shopName}}</text>
+        <text class="shop-sub">30分钟送达</text>
+      </view>
     </view>
   </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar">
-    <input class="search-input" placeholder="搜索商品..." value="{{searchKey}}" bindinput="onSearch"/>
+    <view class="search-wrap">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索商品..." value="{{searchKey}}" bindinput="onSearch"/>
+    </view>
   </view>
 
   <view class="main-content">
@@ -52,8 +59,8 @@
   <view class="ball-inner" style="background:{{themeColor}};box-shadow:0 2px 8px {{themeColor}}99"></view>
 </view>
 
-<!-- 底部购物车栏 -->
-<view class="cart-float" wx:if="{{totalCount > 0}}">
+<!-- 底部悬浮购物车栏 -->
+<view class="cart-float" wx:if="{{totalCount > 0}}" bindtap="toggleCartPopup">
   <view class="cart-left">
     <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
       <text class="cart-icon">🛒</text>
@@ -65,7 +72,45 @@
       <text class="price-desc ready" wx:else>已满起送价</text>
     </view>
   </view>
-  <view class="cart-right">
-    <view class="checkout-btn" bindtap="goCheckout" style="background:{{themeColor}};color:#fff">去结算</view>
+  <view class="cart-right" catchtap="goCheckout">
+    <view class="checkout-btn" style="background:{{themeColor}};color:#fff">去结算</view>
+  </view>
+</view>
+
+<!-- 购物车弹窗（半屏，仿饿了么） -->
+<view class="cart-popup-mask {{showCartPopup ? 'show' : ''}}" catchtap="closeCartPopup"></view>
+<view class="cart-popup {{showCartPopup ? 'show' : ''}}">
+  <view class="popup-header">
+    <text class="popup-title">已选商品</text>
+    <view class="popup-clear" bindtap="clearCartPopup">🗑️ 清空</view>
+  </view>
+  <scroll-view class="popup-list" scroll-y>
+    <view class="popup-item" wx:for="{{cartItems}}" wx:key="_id">
+      <image class="popup-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
+      <view class="popup-img-placeholder" wx:else>📦</view>
+      <view class="popup-info">
+        <text class="popup-name">{{item.name}}</text>
+        <view class="popup-bottom">
+          <text class="popup-price" style="color:{{themeColor}}">¥{{item.price}}</text>
+          <view class="popup-qty">
+            <view class="popup-qty-btn" catchtap="popupDecrease" data-index="{{index}}">-</view>
+            <text class="popup-qty-num">{{item.quantity}}</text>
+            <view class="popup-qty-btn plus" catchtap="popupIncrease" data-index="{{index}}" style="background:{{themeColor}}">+</view>
+          </view>
+        </view>
+        <text class="popup-subtotal">小计: ¥{{item.price * item.quantity}}</text>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="popup-footer">
+    <view class="popup-total">
+      <text>合计: </text>
+      <text class="popup-total-price" style="color:{{themeColor}}">¥{{totalPrice}}</text>
+    </view>
+    <view class="popup-checkout-btn {{totalPrice >= minPrice ? '' : 'disabled'}}" 
+          bindtap="popupCheckout"
+          style="{{totalPrice >= minPrice ? 'background:' + themeColor : ''}}">
+      {{totalPrice >= minPrice ? '去结算' : '还差¥' + diffPrice + '起送'}}
+    </view>
   </view>
 </view>

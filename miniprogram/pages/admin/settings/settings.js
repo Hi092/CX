@@ -1,4 +1,3 @@
-// 店铺设置页面
 var db = wx.cloud.database()
 
 Page({
@@ -48,7 +47,6 @@ Page({
     }).catch(function () {})
   },
 
-  // 选择Banner图片
   chooseBanner: function () {
     var self = this
     wx.chooseMedia({
@@ -63,7 +61,6 @@ Page({
     })
   },
 
-  // 上传到云存储
   uploadBanner: function (filePath) {
     var self = this
     self.setData({ uploading: true })
@@ -156,12 +153,10 @@ Page({
       updateTime: new Date()
     }
 
-    // 用云函数保存（绕过权限限制）
     wx.cloud.callFunction({
       name: 'updateSettings',
       data: { data: settingsData },
       success: function (res) {
-        wx.showToast({ title: '保存成功', icon: 'success' })
         self.setData({ loading: false })
         wx.setStorageSync('shopCategories', data.categories)
         wx.setStorageSync('shopSettings', {
@@ -169,9 +164,16 @@ Page({
           deliveryFee: data.deliveryFee,
           freeDeliveryPrice: data.freeDeliveryPrice,
           themeColor: data.themeColor,
-          bannerText: data.bannerText
+          bannerUrl: data.bannerUrl,
+          bannerText: data.bannerText,
+          shopName: data.shopName,
+          shopPhone: data.shopPhone
         })
         wx.removeStorageSync('productsCache')
+        wx.showToast({ title: '保存成功', icon: 'success' })
+        setTimeout(function () {
+          wx.navigateBack()
+        }, 1000)
       },
       fail: function (err) {
         console.error('保存失败', err)

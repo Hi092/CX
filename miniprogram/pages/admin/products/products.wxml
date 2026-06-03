@@ -1,15 +1,18 @@
 <!--商品管理页面-->
 <view class="container">
   <!-- 顶部栏 -->
-  <view class="header" style="background:{{themeColor}}">
+  <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
     <text class="title">商品管理</text>
-    <button class="add-btn" style="color:{{themeColor}}" bindtap="addProduct">+ 添加</button>
+    <view class="add-btn" bindtap="addProduct">+ 添加</view>
   </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar">
-    <input class="search-input" placeholder="搜索商品名称..." value="{{searchKey}}" bindinput="onSearch" bindconfirm="doSearch"/>
-    <text class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch">✕</text>
+    <view class="search-wrap">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索商品名称..." value="{{searchKey}}" bindinput="onSearch" bindconfirm="doSearch"/>
+      <text class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch">✕</text>
+    </view>
   </view>
 
   <!-- 分类筛选 -->
@@ -32,17 +35,21 @@
         <text class="product-category">{{item.category}}</text>
         <view class="product-bottom">
           <text class="product-price" style="color:{{themeColor}}">¥{{item.price}}</text>
-          <text class="product-stock" wx:if="{{item.stock <= 5}}">库存不足</text>
+          <text class="product-stock" wx:if="{{item.stock <= 5}}" style="color:#F44336">库存不足</text>
           <text class="product-stock" wx:else>库存: {{item.stock}}</text>
-        </view>
-        <view class="status-tag {{item.status}}">
-          <text>{{item.status === 'on' ? '在售' : '已下架'}}</text>
         </view>
       </view>
       <view class="product-actions">
-        <view class="action-btn edit" catchtap="editProduct" data-id="{{item._id}}"><text>✏️</text></view>
-        <view class="action-btn {{item.status === 'on' ? 'off' : 'on'}}" catchtap="toggleStatus" data-id="{{item._id}}" data-status="{{item.status}}"><text>{{item.status === 'on' ? '⬇️' : '⬆️'}}</text></view>
-        <view class="action-btn delete" catchtap="deleteProduct" data-id="{{item._id}}"><text>🗑️</text></view>
+        <view class="status-tag {{item.status}}" style="{{item.status === 'on' ? 'background:' + themeColor + '15;color:' + themeColor : 'background:#FFEBEE;color:#F44336'}}">
+          <text>{{item.status === 'on' ? '在售' : '已下架'}}</text>
+        </view>
+        <view class="action-row">
+          <view class="action-btn" catchtap="editProduct" data-id="{{item._id}}" style="color:{{themeColor}}">✏️</view>
+          <view class="action-btn" catchtap="toggleStatus" data-id="{{item._id}}" data-status="{{item.status}}">
+            <text>{{item.status === 'on' ? '⬇️' : '⬆️'}}</text>
+          </view>
+          <view class="action-btn delete" catchtap="deleteProduct" data-id="{{item._id}}">🗑️</view>
+        </view>
       </view>
     </view>
   </scroll-view>

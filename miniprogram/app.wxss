@@ -6,13 +6,19 @@ page {
   color: #333;
 }
 
+/* 全局图片基础样式 - 圆角矩形、不露白底 */
+image {
+  overflow: hidden;
+  object-fit: cover;
+  display: block;
+}
+
 .container {
   padding: 20rpx;
 }
 
 /* 通用按钮样式 */
 .btn-primary {
-  background: #FF6B00;
   color: #fff;
   border: none;
   border-radius: 50rpx;
@@ -26,7 +32,6 @@ page {
 
 /* 价格样式 */
 .price {
-  color: #FF6B00;
   font-weight: bold;
 }
 
