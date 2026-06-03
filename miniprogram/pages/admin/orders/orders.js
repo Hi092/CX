@@ -55,8 +55,11 @@ Page({
     db.collection('orders').where({ createTime: db.command.gte(today.getTime()) }).get().then(function (res) {
       var orders = res.data
       var income = 0
+      // 今日收入：只统计已完成订单的实付金额
       for (var i = 0; i < orders.length; i++) {
-        income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+        if (orders[i].status === 'completed') {
+          income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+        }
       }
       self.setData({ stats: { todayOrders: orders.length, todayIncome: income.toFixed(2) } })
     }).catch(function () {
@@ -102,6 +105,7 @@ Page({
         if (res.confirm) {
           db.collection('orders').doc(orderId).update({ data: { status: 'completed', completeTime: db.serverDate() } }).then(function () {
             wx.showToast({ title: '已完成', icon: 'success' })
+            // 重新拉取订单列表 + 顶部统计（今日收入会刷新）
             self.getOrders()
             self.getStats()
           })

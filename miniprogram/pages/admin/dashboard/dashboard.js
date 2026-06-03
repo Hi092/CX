@@ -58,7 +58,10 @@ Page({
         var income = 0
         var pending = 0
         for (var i = 0; i < orders.length; i++) {
-          income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+          // 今日收入：只统计已完成订单的实付金额
+          if (orders[i].status === 'completed') {
+            income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+          }
           if (orders[i].status === 'pending' || orders[i].status === 'delivering') pending++
         }
         self.setData({
