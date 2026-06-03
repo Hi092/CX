@@ -273,7 +273,7 @@
 /* 底部购物车栏 — 上移50px避开tab栏 */
 .cart-float {
   position: fixed;
-  bottom: 50px;
+  bottom: 0;
   left: 0;
   right: 0;
   background: #fff;
@@ -281,7 +281,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16rpx 24rpx;
-  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  padding-bottom: calc(16rpx + 100rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
   z-index: 100;
 }
