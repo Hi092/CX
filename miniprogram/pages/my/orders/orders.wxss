@@ -1,18 +1,44 @@
-.container { background: #f5f5f5; min-height: 100vh; }
-.tabs { display: flex; background: #fff; border-bottom: 1rpx solid #eee; }
-.tab { flex: 1; text-align: center; padding: 24rpx 0; font-size: 28rpx; color: #666; position: relative; display: flex; flex-direction: column; align-items: center; }
-.tab.active { font-weight: 600; }
-.tab-line { width: 40rpx; height: 4rpx; border-radius: 2rpx; margin-top: 8rpx; }
-.order-list { padding: 20rpx; }
-.order-card { background: #fff; border-radius: 16rpx; margin-bottom: 20rpx; overflow: hidden; }
-.order-header { display: flex; justify-content: space-between; align-items: center; padding: 20rpx; border-bottom: 1rpx solid #f5f5f5; }
-.order-no { font-size: 24rpx; color: #999; }
-.order-status { font-size: 24rpx; font-weight: 600; }
-.order-items { padding: 20rpx; }
-.order-item { display: flex; justify-content: space-between; padding: 10rpx 0; }
-.item-name { flex: 1; font-size: 26rpx; }
-.item-qty { margin: 0 20rpx; color: #999; }
-.item-price { color: #333; }
-.order-footer { padding: 20rpx; text-align: right; border-top: 1rpx solid #f5f5f5; }
-.order-total { font-size: 28rpx; font-weight: bold; }
-.empty { text-align: center; padding: 100rpx; color: #999; }
+/* 我的订单页 */
+.container { background: #f5f5f5; min-height: 100vh; width: 100%; box-sizing: border-box; }
+.page-header { padding: 16px 16px; padding-top: calc(16px + env(safe-area-inset-top)); color: #fff; display: flex; justify-content: space-between; align-items: center; }
+.page-title { font-size: 18px; font-weight: bold; }
+.header-action { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+.action-icon { font-size: 14px; }
+.action-text { font-size: 12px; color: #fff; }
+
+/* 饿了么风格状态栏 */
+.status-tabs { display: flex; background: #fff; padding: 12px 0 0; white-space: nowrap; border-bottom: 1px solid #f0f0f0; }
+.tab-item { display: inline-flex; flex-direction: column; align-items: center; width: 25%; position: relative; padding-bottom: 10px; }
+.tab-icon-wrap { position: relative; margin-bottom: 4px; }
+.tab-icon { font-size: 22px; }
+.tab-badge { position: absolute; top: -4px; right: -8px; min-width: 16px; height: 16px; border-radius: 8px; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-sizing: border-box; }
+.tab-text { font-size: 12px; color: #666; }
+.tab-item.active .tab-text { color: #333; font-weight: 600; }
+.tab-indicator { width: 20px; height: 3px; border-radius: 2px; position: absolute; bottom: 0; }
+
+/* 订单滚动区域 */
+.order-scroll { height: calc(100vh - 180px); padding: 12px; box-sizing: border-box; }
+
+/* 订单卡片 */
+.order-card { background: #fff; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.order-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #f5f5f5; }
+.order-no { font-size: 12px; color: #999; }
+.order-status { font-size: 13px; font-weight: 600; }
+.order-items { padding: 10px 14px; }
+.order-item { display: flex; align-items: center; padding: 6px 0; }
+.item-img { width: 40px; height: 40px; border-radius: 6px; margin-right: 8px; flex-shrink: 0; }
+.item-img-mini { width: 40px; height: 40px; border-radius: 6px; margin-right: 8px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.item-name { flex: 1; font-size: 13px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-qty { margin: 0 10px; color: #999; font-size: 12px; }
+.item-price { font-size: 13px; color: #333; }
+.order-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: 1px solid #f5f5f5; }
+.order-time { font-size: 12px; color: #bbb; }
+.order-total-row { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #999; }
+.order-total { font-size: 14px; font-weight: bold; }
+
+/* 空态 */
+.empty { text-align: center; padding: 80px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.empty-icon { font-size: 48px; opacity: 0.5; }
+.empty-text { font-size: 14px; color: #ccc; }
+.loading-wrap { text-align: center; padding: 60px 0; }
+.loading-text { font-size: 14px; color: #999; }

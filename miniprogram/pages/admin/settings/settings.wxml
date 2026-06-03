@@ -20,15 +20,29 @@
       </view>
       <view class="banner-add" bindtap="chooseAvatar" wx:else>
         <text class="add-icon">+</text>
-        <text class="add-text">{{uploading ? '上传中...' : '从相册选择'}}</text>
+        <text class="add-text">{{uploading ? '上传中...' : '选择头像'}}</text>
+      </view>
+    </view>
+
+    <!-- 首页Banner -->
+    <view class="section-header" style="margin-top:20px">
+      <text class="section-title">首页Banner</text>
+      <text class="section-tip">最多5张，用户端首页轮播</text>
+    </view>
+    <view class="banner-list">
+      <view class="banner-item" wx:for="{{bannerList}}" wx:key="*this">
+        <image class="banner-img" src="{{item}}" mode="aspectFill"/>
+        <view class="banner-del" catchtap="removeBanner" data-index="{{index}}">✕</view>
+      </view>
+      <view class="banner-add-small" bindtap="chooseBanner" wx:if="{{bannerList.length < 5}}">
+        <text class="add-icon">+</text>
       </view>
     </view>
 
     <!-- 店铺名称 -->
     <view class="form-item">
       <text class="label">店铺名称</text>
-      <input class="input" placeholder="请输入店铺名称" 
-             bindinput="onNameInput" value="{{shopName}}"/>
+      <input class="input" placeholder="请输入店铺名称" bindinput="onNameInput" value="{{shopName}}"/>
     </view>
 
     <!-- 营业状态 -->
@@ -46,8 +60,7 @@
     <!-- 联系电话 -->
     <view class="form-item">
       <text class="label">联系电话</text>
-      <input class="input" type="number" placeholder="请输入手机号" 
-             bindinput="onPhoneInput" value="{{shopPhone}}"/>
+      <input class="input" type="number" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{shopPhone}}"/>
     </view>
 
     <!-- 营业时间 -->
@@ -69,8 +82,7 @@
       <text class="label">起送价</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onMinPriceInput" value="{{minPrice}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onMinPriceInput" value="{{minPrice}}"/>
       </view>
     </view>
 
@@ -79,8 +91,7 @@
       <text class="label">配送费</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
       </view>
     </view>
 
@@ -89,16 +100,14 @@
       <text class="label">满额免配送</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
       </view>
     </view>
 
     <!-- 配送范围 -->
     <view class="form-item">
       <text class="label">配送范围</text>
-      <input class="input" placeholder="如：幸福小区" 
-             bindinput="onRangeInput" value="{{deliveryRange}}"/>
+      <input class="input" placeholder="如：幸福小区" bindinput="onRangeInput" value="{{deliveryRange}}"/>
     </view>
   </view>
 
@@ -109,10 +118,8 @@
       <view class="color-preview" style="background:{{themeColor}}"></view>
     </view>
     <view class="color-grid">
-      <view class="color-item {{themeColor === item ? 'active' : ''}}" 
-            wx:for="{{colorList}}" wx:key="*this"
-            style="background:{{item}}" 
-            bindtap="selectColor" data-color="{{item}}">
+      <view class="color-item {{themeColor === item ? 'active' : ''}}" wx:for="{{colorList}}" wx:key="*this"
+            style="background:{{item}}" bindtap="selectColor" data-color="{{item}}">
         <text class="color-check" wx:if="{{themeColor === item}}">✓</text>
       </view>
     </view>
@@ -131,16 +138,12 @@
           <view class="cat-del" catchtap="deleteCategory" data-index="{{index}}">✕</view>
         </view>
       </view>
-      <view class="empty-cat" wx:if="{{categories.length === 0}}">
-        <text>暂无分类，点击上方添加</text>
-      </view>
+      <view class="empty-cat" wx:if="{{categories.length === 0}}"><text>暂无分类，点击上方添加</text></view>
     </view>
   </view>
 
   <!-- 保存按钮 -->
   <view class="btn-section">
-    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveSettings" loading="{{loading}}">
-      保存设置
-    </button>
+    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveSettings" loading="{{loading}}">保存设置</button>
   </view>
 </view>

@@ -1,6 +1,6 @@
 <!--分类页面（默认启动页）-->
 <view class="container">
-  <!-- 顶部通栏：浅橙到白色渐变 -->
+  <!-- 顶部通栏 -->
   <view class="shop-header">
     <view class="shop-info-row">
       <image class="shop-avatar" src="{{shopAvatar}}" mode="aspectFill" wx:if="{{shopAvatar}}"/>
@@ -15,6 +15,13 @@
     </view>
   </view>
 
+  <!-- Banner轮播 -->
+  <swiper class="banner-swiper" indicator-dots="{{bannerList.length > 1}}" autoplay circular indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" wx:if="{{bannerList.length > 0}}">
+    <swiper-item wx:for="{{bannerList}}" wx:key="*this">
+      <image class="banner-img" src="{{item}}" mode="aspectFill" binderror="onBannerError"/>
+    </swiper-item>
+  </swiper>
+
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-wrap">
@@ -26,8 +33,7 @@
   <view class="main-content">
     <!-- 左侧分类 -->
     <scroll-view class="category-list" scroll-y enhanced show-scrollbar="{{false}}">
-      <view class="category-item {{currentCategory === index ? 'active' : ''}}" 
-            wx:for="{{categories}}" wx:key="id"
+      <view class="category-item {{currentCategory === index ? 'active' : ''}}" wx:for="{{categories}}" wx:key="id"
             bindtap="switchCategory" data-index="{{index}}"
             style="{{currentCategory === index ? 'color:' + themeColor + ';background:#fff' : ''}}">
         <view class="active-bar" wx:if="{{currentCategory === index}}" style="background:{{themeColor}}"></view>
@@ -49,16 +55,13 @@
           </view>
         </view>
       </view>
-      <view class="empty-tip" wx:if="{{products.length === 0}}">
-        <text>暂无商品</text>
-      </view>
+      <view class="empty-tip" wx:if="{{products.length === 0}}"><text>暂无商品</text></view>
     </scroll-view>
   </view>
 </view>
 
 <!-- 飞入小球 -->
-<view wx:for="{{balls}}" wx:key="id" class="ball {{item.show ? 'show' : ''}}"
-      style="left:{{item.x}}px;top:{{item.y}}px;">
+<view wx:for="{{balls}}" wx:key="id" class="ball {{item.show ? 'show' : ''}}" style="left:{{item.x}}px;top:{{item.y}}px;">
   <view class="ball-inner" style="background:{{themeColor}};box-shadow:0 2px 8px {{themeColor}}99"></view>
 </view>
 
@@ -80,7 +83,7 @@
   </view>
 </view>
 
-<!-- 购物车弹窗（半屏，仿饿了么） -->
+<!-- 购物车弹窗 -->
 <view class="cart-popup-mask {{showCartPopup ? 'show' : ''}}" catchtap="closeCartPopup"></view>
 <view class="cart-popup {{showCartPopup ? 'show' : ''}}">
   <view class="popup-header">
@@ -110,8 +113,7 @@
       <text>合计: </text>
       <text class="popup-total-price" style="color:{{themeColor}}">¥{{totalPrice}}</text>
     </view>
-    <view class="popup-checkout-btn {{totalPrice >= minPrice ? '' : 'disabled'}}" 
-          bindtap="popupCheckout"
+    <view class="popup-checkout-btn {{totalPrice >= minPrice ? '' : 'disabled'}}" bindtap="popupCheckout"
           style="{{totalPrice >= minPrice ? 'background:' + themeColor : ''}}">
       {{totalPrice >= minPrice ? '去结算' : '还差¥' + diffPrice + '起送'}}
     </view>

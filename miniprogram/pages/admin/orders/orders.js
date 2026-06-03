@@ -7,19 +7,26 @@ Page({
     currentTab: 'all',
     loading: true,
     stats: { todayOrders: 0, todayIncome: '0.00' },
-    themeColor: '#4A90D9'
+    themeColor: '#4A90D9',
+    shopPhone: ''
   },
 
   onLoad: function () {
     var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    if (s) {
+      if (s.themeColor) this.setData({ themeColor: s.themeColor })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+    }
     this.getOrders()
     this.getStats()
   },
 
   onShow: function () {
     var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    if (s) {
+      if (s.themeColor) this.setData({ themeColor: s.themeColor })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+    }
     this.getOrders()
     this.getStats()
   },
@@ -105,7 +112,6 @@ Page({
         if (res.confirm) {
           db.collection('orders').doc(orderId).update({ data: { status: 'completed', completeTime: db.serverDate() } }).then(function () {
             wx.showToast({ title: '已完成', icon: 'success' })
-            // 重新拉取订单列表 + 顶部统计（今日收入会刷新）
             self.getOrders()
             self.getStats()
           })

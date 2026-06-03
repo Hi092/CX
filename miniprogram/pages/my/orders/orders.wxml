@@ -1,25 +1,30 @@
 <!--我的订单-->
 <view class="container">
-  <view class="tabs">
-    <view class="tab {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
-      <text style="{{currentTab === 'all' ? 'color:' + themeColor : ''}}">全部</text>
-      <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
-    </view>
-    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
-      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待付款</text>
-      <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
-    </view>
-    <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
-      <text style="{{currentTab === 'delivering' ? 'color:' + themeColor : ''}}">配送中</text>
-      <view class="tab-line" wx:if="{{currentTab === 'delivering'}}" style="background:{{themeColor}}"></view>
-    </view>
-    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
-      <text style="{{currentTab === 'completed' ? 'color:' + themeColor : ''}}">已完成</text>
-      <view class="tab-line" wx:if="{{currentTab === 'completed'}}" style="background:{{themeColor}}"></view>
+  <!-- 渐变头部 -->
+  <view class="page-header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+    <text class="page-title">我的订单</text>
+    <view class="header-action" bindtap="callShop">
+      <text class="action-icon">📞</text>
+      <text class="action-text">联系商家</text>
     </view>
   </view>
-  
-  <view class="order-list">
+
+  <!-- 状态栏（饿了么风格：icon+文字上下布局） -->
+  <scroll-view class="status-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="tab-item {{currentTab === item.key ? 'active' : ''}}" 
+          wx:for="{{tabs}}" wx:key="key"
+          bindtap="switchTab" data-tab="{{item.key}}">
+      <view class="tab-icon-wrap">
+        <text class="tab-icon">{{item.icon}}</text>
+        <view class="tab-badge" wx:if="{{item.badge > 0}}" style="background:{{themeColor}}">{{item.badge}}</view>
+      </view>
+      <text class="tab-text">{{item.text}}</text>
+      <view class="tab-indicator" wx:if="{{currentTab === item.key}}" style="background:{{themeColor}}"></view>
+    </view>
+  </scroll-view>
+
+  <!-- 订单列表 -->
+  <scroll-view class="order-scroll" scroll-y wx:if="{{!loading}}">
     <view class="order-card" wx:for="{{orders}}" wx:key="_id" bindtap="viewDetail" data-id="{{item._id}}">
       <view class="order-header">
         <text class="order-no">订单号: {{item.orderNo}}</text>
@@ -27,18 +32,29 @@
       </view>
       <view class="order-items">
         <view class="order-item" wx:for="{{item.items}}" wx:for-item="product" wx:key="name">
+          <image class="item-img" src="{{product.image}}" mode="aspectFill" wx:if="{{product.image}}"/>
+          <view class="item-img-mini" wx:else>📦</view>
           <text class="item-name">{{product.name}}</text>
           <text class="item-qty">x{{product.quantity}}</text>
           <text class="item-price">¥{{product.price}}</text>
         </view>
       </view>
       <view class="order-footer">
-        <text class="order-total" style="color:{{themeColor}}">合计: ¥{{item.finalPrice}}</text>
+        <text class="order-time">{{item.createTimeText}}</text>
+        <view class="order-total-row">
+          <text>共{{item.items.length}}件 </text>
+          <text class="order-total" style="color:{{themeColor}}">合计: ¥{{item.finalPrice}}</text>
+        </view>
       </view>
     </view>
-  </view>
-  
-  <view class="empty" wx:if="{{orders.length === 0}}">
-    <text>暂无订单</text>
+
+    <view class="empty" wx:if="{{orders.length === 0}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无订单</text>
+    </view>
+  </scroll-view>
+
+  <view class="loading-wrap" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
   </view>
 </view>

@@ -11,7 +11,8 @@ Page({
     address: null,
     remark: '',
     loading: false,
-    themeColor: '#4A90D9'
+    themeColor: '#4A90D9',
+    shopPhone: ''
   },
 
   onLoad: function () {
@@ -19,18 +20,19 @@ Page({
     var totalPrice = 0
     for (var i = 0; i < items.length; i++) totalPrice += items[i].price * items[i].quantity
     var settings = wx.getStorageSync('shopSettings')
-    var deliveryFee = 3, freeDeliveryPrice = 30, themeColor = '#4A90D9'
+    var deliveryFee = 3, freeDeliveryPrice = 30, themeColor = '#4A90D9', shopPhone = ''
     if (settings) {
       deliveryFee = settings.deliveryFee || 3
       freeDeliveryPrice = settings.freeDeliveryPrice || 30
       themeColor = settings.themeColor || '#4A90D9'
+      shopPhone = settings.shopPhone || ''
     }
     var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
     this.setData({
       items: items, totalPrice: totalPrice.toFixed(2),
       finalPrice: (totalPrice + fee).toFixed(2),
       deliveryFee: deliveryFee, freeDeliveryPrice: freeDeliveryPrice,
-      themeColor: themeColor
+      themeColor: themeColor, shopPhone: shopPhone
     })
     this.getAddress()
   },
@@ -38,7 +40,10 @@ Page({
   onShow: function () {
     this.getAddress()
     var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    if (s) {
+      if (s.themeColor) this.setData({ themeColor: s.themeColor })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+    }
   },
 
   getAddress: function () {
@@ -104,15 +109,27 @@ Page({
       success: function (res) {
         if (res.confirm) {
           db.collection('orders').doc(orderId).update({ data: { status: 'paid', payTime: db.serverDate() } }).then(function () {
-            wx.showToast({ title: '支付成功', icon: 'success' })
-            setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
+            wx.showToast({ title: '支付成功', icon: 'success', duration: 1500 })
+            // 支付成功停留1.5秒后跳转到订单页
+            setTimeout(function () {
+              wx.navigateTo({ url: '/pages/my/orders/orders?status=paid' })
+            }, 1500)
           })
         } else {
           wx.showToast({ title: '订单已保存', icon: 'none' })
-          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
+          setTimeout(function () { wx.navigateBack() }, 1500)
         }
         self.setData({ loading: false })
       }
     })
+  },
+
+  callShop: function () {
+    var phone = this.data.shopPhone
+    if (phone) {
+      wx.makePhoneCall({ phoneNumber: phone })
+    } else {
+      wx.showToast({ title: '商家未设置电话', icon: 'none' })
+    }
   }
 })

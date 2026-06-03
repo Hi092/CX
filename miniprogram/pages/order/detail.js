@@ -5,13 +5,22 @@ Page({
   data: {
     order: null,
     loading: true,
-    themeColor: '#4A90D9'
+    themeColor: '#4A90D9',
+    shopPhone: ''
   },
 
   onLoad: function (options) {
     var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    if (s) {
+      if (s.themeColor) this.setData({ themeColor: s.themeColor })
+      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+    }
     if (options.id) this.loadOrder(options.id)
+  },
+
+  onShow: function () {
+    var s = wx.getStorageSync('shopSettings')
+    if (s && s.shopPhone) this.setData({ shopPhone: s.shopPhone })
   },
 
   loadOrder: function (id) {
@@ -43,7 +52,12 @@ Page({
   },
 
   callShop: function () {
-    wx.makePhoneCall({ phoneNumber: '13800138000' })
+    var phone = this.data.shopPhone
+    if (phone) {
+      wx.makePhoneCall({ phoneNumber: phone })
+    } else {
+      wx.showToast({ title: '商家未设置电话', icon: 'none' })
+    }
   },
 
   callPhone: function (e) {

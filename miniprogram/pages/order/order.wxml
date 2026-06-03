@@ -42,6 +42,14 @@
     <input class="remark-input" placeholder="选填，如口味偏好" bindinput="onRemarkInput" value="{{remark}}"/>
   </view>
 
+  <!-- 联系商家 -->
+  <view class="contact-card" wx:if="{{shopPhone}}" bindtap="callShop">
+    <text class="contact-icon">📞</text>
+    <text class="contact-text">联系商家</text>
+    <text class="contact-phone">{{shopPhone}}</text>
+    <text class="arrow">›</text>
+  </view>
+
   <!-- 配送费和价格明细 -->
   <view class="price-card">
     <view class="price-row"><text>商品金额</text><text>¥{{totalPrice}}</text></view>
@@ -61,7 +69,10 @@
     </view>
   </view>
 
-  <!-- 底部提交栏 -->
+  <!-- 底部占位（避免被固定栏遮挡） -->
+  <view style="height:80px"></view>
+
+  <!-- 底部提交栏（固定在底部，全屏宽度） -->
   <view class="submit-bar">
     <view class="submit-info">
       <text>合计: </text>
