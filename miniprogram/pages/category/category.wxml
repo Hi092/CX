@@ -6,7 +6,7 @@ var f = function(p, q) {
 module.exports.f = f;
 </wxs>
 
-<!--分类页面（默认启动页�?->
+<!--分类页面（默认启动页）-->
 <view class="container">
   <!-- 顶部通栏：浅橙到白色渐变 -->
   <view class="shop-header">
@@ -16,14 +16,14 @@ module.exports.f = f;
       <view class="shop-detail">
         <view class="shop-name-row">
           <text class="shop-name">{{shopName}}</text>
-          <text class="shop-status-tag {{shopStatus === '营业�? ? 'open' : 'closed'}}">{{shopStatus}}</text>
+          <text class="shop-status-tag {{shopStatus === '营业中' ? 'open' : 'closed'}}">{{shopStatus}}</text>
         </view>
         <text class="shop-sub">30分钟送达</text>
       </view>
     </view>
   </view>
 
-  <!-- 搜索�?-->
+  <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-wrap">
       <icon type="search" size="16" color="#999"/>
@@ -79,12 +79,12 @@ module.exports.f = f;
     </view>
     <view class="cart-price">
       <text class="price-num">¥{{totalPrice}}</text>
-      <text class="price-desc" wx:if="{{totalPrice < minPrice}}">差¥{{diffPrice}}起�?/text>
+      <text class="price-desc" wx:if="{{totalPrice < minPrice}}">差¥{{diffPrice}}起送</text>
       <text class="price-desc ready" wx:else>已满起送价</text>
     </view>
   </view>
   <view class="cart-right" catchtap="goCheckout">
-    <view class="checkout-btn" style="background:{{themeColor}};color:#fff">去结�?/view>
+    <view class="checkout-btn" style="background:{{themeColor}};color:#fff">去结算</view>
   </view>
 </view>
 
@@ -92,7 +92,7 @@ module.exports.f = f;
 <view class="cart-popup-mask {{showCartPopup ? 'show' : ''}}" catchtap="closeCartPopup"></view>
 <view class="cart-popup {{showCartPopup ? 'show' : ''}}">
   <view class="popup-header">
-    <text class="popup-title">已选商�?/text>
+    <text class="popup-title">已选商品</text>
     <view class="popup-clear" bindtap="clearCartPopup"><icon type="delete" size="16" color="#999"/> 清空</view>
   </view>
   <scroll-view class="popup-list" scroll-y>
@@ -121,7 +121,7 @@ module.exports.f = f;
     <view class="popup-checkout-btn {{totalPrice >= minPrice ? '' : 'disabled'}}" 
           bindtap="popupCheckout"
           style="{{totalPrice >= minPrice ? 'background:' + themeColor : ''}}">
-      {{totalPrice >= minPrice ? '去结�? : '还差¥' + diffPrice + '起�?}}
+      {{totalPrice >= minPrice ? '去结算' : '还差¥' + diffPrice + '起送'}}
     </view>
   </view>
 </view>

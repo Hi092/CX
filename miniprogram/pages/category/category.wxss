@@ -7,6 +7,8 @@
   box-sizing: border-box;
   overflow: hidden;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 顶部通栏：浅橙到白色渐变，完全撑满 */
@@ -116,7 +118,8 @@
 /* 主内容区 */
 .main-content {
   display: flex;
-  height: calc(100vh - 280rpx);
+  flex: 1;
+  min-height: 0;
 }
 
 /* 左侧分类栏 */
