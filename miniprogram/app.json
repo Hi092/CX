@@ -48,6 +48,9 @@
       }
     ]
   },
+  "usingComponents": {
+    "icon": "/components/icon/icon"
+  },
   "sitemapLocation": "sitemap.json",
   "cloud": true
 }

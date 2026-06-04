@@ -8,7 +8,7 @@
         <text class="change-text">点击更换</text>
       </block>
       <block wx:else>
-        <text class="upload-icon">📷</text>
+        <icon type="camera" size="40" color="#ccc"/>
         <text class="upload-text">添加商品图片</text>
       </block>
     </view>
@@ -37,7 +37,7 @@
         <view class="picker">
           <text wx:if="{{category}}">{{category}}</text>
           <text wx:else class="placeholder">请选择分类</text>
-          <text class="arrow">›</text>
+          <icon type="arrow-right" size="16" color="#ccc"/>
         </view>
       </picker>
     </view>

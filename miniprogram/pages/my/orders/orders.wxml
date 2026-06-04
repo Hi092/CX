@@ -39,6 +39,7 @@
   </view>
   
   <view class="empty" wx:if="{{orders.length === 0}}">
+    <icon type="package" size="60" color="#ccc"/>
     <text>暂无订单</text>
   </view>
 </view>

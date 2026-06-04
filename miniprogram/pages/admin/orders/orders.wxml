@@ -45,13 +45,13 @@
       
       <!-- 收货人信息 -->
       <view class="order-user" bindtap="callPhone" data-phone="{{item.address.phone}}">
-        <text>👤 {{item.address.name}} · {{item.address.phone}}</text>
-        <text class="call-icon">📞</text>
+        <text><icon type="user" size="14" color="#666"/> {{item.address.name}} · {{item.address.phone}}</text>
+        <icon type="phone" size="18" color="{{themeColor}}"/>
       </view>
       
       <!-- 收货地址 -->
       <view class="order-address">
-        📍 {{item.address.community}} {{item.address.building}}栋 {{item.address.unit}}单元 {{item.address.room}}
+        <icon type="location" size="14" color="#999"/> {{item.address.community}} {{item.address.building}}栋 {{item.address.unit}}单元 {{item.address.room}}
       </view>
       
       <!-- 商品明细 -->
@@ -96,7 +96,7 @@
 
   <!-- 空状态 -->
   <view class="empty" wx:if="{{!loading && orders.length === 0}}">
-    <view class="icon">📦</view>
+    <view class="icon"><icon type="package" size="60" color="#ccc"/></view>
     <text class="text">暂无订单</text>
   </view>
 </view>

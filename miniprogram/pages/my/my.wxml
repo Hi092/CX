@@ -4,11 +4,11 @@
   <view class="user-header">
     <block wx:if="{{userInfo}}">
       <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" wx:if="{{userInfo.avatarUrl}}" bindtap="changeAvatar"/>
-      <view class="avatar-default" bindtap="changeAvatar" wx:else>👤</view>
+      <view class="avatar-default" bindtap="changeAvatar" wx:else><icon type="user" size="40" color="#fff"/></view>
       <view class="nickname">{{userInfo.nickName || '用户'}}</view>
     </block>
     <block wx:else>
-      <view class="avatar-default" bindtap="changeAvatar">👤</view>
+      <view class="avatar-default" bindtap="changeAvatar"><icon type="user" size="40" color="#fff"/></view>
       <view class="login-area">
         <button class="login-btn" bindtap="login">点击登录</button>
       </view>
@@ -18,19 +18,19 @@
   <!-- 订单状态 -->
   <view class="order-status">
     <view class="status-item" bindtap="goOrders" data-status="pending">
-      <text class="status-icon">💰</text>
+      <icon type="money" size="24" color="{{themeColor}}"/>
       <text class="status-text">待付款</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="delivering">
-      <text class="status-icon">📦</text>
+      <icon type="package" size="24" color="{{themeColor}}"/>
       <text class="status-text">待配送</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="completed">
-      <text class="status-icon">✅</text>
+      <icon type="success" size="24" color="{{themeColor}}"/>
       <text class="status-text">已完成</text>
     </view>
     <view class="status-item" bindtap="goOrders">
-      <text class="status-icon">📋</text>
+      <icon type="list" size="24" color="{{themeColor}}"/>
       <text class="status-text">全部订单</text>
     </view>
   </view>
@@ -38,17 +38,17 @@
   <!-- 菜单 -->
   <view class="menu-card">
     <view class="menu-item" bindtap="goAddress">
-      <text class="menu-icon">📍</text>
+      <icon type="location" size="20" color="{{themeColor}}"/>
       <text class="menu-text">收货地址</text>
-      <text class="arrow">›</text>
+      <icon type="arrow-right" size="16" color="#ccc"/>
     </view>
     <view class="menu-item" bindtap="callShop">
-      <text class="menu-icon">📞</text>
+      <icon type="phone" size="20" color="{{themeColor}}"/>
       <text class="menu-text">联系商家</text>
       <text class="arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goSettings">
-      <text class="menu-icon">⚙️</text>
+      <icon type="settings" size="20" color="{{themeColor}}"/>
       <text class="menu-text">设置</text>
       <text class="arrow">›</text>
     </view>

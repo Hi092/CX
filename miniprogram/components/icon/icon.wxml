@@ -1,0 +1,1 @@
+<image class="cx-icon" src="{{iconSrc}}" style="width:{{size}}px;height:{{size}}px;" mode="aspectFit" wx:if="{{iconSrc}}"/>

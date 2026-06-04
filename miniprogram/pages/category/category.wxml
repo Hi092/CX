@@ -26,7 +26,7 @@ module.exports.f = f;
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-wrap">
-      <text class="search-icon">🔍</text>
+      <icon type="search" size="16" color="#999"/>
       <input class="search-input" placeholder="搜索商品..." value="{{searchKey}}" bindinput="onSearch"/>
     </view>
   </view>
@@ -47,7 +47,7 @@ module.exports.f = f;
     <scroll-view class="product-list" scroll-y enhanced show-scrollbar="{{false}}">
       <view class="product-item" wx:for="{{products}}" wx:key="_id">
         <image class="product-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
-        <view class="product-img-placeholder" wx:else>📦</view>
+        <view class="product-img-placeholder" wx:else><icon type="package" size="40" color="#ccc"/></view>
         <view class="product-info">
           <text class="product-name">{{item.name}}</text>
           <text class="product-desc">{{item.category}}</text>
@@ -74,7 +74,7 @@ module.exports.f = f;
 <view class="cart-float" wx:if="{{totalCount > 0}}" bindtap="toggleCartPopup">
   <view class="cart-left">
     <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
-      <text class="cart-icon">🛒</text>
+      <icon type="cart" size="24" color="#fff"/>
       <view class="cart-badge" wx:if="{{totalCount > 0}}" style="background:{{themeColor}}">{{totalCount}}</view>
     </view>
     <view class="cart-price">
@@ -93,12 +93,12 @@ module.exports.f = f;
 <view class="cart-popup {{showCartPopup ? 'show' : ''}}">
   <view class="popup-header">
     <text class="popup-title">已选商品</text>
-    <view class="popup-clear" bindtap="clearCartPopup">🗑️ 清空</view>
+    <view class="popup-clear" bindtap="clearCartPopup"><icon type="delete" size="16" color="#999"/> 清空</view>
   </view>
   <scroll-view class="popup-list" scroll-y>
     <view class="popup-item" wx:for="{{cartItems}}" wx:key="_id">
       <image class="popup-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
-      <view class="popup-img-placeholder" wx:else>📦</view>
+      <view class="popup-img-placeholder" wx:else><icon type="package" size="40" color="#ccc"/></view>
       <view class="popup-info">
         <text class="popup-name">{{item.name}}</text>
         <view class="popup-bottom">

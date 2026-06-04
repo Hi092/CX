@@ -29,7 +29,7 @@
       <text class="label">默认地址</text>
       <view class="checkbox {{isDefault ? 'checked' : ''}}" 
             style="{{isDefault ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
-        <text wx:if="{{isDefault}}">✓</text>
+        <icon wx:if="{{isDefault}}" type="check" size="14" color="#fff"/>
       </view>
     </view>
   </view>

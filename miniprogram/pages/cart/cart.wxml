@@ -10,7 +10,7 @@ module.exports.f = f;
 <view class="container">
   <!-- 空购物车 -->
   <view class="empty" wx:if="{{cart.length === 0}}">
-    <view class="icon">🛒</view>
+    <view class="icon"><icon type="cart" size="60" color="#ccc"/></view>
     <text class="text">购物车空空如也</text>
     <button class="btn-primary" bindtap="goShopping" style="background:{{themeColor}}">去逛逛</button>
   </view>
@@ -29,11 +29,11 @@ module.exports.f = f;
         <view class="checkbox {{item.selected ? 'checked' : ''}}" 
               bindtap="toggleSelect" data-index="{{index}}"
               style="{{item.selected ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
-          <text wx:if="{{item.selected}}">✓</text>
+          <icon wx:if="{{item.selected}}" type="check" size="14" color="#fff"/>
         </view>
         
         <image class="cart-img" src="{{item.image}}" mode="aspectFill" wx:if="{{item.image}}"/>
-        <view class="cart-img-placeholder" wx:else>📦</view>
+        <view class="cart-img-placeholder" wx:else><icon type="package" size="40" color="#ccc"/></view>
         
         <view class="cart-info">
           <text class="cart-name">{{item.name}}</text>
@@ -57,7 +57,7 @@ module.exports.f = f;
     <view class="cart-footer">
       <view class="footer-tip" wx:if="{{totalPrice < minPrice}}">
         <text>还差{{diffPrice}}起送，</text>
-        <text class="go-shop" bindtap="goShopping" style="color:{{themeColor}}">去凑单 ›</text>
+        <text class="go-shop" bindtap="goShopping" style="color:{{themeColor}}">去凑单 <icon type="arrow-right" size="14" color="{{themeColor}}"/></text>
       </view>
       <view class="footer-tip ready" wx:else>
         <text>已满起送价，可下单</text>
@@ -67,7 +67,7 @@ module.exports.f = f;
         <view class="select-area" bindtap="toggleSelectAll">
           <view class="checkbox {{selectAll ? 'checked' : ''}}"
                 style="{{selectAll ? 'background:' + themeColor + ';border-color:' + themeColor : ''}}">
-            <text wx:if="{{selectAll}}">✓</text>
+            <icon wx:if="{{selectAll}}" type="check" size="14" color="#fff"/>
           </view>
           <text>全选</text>
         </view>

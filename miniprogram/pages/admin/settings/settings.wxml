@@ -19,7 +19,7 @@
         </view>
       </view>
       <view class="banner-add" bindtap="chooseAvatar" wx:else>
-        <text class="add-icon">+</text>
+        <icon type="plus" size="32" color="#ccc"/>
         <text class="add-text">{{uploading ? '上传中...' : '从相册选择'}}</text>
       </view>
     </view>
@@ -38,7 +38,7 @@
         <view class="status-picker">
           <text class="status-dot {{shopStatus === '营业中' ? 'open' : 'closed'}}"></text>
           <text class="status-text">{{shopStatus}}</text>
-          <text class="picker-arrow">›</text>
+          <icon type="arrow-right" size="16" color="#ccc"/>
         </view>
       </picker>
     </view>
@@ -113,7 +113,7 @@
             wx:for="{{colorList}}" wx:key="*this"
             style="background:{{item}}" 
             bindtap="selectColor" data-color="{{item}}">
-        <text class="color-check" wx:if="{{themeColor === item}}">✓</text>
+        <icon class="color-check" wx:if="{{themeColor === item}}" type="check" size="16" color="#fff"/>
       </view>
     </view>
   </view>
@@ -128,7 +128,7 @@
       <view class="category-item" wx:for="{{categories}}" wx:key="index">
         <text class="cat-name">{{item}}</text>
         <view class="cat-actions">
-          <view class="cat-del" catchtap="deleteCategory" data-index="{{index}}">✕</view>
+          <view class="cat-del" catchtap="deleteCategory" data-index="{{index}}"><icon type="close" size="14" color="#F44336"/></view>
         </view>
       </view>
       <view class="empty-cat" wx:if="{{categories.length === 0}}">

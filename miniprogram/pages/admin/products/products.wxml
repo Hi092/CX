@@ -9,9 +9,9 @@
   <!-- 搜索栏 -->
   <view class="search-bar">
     <view class="search-wrap">
-      <text class="search-icon">🔍</text>
+      <icon type="search" size="16" color="#999"/>
       <input class="search-input" placeholder="搜索商品名称..." value="{{searchKey}}" bindinput="onSearch" bindconfirm="doSearch"/>
-      <text class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch">✕</text>
+      <icon class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch" type="close" size="16" color="#999"/>
     </view>
   </view>
 
@@ -44,19 +44,19 @@
           <text>{{item.status === 'on' ? '在售' : '已下架'}}</text>
         </view>
         <view class="action-row">
-          <view class="action-btn" catchtap="editProduct" data-id="{{item._id}}" style="color:{{themeColor}}">✏️</view>
+          <view class="action-btn" catchtap="editProduct" data-id="{{item._id}}" style="color:{{themeColor}}"><icon type="edit" size="16" color="{{themeColor}}"/></view>
           <view class="action-btn" catchtap="toggleStatus" data-id="{{item._id}}" data-status="{{item.status}}">
-            <text>{{item.status === 'on' ? '⬇️' : '⬆️'}}</text>
+            <icon type="{{item.status === 'on' ? 'download' : 'upload'}}" size="16" color="{{item.status === 'on' ? '#F44336' : '#4CAF50'}}"/>
           </view>
-          <view class="action-btn delete" catchtap="deleteProduct" data-id="{{item._id}}">🗑️</view>
+          <view class="action-btn delete" catchtap="deleteProduct" data-id="{{item._id}}"><icon type="delete" size="16" color="#F44336"/></view>
         </view>
       </view>
     </view>
   </scroll-view>
 
-  <view class="loading" wx:if="{{loading}}"><text class="loading-icon">⏳</text><text>加载中...</text></view>
+  <view class="loading" wx:if="{{loading}}"><icon type="loading" size="20" color="#999"/><text>加载中...</text></view>
   <view class="empty" wx:if="{{!loading && products.length === 0}}">
-    <text class="empty-icon">📦</text>
+    <icon type="package" size="60" color="#ccc"/>
     <text class="empty-text">暂无商品</text>
     <button class="empty-btn" style="background:{{themeColor}}" bindtap="addProduct">添加商品</button>
   </view>
