@@ -74,7 +74,7 @@ module.exports.f = f;
 <view class="cart-float" wx:if="{{totalCount > 0}}" bindtap="toggleCartPopup">
   <view class="cart-left">
     <view class="cart-icon-wrap {{cartBounce ? 'bounce' : ''}}" id="cartTarget">
-      <icon type="cart" size="24" color="#fff"/>
+      <icon type="cart" size="28" color="{{themeColor}}"/>
       <view class="cart-badge" wx:if="{{totalCount > 0}}" style="background:{{themeColor}}">{{totalCount}}</view>
     </view>
     <view class="cart-price">
