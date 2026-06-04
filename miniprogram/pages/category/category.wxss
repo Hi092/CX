@@ -3,7 +3,10 @@
   padding: 0;
   margin: 0;
   width: 100%;
+  height: 100vh;
   box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
 }
 
 /* 顶部通栏：浅橙到白色渐变，完全撑满 */
