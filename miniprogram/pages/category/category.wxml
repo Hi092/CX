@@ -7,7 +7,7 @@ module.exports.f = f;
 </wxs>
 
 <!--分类页面（默认启动页）-->
-<view class="container" style="height: 1483rpx; display: block; box-sizing: border-box">
+<view class="container">
   <!-- 顶部通栏：浅橙到白色渐变 -->
   <view class="shop-header">
     <view class="shop-info-row">
