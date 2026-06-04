@@ -1,6 +1,6 @@
 /**
  * Icon组件 - 基于内联SVG的矢量图标
- * 用法: <cx-icon name="cart" size="24" color="#333"/>
+ * 用法: <icon type="cart" size="24" color="#333"/>
  * 
  * 可用图标:
  * location, cart, search, package, list, settings,
