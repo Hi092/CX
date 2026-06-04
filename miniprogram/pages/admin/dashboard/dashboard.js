@@ -64,34 +64,39 @@ Page({
 
   loadStats: function () {
     var self = this
-    var today = new Date()
-    today.setHours(0, 0, 0, 0)
+    var now = new Date()
+    var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
+    var todayStart = new Date(y, m, d).getTime()
+    var todayEnd = new Date(y, m, d + 1).getTime()
 
-    db.collection('orders')
-      .where({ createTime: db.command.gte(today.getTime()) })
-      .get()
-      .then(function (res) {
-        var orders = res.data
-        var income = 0
-        var pending = 0
-        var totalOrders = orders.length
-        for (var i = 0; i < orders.length; i++) {
-          var status = orders[i].status
-          // 今日收入：统计已支付+配送中+已完成的订单
-          if (status === 'completed' || status === 'paid' || status === 'delivering') {
-            income += (orders[i].finalPrice || orders[i].totalPrice || 0)
-          }
-          if (status === 'pending' || status === 'paid' || status === 'delivering') pending++
+    // 兼容serverDate和$date两种时间格式
+    db.collection('orders').limit(100).get().then(function (res) {
+      var orders = res.data
+      var income = 0
+      var pending = 0
+      var totalOrders = 0
+      for (var i = 0; i < orders.length; i++) {
+        var ct = orders[i].createTime
+        var ctTime = 0
+        if (ct && ct.$date) ctTime = new Date(ct.$date).getTime()
+        else if (ct) ctTime = new Date(ct).getTime()
+        if (ctTime < todayStart || ctTime >= todayEnd) continue
+        totalOrders++
+        var status = orders[i].status
+        if (status === 'completed' || status === 'paid' || status === 'delivering') {
+          income += (orders[i].finalPrice || orders[i].totalPrice || 0)
         }
-        self.setData({
-          todayOrders: totalOrders,
-          todayIncome: income.toFixed(2),
-          pendingOrders: pending
-        })
-      }).catch(function (err) {
-        console.error('loadStats失败', err)
-        self.setData({ todayOrders: 0, todayIncome: '0.00', pendingOrders: 0 })
+        if (status === 'pending' || status === 'paid' || status === 'delivering') pending++
+      }
+      self.setData({
+        todayOrders: totalOrders,
+        todayIncome: income.toFixed(2),
+        pendingOrders: pending
       })
+    }).catch(function (err) {
+      console.error('loadStats失败', err)
+      self.setData({ todayOrders: 0, todayIncome: '0.00', pendingOrders: 0 })
+    })
 
     db.collection('products')
       .count()

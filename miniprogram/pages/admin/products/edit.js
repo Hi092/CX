@@ -107,6 +107,7 @@ Page({
       }
       if (data.isEdit) {
         db.collection('products').doc(data.id).update({ data: productData }).then(function () {
+          wx.removeStorageSync('productsCache')
           wx.showToast({ title: '保存成功', icon: 'success' })
           setTimeout(function () { wx.navigateBack() }, 1500)
         })
@@ -115,6 +116,7 @@ Page({
         productData.status = 'on'
         productData.sales = 0
         db.collection('products').add({ data: productData }).then(function () {
+          wx.removeStorageSync('productsCache')
           wx.showToast({ title: '添加成功', icon: 'success' })
           setTimeout(function () { wx.navigateBack() }, 1500)
         })

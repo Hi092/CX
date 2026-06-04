@@ -195,6 +195,7 @@
   padding: 16rpx 50rpx;
   font-size: 30rpx;
   margin-left: auto;
+  display: block;
 }
 
 .submit-btn::after {

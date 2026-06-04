@@ -34,7 +34,11 @@ Page({
     self.setData({ loading: true })
     var query = db.collection('orders').orderBy('createTime', 'desc')
     if (self.data.currentTab !== 'all') {
-      query = query.where({ status: self.data.currentTab })
+      if (self.data.currentTab === 'pending') {
+        query = query.where({ status: db.command.in(['pending', 'paid']) })
+      } else {
+        query = query.where({ status: self.data.currentTab })
+      }
     }
     query.limit(50).get().then(function (res) {
       var orders = res.data
@@ -50,18 +54,26 @@ Page({
 
   getStats: function () {
     var self = this
-    var today = new Date()
-    today.setHours(0, 0, 0, 0)
-    db.collection('orders').where({ createTime: db.command.gte(today.getTime()) }).get().then(function (res) {
+    // 拉全部订单，按客户端时间过滤今天（兼容serverDate/$date格式）
+    db.collection('orders').limit(100).get().then(function (res) {
       var orders = res.data
-      var income = 0
-      // 今日收入：只统计已完成订单的实付金额
+      var now = new Date()
+      var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
+      var income = 0, todayCount = 0
       for (var i = 0; i < orders.length; i++) {
-        if (orders[i].status === 'completed' || orders[i].status === 'paid' || orders[i].status === 'delivering') {
+        var ct = orders[i].createTime
+        var ctDate = null
+        if (ct && ct.$date) ctDate = new Date(ct.$date)
+        else if (ct) ctDate = new Date(ct)
+        if (!ctDate) continue
+        if (ctDate.getFullYear() !== y || ctDate.getMonth() !== m || ctDate.getDate() !== d) continue
+        todayCount++
+        var st = orders[i].status
+        if (st === 'completed' || st === 'paid' || st === 'delivering') {
           income += (orders[i].finalPrice || orders[i].totalPrice || 0)
         }
       }
-      self.setData({ stats: { todayOrders: orders.length, todayIncome: income.toFixed(2) } })
+      self.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
     }).catch(function () {
       self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
     })

@@ -9,7 +9,13 @@
       <text class="label">手机号</text>
       <input class="input" type="number" maxlength="11" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{phone}}"/>
     </view>
-    <view class="form-item">
+    <view class="form-item" wx:if="{{communities.length > 0}}">
+      <text class="label">小区</text>
+      <picker range="{{communities}}" bindchange="onCommunityPick" value="{{communityIndex}}">
+        <view class="picker-text {{community ? '' : 'placeholder'}}">{{community || '请选择小区'}}</view>
+      </picker>
+    </view>
+    <view class="form-item" wx:else>
       <text class="label">小区</text>
       <input class="input" placeholder="如：幸福小区" bindinput="onCommunityInput" value="{{community}}"/>
     </view>

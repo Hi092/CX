@@ -72,7 +72,7 @@
       
       <!-- 操作按钮 -->
       <view class="order-actions">
-        <block wx:if="{{item.status === 'pending'}}">
+        <block wx:if="{{item.status === 'pending' || item.status === 'paid'}}">
           <button class="action-btn primary" style="background:{{themeColor}}" bindtap="startDelivery" data-id="{{item._id}}">
             开始配送
           </button>

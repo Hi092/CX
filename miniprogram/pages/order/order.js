@@ -61,6 +61,12 @@ Page({
     var finalPrice = totalPrice + deliveryFee
     var address = this.data.address
     if (!address) { wx.showToast({ title: '请选择收货地址', icon: 'none' }); return }
+    // 检查营业状态
+    var settings = wx.getStorageSync('shopSettings')
+    if (settings && settings.shopStatus === '歇业') {
+      wx.showToast({ title: '店铺已歇业，暂时无法下单', icon: 'none' })
+      return
+    }
     this.setData({ loading: true })
     var self = this
     var order = {
