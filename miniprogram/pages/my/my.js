@@ -1,3 +1,5 @@
+var db = wx.cloud.database()
+
 Page({
   data: {
     userInfo: null,
@@ -6,7 +8,8 @@ Page({
     tapCount: 0,
     tapTimer: null,
     showModal: false,
-    pwdInput: ''
+    pwdInput: '',
+    badgeCounts: { pending: 0, paid: 0, delivering: 0 }
   },
 
   onShow: function () {
@@ -17,6 +20,21 @@ Page({
       if (s.themeColor) this.setData({ themeColor: s.themeColor })
       if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
     }
+    this.loadBadges()
+  },
+
+  loadBadges: function () {
+    var self = this
+    db.collection('orders').limit(50).get().then(function (res) {
+      var counts = { pending: 0, paid: 0, delivering: 0 }
+      var list = res.data
+      for (var i = 0; i < list.length; i++) {
+        if (counts[list[i].status] !== undefined) {
+          counts[list[i].status]++
+        }
+      }
+      self.setData({ badgeCounts: counts })
+    })
   },
 
   login: function () {

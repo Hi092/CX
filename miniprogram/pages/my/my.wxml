@@ -18,15 +18,24 @@
   <!-- 订单状态 -->
   <view class="order-status">
     <view class="status-item" bindtap="goOrders" data-status="pending">
-      <icon type="wallet" size="24" color="{{themeColor}}"/>
+      <view class="status-icon-wrap">
+        <icon type="wallet" size="24" color="{{themeColor}}"/>
+        <view class="badge" wx:if="{{badgeCounts.pending > 0}}">{{badgeCounts.pending > 99 ? '99+' : badgeCounts.pending}}</view>
+      </view>
       <text class="status-text">待付款</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="paid">
-      <icon type="receipt" size="24" color="{{themeColor}}"/>
+      <view class="status-icon-wrap">
+        <icon type="receipt" size="24" color="{{themeColor}}"/>
+        <view class="badge" wx:if="{{badgeCounts.paid > 0}}">{{badgeCounts.paid > 99 ? '99+' : badgeCounts.paid}}</view>
+      </view>
       <text class="status-text">待配送</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="delivering">
-      <icon type="rider" size="24" color="{{themeColor}}"/>
+      <view class="status-icon-wrap">
+        <icon type="rider" size="24" color="{{themeColor}}"/>
+        <view class="badge" wx:if="{{badgeCounts.delivering > 0}}">{{badgeCounts.delivering > 99 ? '99+' : badgeCounts.delivering}}</view>
+      </view>
       <text class="status-text">配送中</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="completed">
