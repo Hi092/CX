@@ -15,7 +15,6 @@ page { background: #f5f5f5; }
   padding: 24rpx 0 8rpx 0;
 }
 
-/* 横排行（开关、picker等） */
 .row {
   display: flex;
   align-items: center;
@@ -28,7 +27,6 @@ page { background: #f5f5f5; }
 .val { font-size: 28rpx; color: #666; }
 .val.gray { color: #ccc; }
 
-/* 竖排字段（输入框） */
 .field {
   padding: 20rpx 0;
   border-bottom: 1rpx solid #f5f5f5;

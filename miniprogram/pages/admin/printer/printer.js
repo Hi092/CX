@@ -32,7 +32,6 @@ Page({
         autoPrint: cached.autoPrint || false
       })
     }
-    // 从云端读取最新
     var self = this
     wx.cloud.callFunction({
       name: 'getSettings',
@@ -94,7 +93,6 @@ Page({
 
   saveSettings: function () {
     this.setData({ loading: true })
-    // 先读取完整的shopSettings，只更新打印机部分
     var cached = wx.getStorageSync('shopSettings') || {}
     var printerData = {
       printerEnabled: this.data.printerEnabled,
@@ -105,7 +103,6 @@ Page({
       printerCopies: this.data.printerCopies,
       autoPrint: this.data.autoPrint
     }
-    // 合并到完整settings
     for (var k in printerData) { cached[k] = printerData[k] }
     wx.setStorageSync('shopSettings', cached)
 
