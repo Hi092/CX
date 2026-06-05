@@ -4,7 +4,6 @@
     <text class="back-arrow">←</text>
   </view>
   <view class="header-title">打印机设置</view>
-  <view class="header-placeholder"></view>
 </view>
 
 <view class="form-section">
