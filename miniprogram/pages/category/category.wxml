@@ -101,7 +101,7 @@ module.exports.f = f;
       <view class="popup-img-placeholder" wx:else><icon type="package" size="40" color="#ccc"/></view>
       <view class="popup-info">
         <text class="popup-name">{{item.name}}</text>
-        <view class="popup-bottom" style="position: relative; left: 0rpx; top: -7rpx; width: 611rpx; display: ; box-sizing: ; height: 48rpx">
+        <view class="popup-bottom">
           <text class="popup-price" style="color:{{themeColor}}">¥{{item.price}}</text>
           <view class="popup-qty">
             <view class="popup-qty-btn" catchtap="popupDecrease" data-index="{{index}}">-</view>

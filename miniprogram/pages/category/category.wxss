@@ -408,12 +408,14 @@ page {
   height: 0;
   max-height: 50vh;
   padding: 0 30rpx;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .popup-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 16rpx 20rpx 0;
+  padding: 20rpx 0;
   border-bottom: 1rpx solid #f9f9f9;
 }
 
@@ -455,6 +457,10 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  top: -7rpx;
+  height: 48rpx;
+  overflow: hidden;
 }
 
 .popup-price {
