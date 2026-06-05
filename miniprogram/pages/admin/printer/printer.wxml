@@ -1,5 +1,5 @@
 <!--pages/admin/printer/printer.wxml-->
-<view class="container" style="background:{{themeColor}}">
+<view class="container">
   <view class="form-section">
     <view class="form-item row">
       <text class="form-label">启用云打印</text>
