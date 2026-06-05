@@ -378,6 +378,7 @@ page {
   flex-direction: column;
   transform: translateY(100%);
   transition: transform 0.3s ease;
+  box-sizing: border-box;
 }
 
 .cart-popup.show {
@@ -390,6 +391,7 @@ page {
   justify-content: space-between;
   padding: 24rpx 30rpx;
   border-bottom: 1rpx solid #f5f5f5;
+  flex-shrink: 0;
 }
 
 .popup-title {
@@ -407,36 +409,35 @@ page {
   flex: 1;
   height: 0;
   max-height: 50vh;
-  padding: 0 30rpx;
+  padding: 0 20rpx 0 30rpx;
+  overflow-y: auto;
 }
 
 .popup-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 16rpx 0;
   border-bottom: 1rpx solid #f9f9f9;
-  overflow: hidden;
+  gap: 16rpx;
 }
 
 .popup-img {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 12rpx;
-  margin-right: 16rpx;
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 10rpx;
   background: #f5f5f5;
   flex-shrink: 0;
 }
 
 .popup-img-placeholder {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 12rpx;
-  margin-right: 16rpx;
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 10rpx;
   background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
+  font-size: 32rpx;
   flex-shrink: 0;
 }
 
@@ -447,10 +448,10 @@ page {
 }
 
 .popup-name {
-  font-size: 26rpx;
+  font-size: 24rpx;
   color: #333;
   display: block;
-  margin-bottom: 6rpx;
+  margin-bottom: 4rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -460,38 +461,38 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12rpx;
 }
 
 .popup-price {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: bold;
   flex-shrink: 0;
 }
 
 .popup-subtotal {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #999;
-  margin-top: 4rpx;
+  margin-top: 2rpx;
 }
 
 .popup-qty {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 8rpx;
   flex-shrink: 0;
 }
 
 .popup-qty-btn {
-  width: 40rpx;
-  height: 40rpx;
+  width: 36rpx;
+  height: 36rpx;
   border: 1rpx solid #ddd;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
+  font-size: 22rpx;
   color: #333;
+  flex-shrink: 0;
 }
 
 .popup-qty-btn.plus {
@@ -500,8 +501,8 @@ page {
 }
 
 .popup-qty-num {
-  font-size: 26rpx;
-  min-width: 36rpx;
+  font-size: 24rpx;
+  min-width: 32rpx;
   text-align: center;
 }
 
@@ -512,6 +513,7 @@ page {
   padding: 20rpx 30rpx;
   padding-bottom: 16rpx;
   border-top: 1rpx solid #f5f5f5;
+  flex-shrink: 0;
 }
 
 .popup-total {
