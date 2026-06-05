@@ -6,7 +6,7 @@
       <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
-      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待付款</text>
+      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待配送</text>
       <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
@@ -39,7 +39,7 @@
   </view>
   
   <view class="empty" wx:if="{{orders.length === 0}}">
-    <icon type="package" size="60" color="#ccc"/>
+    <icon type="search" size="60" color="#ccc"/>
     <text>暂无订单</text>
   </view>
 </view>

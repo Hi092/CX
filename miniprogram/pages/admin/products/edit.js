@@ -1,4 +1,3 @@
-// 商品编辑页面
 var db = wx.cloud.database()
 
 Page({
@@ -108,8 +107,12 @@ Page({
       if (data.isEdit) {
         db.collection('products').doc(data.id).update({ data: productData }).then(function () {
           wx.removeStorageSync('productsCache')
+          self.setData({ loading: false })
           wx.showToast({ title: '保存成功', icon: 'success' })
           setTimeout(function () { wx.navigateBack() }, 1500)
+        }).catch(function () {
+          self.setData({ loading: false })
+          wx.showToast({ title: '保存失败', icon: 'none' })
         })
       } else {
         productData.createTime = db.serverDate()
@@ -117,8 +120,12 @@ Page({
         productData.sales = 0
         db.collection('products').add({ data: productData }).then(function () {
           wx.removeStorageSync('productsCache')
+          self.setData({ loading: false })
           wx.showToast({ title: '添加成功', icon: 'success' })
           setTimeout(function () { wx.navigateBack() }, 1500)
+        }).catch(function () {
+          self.setData({ loading: false })
+          wx.showToast({ title: '添加失败', icon: 'none' })
         })
       }
     }).catch(function (err) {

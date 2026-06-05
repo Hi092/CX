@@ -32,7 +32,7 @@ Page({
     self.setData({ loading: true })
     var cond = { _openid: '{openid}' }
     if (self.data.currentTab !== 'all') cond.status = self.data.currentTab
-    db.collection('orders').where(cond).orderBy('createTime', 'desc').limit(20).get().then(function (res) {
+    db.collection('orders').where(cond).orderBy('createTime', 'desc').limit(50).get().then(function (res) {
       var orders = res.data
       for (var i = 0; i < orders.length; i++) {
         orders[i].statusText = self.getStatusText(orders[i].status)
