@@ -65,7 +65,7 @@
 
   <!-- 版本号 -->
   <view class="version" bindtap="onVersionTap">
-    <text>v1.0.0</text>
+    <text>v2026.06.05</text>
   </view>
 
   <!-- 密码弹窗（白色圆角设计） -->
