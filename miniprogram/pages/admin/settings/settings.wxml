@@ -118,13 +118,16 @@
     </view>
   </view>
 
-  <!-- 快捷入口 -->
+  <!-- 更多设置 -->
   <view class="form-card">
-    <view class="form-item" bindtap="goPrinter" style="cursor:pointer">
-      <text class="label">🖨️ 打印机设置</text>
-      <view class="status-picker">
-        <text class="status-text" wx:if="{{printerEnabled}}" style="color:{{themeColor}}">已启用</text>
-        <text class="status-text" wx:else style="color:#999">未启用</text>
+    <view class="menu-item" bindtap="goPrinter">
+      <view class="menu-icon-wrap">
+        <icon type="print" size="20" color="{{themeColor}}"/>
+      </view>
+      <text class="menu-label">打印机设置</text>
+      <view class="menu-right">
+        <text class="menu-status" wx:if="{{printerEnabled}}" style="color:{{themeColor}}">已启用</text>
+        <text class="menu-status" wx:else style="color:#999">未启用</text>
         <icon type="arrow-right" size="16" color="#ccc"/>
       </view>
     </view>
