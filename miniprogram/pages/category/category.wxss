@@ -420,7 +420,7 @@ page {
 .popup-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 32rpx 20rpx 0;
+  padding: 20rpx 40rpx 20rpx 0;
   border-bottom: 1rpx solid #f9f9f9;
 }
 
