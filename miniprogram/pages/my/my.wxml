@@ -18,11 +18,11 @@
   <!-- 订单状态 -->
   <view class="order-status">
     <view class="status-item" bindtap="goOrders" data-status="pending">
-      <icon type="waiting" size="24" color="{{themeColor}}"/>
+      <icon type="time" size="24" color="{{themeColor}}"/>
       <text class="status-text">待配送</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="delivering">
-      <icon type="info" size="24" color="{{themeColor}}"/>
+      <icon type="truck" size="24" color="{{themeColor}}"/>
       <text class="status-text">配送中</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="completed">
@@ -30,7 +30,7 @@
       <text class="status-text">已完成</text>
     </view>
     <view class="status-item" bindtap="goOrders">
-      <icon type="search" size="24" color="{{themeColor}}"/>
+      <icon type="list" size="24" color="{{themeColor}}"/>
       <text class="status-text">全部订单</text>
     </view>
   </view>
@@ -45,12 +45,12 @@
     <view class="menu-item" bindtap="callShop">
       <icon type="phone" size="20" color="{{themeColor}}"/>
       <text class="menu-text">联系商家</text>
-      <text class="arrow">›</text>
+      <icon type="arrow-right" size="16" color="#ccc"/>
     </view>
     <view class="menu-item" bindtap="goSettings">
       <icon type="settings" size="20" color="{{themeColor}}"/>
       <text class="menu-text">设置</text>
-      <text class="arrow">›</text>
+      <icon type="arrow-right" size="16" color="#ccc"/>
     </view>
   </view>
 
