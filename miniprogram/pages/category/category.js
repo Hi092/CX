@@ -84,6 +84,17 @@ Page({
         shopPhone: data.shopPhone || ''
       })
     }
+    var _setDefaults = function () {
+      self.setData({
+        categories: [
+          { id: 0, name: '全部' },
+          { id: 1, name: '饮料' }, { id: 2, name: '零食' },
+          { id: 3, name: '方便面' }, { id: 4, name: '日用品' },
+          { id: 5, name: '烟酒' }, { id: 6, name: '文具' },
+          { id: 7, name: '生鲜' }
+        ]
+      })
+    }
     // 云函数读（管理员权限，所有用户可用）
     wx.cloud.callFunction({
       name: 'getSettings',
@@ -94,24 +105,14 @@ Page({
           // 降级：客户端直读
           db.collection('settings').doc('shop').get().then(function (r) {
             _applySettings(r.data)
-          }).catch(function () {})
+          }).catch(_setDefaults)
         }
       },
       fail: function () {
         // 降级：客户端直读
         db.collection('settings').doc('shop').get().then(function (r) {
           _applySettings(r.data)
-        }).catch(function () {
-          self.setData({
-            categories: [
-              { id: 0, name: '全部' },
-              { id: 1, name: '饮料' }, { id: 2, name: '零食' },
-              { id: 3, name: '方便面' }, { id: 4, name: '日用品' },
-              { id: 5, name: '烟酒' }, { id: 6, name: '文具' },
-              { id: 7, name: '生鲜' }
-            ]
-          })
-        })
+        }).catch(_setDefaults)
       }
     })
   },
