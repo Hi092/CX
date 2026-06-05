@@ -1,27 +1,83 @@
 /* 商家后台首页样式 */
 .container { background: #f5f5f5; min-height: 100vh; padding: 0; width: 100%; box-sizing: border-box; }
-.header { padding: 40rpx; padding-top: calc(40rpx + env(safe-area-inset-top)); color: #fff; width: 100%; box-sizing: border-box; }
+
+/* 头部 - 柔和暖色渐变 */
+.header {
+  padding: 40rpx;
+  padding-top: calc(40rpx + env(safe-area-inset-top));
+  background: linear-gradient(180deg, #FFF3E6, #FFFFFF);
+  width: 100%;
+  box-sizing: border-box;
+}
 .shop-info { display: flex; align-items: center; }
 .shop-info-left { margin-right: 20rpx; }
-.shop-avatar { width: 90rpx; height: 90rpx; border-radius: 50%; border: 4rpx solid rgba(255,255,255,0.5); }
-.shop-avatar-default { width: 90rpx; height: 90rpx; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 44rpx; }
+.shop-avatar { width: 90rpx; height: 90rpx; border-radius: 50%; border: 4rpx solid #FFD9B3; }
+.shop-avatar-default {
+  width: 90rpx; height: 90rpx; border-radius: 50%;
+  background: #FFF3E6; border: 4rpx solid #FFD9B3;
+  display: flex; align-items: center; justify-content: center; font-size: 44rpx;
+}
 .shop-info-center { flex: 1; }
-.shop-name { font-size: 36rpx; font-weight: bold; display: block; margin-bottom: 8rpx; }
+.shop-name { font-size: 36rpx; font-weight: bold; display: block; margin-bottom: 8rpx; color: #333; }
 .shop-status-tag { display: inline-flex; align-items: center; gap: 8rpx; padding: 6rpx 16rpx; border-radius: 20rpx; font-size: 22rpx; }
-.shop-status-tag.open { background: rgba(76,175,80,0.2); color: #fff; }
-.shop-status-tag.closed { background: rgba(255,255,255,0.3); color: #fff; }
+.shop-status-tag.open { background: #E8F5E9; color: #4CAF50; }
+.shop-status-tag.closed { background: #FFF3E0; color: #FF9800; }
 .shop-status-tag .status-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
 .shop-status-tag.open .status-dot { background: #4CAF50; }
 .shop-status-tag.closed .status-dot { background: #ff9800; }
 
-/* 统计网格 */
-.stats-grid { display: flex; flex-wrap: wrap; gap: 20rpx; padding: 20rpx; margin-top: -20rpx; }
-.stat-card { background: #fff; border-radius: 16rpx; padding: 30rpx; text-align: center; width: calc(50% - 10rpx); box-sizing: border-box; }
-.stat-num { display: block; font-size: 40rpx; font-weight: bold; margin-bottom: 10rpx; }
-.stat-label { font-size: 24rpx; color: #999; }
+/* 统计网格 - 每张卡片独立渐变 */
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  padding: 20rpx;
+  margin-top: -10rpx;
+}
+.stat-card {
+  width: calc(50% - 10rpx);
+  box-sizing: border-box;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card.orders  { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+.stat-card.income  { background: linear-gradient(135deg, #FFF3E6, #FFE0B2); }
+.stat-card.products { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+.stat-card.pending { background: linear-gradient(135deg, #FDE8E8, #FFCDD2); }
+
+.stat-num {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+  color: #333;
+  position: relative;
+  z-index: 1;
+}
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+  position: relative;
+  z-index: 1;
+}
+.stat-icon {
+  position: absolute;
+  right: 16rpx;
+  bottom: 12rpx;
+  font-size: 56rpx;
+  opacity: 0.3;
+}
 
 /* 菜单卡片 */
-.menu-card { background: #fff; margin: 20rpx; border-radius: 16rpx; overflow: hidden; }
+.menu-card {
+  background: #fff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.04);
+}
 .menu-item {
   display: flex;
   align-items: center;
@@ -39,16 +95,13 @@
   margin-right: 24rpx;
   flex-shrink: 0;
 }
-.menu-icon-img {
-  width: 22px;
-  height: 22px;
-}
+.menu-icon-img { width: 22px; height: 22px; }
 .menu-info { flex: 1; }
 .menu-title { font-size: 30rpx; font-weight: bold; display: block; margin-bottom: 5rpx; }
 .menu-desc { font-size: 24rpx; color: #999; }
 .menu-arrow { color: #ccc; font-size: 32rpx; margin-left: 10rpx; }
 
-/* 退出按钮 - 与菜单项风格统一 */
+/* 退出按钮 */
 .logout-btn {
   display: flex;
   align-items: center;
@@ -56,6 +109,7 @@
   margin: 20rpx;
   background: #fff;
   border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.04);
 }
 .logout-icon-box {
   width: 44px;
@@ -67,8 +121,4 @@
   margin-right: 24rpx;
   flex-shrink: 0;
 }
-.logout-text {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: bold;
-}
+.logout-text { font-size: 30rpx; color: #333; font-weight: bold; }

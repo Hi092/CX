@@ -1,7 +1,7 @@
 <!--商家订单管理-->
 <view class="container">
-  <!-- 统计卡片 -->
-  <view class="stats-card" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+  <!-- 统计卡片 - 暖色渐变 -->
+  <view class="stats-card">
     <view class="stat-item">
       <text class="stat-num">{{stats.todayOrders}}</text>
       <text class="stat-label">今日订单</text>
@@ -36,41 +36,30 @@
   <!-- 订单列表 -->
   <view class="order-list" wx:if="{{!loading}}">
     <view class="order-card" wx:for="{{orders}}" wx:key="_id">
-      <!-- 订单头 -->
       <view class="order-header">
         <text class="order-no">订单号: {{item.orderNo}}</text>
         <text class="order-status {{item.statusClass}}" 
               style="{{item.status === 'pending' ? 'background:' + themeColor + '22;color:' + themeColor : ''}}">{{item.statusText}}</text>
       </view>
-      
-      <!-- 收货人信息 -->
       <view class="order-user" bindtap="callPhone" data-phone="{{item.address.phone}}">
         <text><icon type="user" size="14" color="#666"/> {{item.address.name}} · {{item.address.phone}}</text>
         <icon type="phone" size="18" color="{{themeColor}}"/>
       </view>
-      
-      <!-- 收货地址 -->
       <view class="order-address">
         <icon type="location" size="14" color="#999"/> {{item.address.community}} {{item.address.building}}栋 {{item.address.unit}}单元 {{item.address.room}}
       </view>
-      
-      <!-- 商品明细 -->
       <view class="order-items">
         <view class="item" wx:for="{{item.items}}" wx:for-item="product" wx:key="name">
           <text class="item-name">{{product.name}}</text>
           <text class="item-qty">x{{product.quantity}}</text>
         </view>
       </view>
-      
-      <!-- 订单底部 -->
       <view class="order-footer">
         <view class="order-time">{{item.createTimeText}}</view>
         <view class="order-price">
           合计: <text class="price" style="color:{{themeColor}}">¥{{item.finalPrice}}</text>
         </view>
       </view>
-      
-      <!-- 操作按钮 -->
       <view class="order-actions">
         <block wx:if="{{item.status === 'pending' || item.status === 'paid'}}">
           <button class="action-btn primary" style="background:{{themeColor}}" bindtap="startDelivery" data-id="{{item._id}}">
@@ -89,12 +78,10 @@
     </view>
   </view>
 
-  <!-- 加载中 -->
   <view class="loading" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>
 
-  <!-- 空状态 -->
   <view class="empty" wx:if="{{!loading && orders.length === 0}}">
     <view class="icon"><icon type="package" size="60" color="#ccc"/></view>
     <text class="text">暂无订单</text>

@@ -1,7 +1,7 @@
 <!--商家后台首页-->
 <view class="container">
-  <!-- 头部 -->
-  <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+  <!-- 头部 - 柔和暖色渐变 -->
+  <view class="header">
     <view class="shop-info">
       <view class="shop-info-left">
         <image class="shop-avatar" src="{{shopAvatar}}" mode="aspectFill" wx:if="{{shopAvatar}}"/>
@@ -17,23 +17,27 @@
     </view>
   </view>
 
-  <!-- 统计卡片 -->
+  <!-- 统计卡片 - 渐变背景 -->
   <view class="stats-grid">
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{todayOrders}}</text>
+    <view class="stat-card orders">
+      <text class="stat-num">{{todayOrders}}</text>
       <text class="stat-label">今日订单</text>
+      <view class="stat-icon">📋</view>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">¥{{todayIncome}}</text>
+    <view class="stat-card income">
+      <text class="stat-num">¥{{todayIncome}}</text>
       <text class="stat-label">今日收入</text>
+      <view class="stat-icon">💰</view>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{totalProducts}}</text>
+    <view class="stat-card products">
+      <text class="stat-num">{{totalProducts}}</text>
       <text class="stat-label">商品数量</text>
+      <view class="stat-icon">📦</view>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{pendingOrders}}</text>
+    <view class="stat-card pending">
+      <text class="stat-num">{{pendingOrders}}</text>
       <text class="stat-label">待配送</text>
+      <view class="stat-icon">🚚</view>
     </view>
   </view>
 
