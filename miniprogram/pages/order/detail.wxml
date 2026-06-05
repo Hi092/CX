@@ -1,7 +1,7 @@
 <!--订单详情-->
 <view class="container" wx:if="{{order}}">
   <view class="status-bar" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
-    <icon type="{{order.status === 'completed' ? 'check' : order.status === 'delivering' ? 'info' : 'waiting'}}" size="24" color="#fff"/>
+    <icon type="{{order.status === 'completed' ? 'check' : order.status === 'delivering' ? 'truck' : 'time'}}" size="24" color="#fff"/>
     <text class="status-text">{{order.statusText}}</text>
   </view>
 
