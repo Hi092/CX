@@ -6,8 +6,7 @@ Page({
     orders: [],
     currentTab: 'all',
     loading: true,
-    themeColor: '#4A90D9',
-    badgeCounts: { pending: 0, paid: 0, delivering: 0, completed: 0 }
+    themeColor: '#4A90D9'
   },
 
   onLoad: function (options) {
@@ -51,17 +50,8 @@ Page({
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
-    // 拉全部订单，客户端过滤+统计角标
     db.collection('orders').orderBy('createTime', 'desc').limit(50).get().then(function (res) {
       var all = res.data
-      // 统计各状态数量
-      var counts = { pending: 0, paid: 0, delivering: 0, completed: 0 }
-      for (var j = 0; j < all.length; j++) {
-        if (counts[all[j].status] !== undefined) {
-          counts[all[j].status]++
-        }
-      }
-      // 按当前tab过滤显示
       var orders = []
       for (var i = 0; i < all.length; i++) {
         if (self.data.currentTab === 'all' || all[i].status === self.data.currentTab) {
@@ -70,7 +60,7 @@ Page({
           orders.push(all[i])
         }
       }
-      self.setData({ orders: orders, loading: false, badgeCounts: counts })
+      self.setData({ orders: orders, loading: false })
     }).catch(function (err) {
       console.error('我的订单查询失败:', err)
       self.setData({ orders: [], loading: false })
