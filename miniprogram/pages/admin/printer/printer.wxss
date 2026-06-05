@@ -1,0 +1,29 @@
+/* pages/admin/printer/printer.wxss */
+page { background: #f5f5f5; }
+.header { padding: 20px 16px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+.header-back { width: 60rpx; height: 40px; display: flex; align-items: center; justify-content: flex-start; }
+.back-arrow { font-size: 22px; color: #fff; font-weight: bold; }
+.header-title { font-size: 18px; font-weight: 600; color: #fff; text-align: center; flex: 1; }
+.header-placeholder { width: 60rpx; }
+.form-section { background: #fff; margin: 16px 0; padding: 16px; }
+.section-title { font-size: 15px; color: #333; margin-bottom: 16px; font-weight: 500; }
+.form-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+.form-item:last-child { border-bottom: none; }
+.form-item.column { flex-direction: column; align-items: flex-start; gap: 8px; }
+.form-item.column .form-input { width: 100%; }
+.form-label { font-size: 15px; color: #333; }
+.form-input { font-size: 15px; color: #333; padding: 10px 12px; background: #f8f8f8; border-radius: 8px; border: 1px solid #eee; width: 200rpx; box-sizing: border-box; }
+.form-input.small { width: 100rpx; text-align: center; }
+.form-unit { font-size: 13px; color: #999; margin-left: 8px; }
+.form-value { font-size: 15px; color: #666; }
+.form-tip { font-size: 12px; color: #999; margin-top: 8px; line-height: 1.5; }
+.test-info { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+.test-label { font-size: 14px; color: #333; }
+.test-value { font-size: 14px; color: #666; }
+.test-value.empty { color: #ccc; }
+.test-btn { margin-top: 16px; color: #fff; font-size: 16px; border-radius: 25px; padding: 0; height: 44px; line-height: 44px; }
+.test-btn::after { border: none; }
+.test-tip { font-size: 12px; color: #999; margin-top: 10px; text-align: center; line-height: 1.5; }
+.save-section { padding: 20px 16px 40px; }
+.save-btn { color: #fff; font-size: 16px; font-weight: 500; border-radius: 25px; padding: 0; height: 48px; line-height: 48px; }
+.save-btn::after { border: none; }

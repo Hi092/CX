@@ -3,7 +3,29 @@
   <!-- 顶部栏 -->
   <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
     <text class="title">商品管理</text>
-    <view class="add-btn" bindtap="addProduct">+ 添加</view>
+    <view class="header-btns">
+      <view class="cat-btn" bindtap="toggleCatPanel">分类管理</view>
+      <view class="add-btn" bindtap="addProduct">+ 添加</view>
+    </view>
+  </view>
+
+  <!-- 分类管理面板 -->
+  <view class="cat-panel" wx:if="{{showCatPanel}}">
+    <view class="cat-panel-header">
+      <text class="cat-panel-title">分类管理</text>
+      <view class="cat-panel-close" bindtap="toggleCatPanel">✕</view>
+    </view>
+    <view class="cat-list">
+      <view class="cat-item" wx:for="{{allCategories}}" wx:key="*this">
+        <text class="cat-name">{{item}}</text>
+        <view class="cat-del" catchtap="deleteCategory" data-index="{{index}}">删除</view>
+      </view>
+      <view class="cat-add" bindtap="addCategory">
+        <text class="cat-add-icon">+</text>
+        <text class="cat-add-text">添加分类</text>
+      </view>
+    </view>
+    <button class="cat-save-btn" style="background:{{themeColor}}" bindtap="saveCategories" loading="{{savingCats}}">保存分类</button>
   </view>
 
   <!-- 搜索栏 -->
