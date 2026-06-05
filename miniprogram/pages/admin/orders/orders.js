@@ -47,14 +47,14 @@ Page({
         orders[i].createTimeText = self.formatTime(orders[i].createTime)
       }
       self.setData({ orders: orders, loading: false })
-    }).catch(function () {
+    }).catch(function (err) {
+      console.error('getOrders失败', err)
       self.setData({ orders: [], loading: false })
     })
   },
 
   getStats: function () {
     var self = this
-    // 拉全部订单，按客户端时间过滤今天（兼容serverDate/$date格式）
     db.collection('orders').limit(100).get().then(function (res) {
       var orders = res.data
       var now = new Date()
@@ -73,10 +73,21 @@ Page({
           income += (orders[i].finalPrice || orders[i].totalPrice || 0)
         }
       }
+      console.log('getStats结果:', todayCount, income.toFixed(2))
       self.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
-    }).catch(function () {
+    }).catch(function (err) {
+      console.error('getStats失败', err)
       self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
     })
+  },
+
+  refreshStats: function () {
+    var self = this
+    // 先清零让UI有变化反馈，再延迟拉真实数据
+    self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
+    setTimeout(function () {
+      self.getStats()
+    }, 1000)
   },
 
   getStatusText: function (status) {
@@ -101,7 +112,7 @@ Page({
           db.collection('orders').doc(orderId).update({ data: { status: 'delivering', deliveryTime: db.serverDate() } }).then(function () {
             wx.showToast({ title: '已开始配送', icon: 'success' })
             self.getOrders()
-            self.getStats()
+            self.refreshStats()
           })
         }
       }
@@ -117,9 +128,8 @@ Page({
         if (res.confirm) {
           db.collection('orders').doc(orderId).update({ data: { status: 'completed', completeTime: db.serverDate() } }).then(function () {
             wx.showToast({ title: '已完成', icon: 'success' })
-            // 重新拉取订单列表 + 顶部统计（今日收入会刷新）
             self.getOrders()
-            self.getStats()
+            self.refreshStats()
           })
         }
       }
