@@ -6,8 +6,12 @@
       <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
-      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待配送</text>
+      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待付款</text>
       <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
+    </view>
+    <view class="tab {{currentTab === 'paid' ? 'active' : ''}}" bindtap="switchTab" data-tab="paid">
+      <text style="{{currentTab === 'paid' ? 'color:' + themeColor : ''}}">待配送</text>
+      <view class="tab-line" wx:if="{{currentTab === 'paid'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
       <text style="{{currentTab === 'delivering' ? 'color:' + themeColor : ''}}">配送中</text>
@@ -33,13 +37,18 @@
         </view>
       </view>
       <view class="order-footer">
+        <text class="order-time">{{item.createTimeText}}</text>
         <text class="order-total" style="color:{{themeColor}}">合计: ¥{{item.finalPrice}}</text>
       </view>
     </view>
   </view>
   
-  <view class="empty" wx:if="{{orders.length === 0}}">
-    <icon type="search" size="60" color="#ccc"/>
+  <view class="empty" wx:if="{{orders.length === 0 && !loading}}">
+    <icon type="list" size="60" color="#ccc"/>
     <text>暂无订单</text>
+  </view>
+  
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
   </view>
 </view>

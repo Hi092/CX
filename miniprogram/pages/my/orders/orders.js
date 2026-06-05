@@ -14,12 +14,34 @@ Page({
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     if (options.status) this.setData({ currentTab: options.status })
     this.getOrders()
+    this.startWatch()
   },
 
   onShow: function () {
     var s = wx.getStorageSync('shopSettings')
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     this.getOrders()
+  },
+
+  onUnload: function () {
+    if (this._watch) this._watch.close()
+  },
+
+  startWatch: function () {
+    var self = this
+    this._watch = db.collection('orders').where({}).watch({
+      onChange: function (snapshot) {
+        if (snapshot.type !== 'init' && snapshot.docs.length > 0) {
+          // 有订单变化，刷新列表
+          self.getOrders()
+          // 提示用户
+          wx.showToast({ title: '订单状态已更新', icon: 'none' })
+        }
+      },
+      onError: function (err) {
+        console.error('实时监听失败:', err)
+      }
+    })
   },
 
   switchTab: function (e) {
@@ -30,22 +52,29 @@ Page({
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
-    var cond = { _openid: '{openid}' }
-    if (self.data.currentTab !== 'all') cond.status = self.data.currentTab
-    db.collection('orders').where(cond).orderBy('createTime', 'desc').limit(50).get().then(function (res) {
+    var query = db.collection('orders').orderBy('createTime', 'desc')
+    if (self.data.currentTab !== 'all') {
+      if (self.data.currentTab === 'pending') {
+        query = query.where({ status: db.command.in(['pending', 'paid']) })
+      } else {
+        query = query.where({ status: self.data.currentTab })
+      }
+    }
+    query.limit(50).get().then(function (res) {
       var orders = res.data
       for (var i = 0; i < orders.length; i++) {
         orders[i].statusText = self.getStatusText(orders[i].status)
         orders[i].createTimeText = self.formatTime(orders[i].createTime)
       }
       self.setData({ orders: orders, loading: false })
-    }).catch(function () {
+    }).catch(function (err) {
+      console.error('我的订单查询失败:', err)
       self.setData({ orders: [], loading: false })
     })
   },
 
   getStatusText: function (status) {
-    var map = { 'pending': '待配送', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
+    var map = { 'pending': '待付款', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
     return map[status] || status
   },
 
