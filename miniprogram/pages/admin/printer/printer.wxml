@@ -11,15 +11,15 @@
   <block wx:if="{{printerEnabled}}">
     <view class="form-section">
       <view class="section-title">打印机信息</view>
-      <view class="form-item col">
+      <view class="form-field">
         <text class="form-label">打印机名称</text>
         <input class="form-input" value="{{printerName}}" bindinput="onPrinterNameInput" placeholder="备注名，如：前台打印机"/>
       </view>
-      <view class="form-item col">
+      <view class="form-field">
         <text class="form-label">打印机IP地址</text>
         <input class="form-input" value="{{printerIp}}" bindinput="onPrinterIpInput" placeholder="如：192.168.2.100" type="text"/>
       </view>
-      <view class="form-item col">
+      <view class="form-field">
         <text class="form-label">端口号</text>
         <input class="form-input" value="{{printerPort}}" bindinput="onPrinterPortInput" placeholder="默认9100" type="number"/>
       </view>
