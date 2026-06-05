@@ -1,99 +1,84 @@
 /* pages/admin/printer/printer.wxss */
 page { background: #f5f5f5; }
-.container { background: #f5f5f5; min-height: 100vh; padding: 0; width: 100%; box-sizing: border-box; }
+.container { min-height: 100vh; background: #f5f5f5; }
 
-.form-section {
+.card {
   background: #fff;
-  margin: 12px 14px;
-  border-radius: 10px;
-  padding: 4px 14px;
+  margin: 20rpx 24rpx;
+  border-radius: 16rpx;
+  padding: 12rpx 28rpx;
 }
-.section-title {
-  font-size: 14px;
+.card-title {
+  font-size: 28rpx;
   color: #333;
   font-weight: 600;
-  padding: 14px 0 4px 0;
+  padding: 24rpx 0 8rpx 0;
 }
 
-/* 横排表单项（开关、picker等） */
-.form-item {
+/* 横排行（开关、picker等） */
+.row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
 }
-.form-item:last-child { border-bottom: none; }
-.form-item.row { flex-direction: row; }
+.row:last-child { border-bottom: none; }
+.lbl { font-size: 28rpx; color: #333; }
+.val { font-size: 28rpx; color: #666; }
+.val.gray { color: #ccc; }
 
-/* 竖排表单项（输入框，用block布局确保宽度） */
-.form-field {
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+/* 竖排字段（输入框） */
+.field {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
 }
-.form-field:last-of-type { border-bottom: none; }
-.form-field .form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 15px;
+.field-label {
+  font-size: 28rpx;
   color: #333;
+  padding-bottom: 12rpx;
 }
-.form-field .form-input {
-  display: block;
-  width: 100%;
-  font-size: 15px;
+.field-input {
+  font-size: 28rpx;
   color: #333;
-  padding: 10px 12px;
+  padding: 18rpx 20rpx;
   background: #f8f8f8;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  box-sizing: border-box;
+  border-radius: 12rpx;
+  border: 1rpx solid #eee;
 }
 
-.form-label { font-size: 15px; color: #333; }
-.form-input {
-  font-size: 15px;
+.copies { display: flex; align-items: center; }
+.copies-input {
+  font-size: 28rpx;
   color: #333;
-  padding: 10px 12px;
+  padding: 14rpx 18rpx;
   background: #f8f8f8;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  box-sizing: border-box;
+  border-radius: 12rpx;
+  border: 1rpx solid #eee;
+  width: 120rpx;
+  text-align: center;
 }
-.form-input.mini { width: 80px; text-align: center; padding: 8px 10px; }
-.form-tip { font-size: 12px; color: #999; padding: 8px 0 12px 0; line-height: 1.5; }
-.picker-wrap { display: flex; align-items: center; }
-.picker-text { font-size: 15px; color: #666; margin-right: 4px; }
-.picker-arrow { font-size: 14px; color: #ccc; }
-.copies-wrap { display: flex; align-items: center; }
-.unit-text { font-size: 13px; color: #999; margin-left: 8px; }
-.test-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-.test-row:last-of-type { border-bottom: none; }
-.test-label { font-size: 14px; color: #333; }
-.test-val { font-size: 14px; color: #666; }
-.test-val.gray { color: #ccc; }
+.copies-unit { font-size: 26rpx; color: #999; margin-left: 12rpx; }
+
+.tip { font-size: 24rpx; color: #999; padding: 12rpx 0 20rpx 0; line-height: 1.5; }
+
 .test-btn {
-  margin: 16px 0 8px 0;
+  margin: 24rpx 0 12rpx 0;
   color: #fff;
-  font-size: 16px;
-  border-radius: 25px;
-  height: 44px;
-  line-height: 44px;
+  font-size: 30rpx;
+  border-radius: 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
 }
 .test-btn::after { border: none; }
-.save-area { padding: 24px 14px 40px 14px; }
+
+.save-area { padding: 32rpx 24rpx 60rpx 24rpx; }
 .save-btn {
   color: #fff;
-  font-size: 16px;
+  font-size: 30rpx;
   font-weight: 500;
-  border-radius: 25px;
-  height: 48px;
-  line-height: 48px;
+  border-radius: 40rpx;
+  height: 88rpx;
+  line-height: 88rpx;
 }
 .save-btn::after { border: none; }
