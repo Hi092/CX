@@ -18,19 +18,19 @@
   <!-- 订单状态 -->
   <view class="order-status">
     <view class="status-item" bindtap="goOrders" data-status="pending">
-      <icon type="bell" size="24" color="{{themeColor}}"/>
+      <icon type="wallet" size="24" color="{{themeColor}}"/>
       <text class="status-text">待付款</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="paid">
-      <icon type="time" size="24" color="{{themeColor}}"/>
+      <icon type="receipt" size="24" color="{{themeColor}}"/>
       <text class="status-text">待配送</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="delivering">
-      <icon type="truck" size="24" color="{{themeColor}}"/>
+      <icon type="rider" size="24" color="{{themeColor}}"/>
       <text class="status-text">配送中</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="completed">
-      <icon type="check" size="24" color="{{themeColor}}"/>
+      <icon type="circle-check" size="24" color="{{themeColor}}"/>
       <text class="status-text">已完成</text>
     </view>
   </view>
