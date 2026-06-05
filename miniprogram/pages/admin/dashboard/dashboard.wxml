@@ -40,41 +40,52 @@
   <!-- 功能入口 -->
   <view class="menu-card">
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/orders/orders">
-      <icon type="list" size="24" color="{{themeColor}}"/>
+      <view class="menu-icon-box" style="background:{{themeColor}}15">
+        <image class="menu-icon-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48bGluZSB4MT0iOCIgeTE9IjYiIHgyPSIyMSIgeTI9IjYiLz48bGluZSB4MT0iOCIgeTE9IjEyIiB4Mj0iMjEiIHkyPSIxMiIvPjxsaW5lIHgxPSI4IiB5MT0iMTgiIHgyPSIyMSIgeTI9IjE4Ii8+PGxpbmUgeDE9IjMiIHkxPSI2IiB4Mj0iMy4wMSIgeTI9IjYiLz48bGluZSB4MT0iMyIgeTE9IjEyIiB4Mj0iMy4wMSIgeTI9IjEyIi8+PGxpbmUgeDE9IjMiIHkxPSIxOCIgeDI9IjMuMDEiIHk5PSIxOCIvPjwvc3ZnPg==" mode="aspectFit"/>
+      </view>
       <view class="menu-info">
         <text class="menu-title">订单管理</text>
         <text class="menu-desc">查看和处理订单</text>
       </view>
-      <icon type="arrow-right" size="16" color="#ccc"/>
+      <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/products/products">
-      <icon type="package" size="24" color="{{themeColor}}"/>
+      <view class="menu-icon-box" style="background:{{themeColor}}15">
+        <image class="menu-icon-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjEgMTZWOGEyIDIgMCAwIDAtMi0ySDVhMiAyIDAgMCAwLTIgMjh2OGEyIDIgMCAwIDAgMiAyaDE0YTIgMiAwIDAgMCAyLTJ6Ii8+PGxpbmUgeDE9IjEiIHkxPSIxMCIgeDI9IjIzIiB5Mj0iMTAiLz48cGF0aCBkPSJNMTIgMTB2LTQiLz48cGF0aCBkPSJNOCA2aDgiLz48L3N2Zz4=" mode="aspectFit"/>
+      </view>
       <view class="menu-info">
         <text class="menu-title">商品管理</text>
         <text class="menu-desc">添加、编辑商品</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/settings/settings">
-      <icon type="settings" size="24" color="{{themeColor}}"/>
+      <view class="menu-icon-box" style="background:{{themeColor}}15">
+        <image class="menu-icon-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIzIi8+PHBhdGggZD0iTTE5LjQgMTVhMS42NSAxLjY1IDAgMCAwIC4zMyAxLjgybC4wNi4wNmEyIDIgMCAwIDEgMCAyLjgzIDIgMiAwIDAgMS0yLjgzIDBsLS4wNi0uMDZhMS42NSAxLjY1IDAgMCAwLTEuODItLjMzIDEuNjUgMS42NSAwIDAgMC0xIDEuNTV2LjE3YTIgMiAwIDAgMS0yIDJoLTNhMiAyIDAgMCAxLTItMnYtLjE3YTEuNjUgMS42NSAwIDAgMC0xLjEtMS41NSAxLjY1IDEuNjUgMCAwIDAtMS44Mi4zM2wtLjA2LjA2YTIgMiAwIDAgMS0yLjgzIDAgMiAyIDAgMCAxIDAtMi44M2wuMDYtLjA2QTEuNjUgMS42NSAwIDAgMCA0LjY4IDE1YTEuNjUgMS42NSAwIDAgMC0xLjUtMUgzbC0uMTctLjAxYTIgMiAwIDAgMS0yLTJoM2EyIDIgMCAwIDEgMi0ydi4xN2ExLjY1IDEuNjUgMCAwIDAgMSAxLjU1IDEuNjUgMS42NSAwIDAgMCAxLjgyLS4zM2wuMDYtLjA2YTIgMiAwIDAgMSAyLjgzIDAgMiAyIDAgMCAxIDAgMi44M2wtLjA2LjA2QTEuNjUgMS42NSAwIDAgMCA5LjMyIDlhMS42NSAxLjY1IDAgMCAwLTEgMS41NXYuMTdhMiAyIDAgMCAxLTIgMmgzYTIgMiAwIDAgMSAyIDJ2LS4xN2ExLjY1IDEuNjUgMCAwIDAgMS0xLjU1IDEuNjUgMS42NSAxLjY1IDAgMCAwLTEuODIuMzNsLS4wNi4wNmEyIDIgMCAwIDEtMi44MyAwIDIgMiAwIDAgMSAwLTIuODNsLjA2LS4wNkExLjY1IDEuNjUgMCAwIDAgNC42OCA5YTEuNjUgMS42NSAwIDAgMCAxLjUtMWguMTdhMiAyIDAgMCAxIDItMkg5YTIgMiAwIDAgMSAyIDJ2LjE3Ii8+PC9zdmc+" mode="aspectFit"/>
+      </view>
       <view class="menu-info">
         <text class="menu-title">店铺设置</text>
         <text class="menu-desc">营业时间、配送范围</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/printer/printer">
-      <icon type="print" size="24" color="{{themeColor}}"/>
+      <view class="menu-icon-box" style="background:{{themeColor}}15">
+        <image class="menu-icon-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSI2IDkgNiAxOCAxOCAxOCAxOCA5Ii8+PHBvbHlnb24gcG9pbnRzPSI2IDE0IDE4IDE0IDE4IDIgNiAyIi8+PGxpbmUgeDE9IjEiIHkxPSIxNCIgeDI9IjIzIiB5Mj0iMTQiLz48cG9seWxpbmUgcG9pbnRzPSIxOCAxOCAxOCAyMiA2IDIyIi8+PC9zdmc+" mode="aspectFit"/>
+      </view>
       <view class="menu-info">
         <text class="menu-title">打印机设置</text>
         <text class="menu-desc">配置小票打印机</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
     </view>
   </view>
 
   <!-- 退出商家模式 -->
-  <view class="logout-btn" bindtap="exitAdmin" style="color:{{themeColor}}">
-    退出商家模式
+  <view class="logout-btn" bindtap="exitAdmin">
+    <view class="logout-icon-box">
+      <image class="menu-icon-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM5OTkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNOSAyMUgtNWEyIDIgMCAwIDEtMi0yVjVhMiAyIDAgMCAxIDItMmg0Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTYgMTcgMjEgMTIgMTYgNyIvPjxsaW5lIHgxPSIyMSIgeTE9IjEyIiB4Mj0iOSIgeTI9IjEyIi8+PC9zdmc+" mode="aspectFit"/>
+    </view>
+    <text class="logout-text">退出商家模式</text>
   </view>
 </view>
