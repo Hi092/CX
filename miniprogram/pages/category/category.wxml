@@ -12,7 +12,7 @@ module.exports.f = f;
   <view class="shop-header">
     <view class="shop-info-row">
       <image class="shop-avatar" src="{{shopAvatar}}" mode="aspectFill" wx:if="{{shopAvatar}}"/>
-      <view class="shop-avatar-default" wx:else>🏪</view>
+      <view class="shop-avatar-default" wx:else><icon type="package" size="32" color="{{themeColor}}"/></view>
       <view class="shop-detail">
         <view class="shop-name-row">
           <text class="shop-name">{{shopName}}</text>
