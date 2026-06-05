@@ -404,6 +404,9 @@ page {
 .popup-clear {
   font-size: 26rpx;
   color: #999;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
 }
 
 .popup-list {
@@ -417,7 +420,7 @@ page {
 .popup-item {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 20rpx 16rpx 20rpx 0;
   border-bottom: 1rpx solid #f9f9f9;
 }
 
