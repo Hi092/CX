@@ -35,16 +35,21 @@ Page({
   },
 
   onShow: function () {
+    var self = this
     this.calcCart()
     this.updateCartBadge()
     var s = wx.getStorageSync('shopSettings')
     if (s) {
-      if (s.themeColor) this.setData({ themeColor: s.themeColor })
-      if (s.shopName) this.setData({ shopName: s.shopName })
-      if (s.shopAvatar !== undefined) this.setData({ shopAvatar: s.shopAvatar || '' })
-      if (s.shopStatus) this.setData({ shopStatus: s.shopStatus })
-      if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
+      if (s.themeColor) self.setData({ themeColor: s.themeColor })
+      if (s.shopName) self.setData({ shopName: s.shopName })
+      if (s.shopAvatar !== undefined) self.setData({ shopAvatar: s.shopAvatar || '' })
+      if (s.shopStatus) self.setData({ shopStatus: s.shopStatus })
+      if (s.shopPhone) self.setData({ shopPhone: s.shopPhone })
     }
+    // 每次显示都清缓存重新拉，保证商家改完商品/分类立刻生效
+    wx.removeStorageSync('productsCache')
+    self.loadShopInfo()
+    self.loadProducts()
   },
 
   loadShopInfo: function () {
@@ -94,22 +99,16 @@ Page({
 
   loadProducts: function () {
     var self = this
-    var cache = wx.getStorageSync('productsCache')
-    if (cache && cache.data && cache.time > Date.now() - 300000) {
-      self.setData({ allProducts: cache.data })
+    wx.showLoading({ title: '加载中' })
+    db.collection('products').limit(100).get().then(function (res) {
+      self.setData({ allProducts: res.data })
+      wx.setStorageSync('productsCache', { data: res.data, time: Date.now() })
       self.filterProducts()
-    } else {
-      wx.showLoading({ title: '加载中' })
-      db.collection('products').limit(100).get().then(function (res) {
-        self.setData({ allProducts: res.data })
-        wx.setStorageSync('productsCache', { data: res.data, time: Date.now() })
-        self.filterProducts()
-        wx.hideLoading()
-      }).catch(function (err) {
-        console.error(err)
-        wx.hideLoading()
-      })
-    }
+      wx.hideLoading()
+    }).catch(function (err) {
+      console.error(err)
+      wx.hideLoading()
+    })
   },
 
   switchCategory: function (e) {
@@ -222,11 +221,24 @@ Page({
   },
 
   toggleCartPopup: function () {
-    if (this.data.totalCount === 0) {
+    // 每次打开弹窗都从storage读最新数据，保证商品列表一定有
+    var cart = wx.getStorageSync('cart') || []
+    if (cart.length === 0) {
       wx.showToast({ title: '购物车是空的', icon: 'none' })
       return
     }
-    this.setData({ showCartPopup: !this.data.showCartPopup })
+    var totalCount = 0, totalPrice = 0
+    for (var i = 0; i < cart.length; i++) {
+      totalCount += cart[i].quantity
+      totalPrice += Math.round(cart[i].price * cart[i].quantity * 100) / 100
+    }
+    this.setData({
+      showCartPopup: !this.data.showCartPopup,
+      cartItems: cart,
+      totalCount: totalCount,
+      totalPrice: totalPrice.toFixed(2),
+      diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2)
+    })
   },
 
   closeCartPopup: function () {

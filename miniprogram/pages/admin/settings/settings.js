@@ -21,7 +21,17 @@ Page({
     ],
     statusList: ['营业中', '歇业'],
     loading: false,
-    uploading: false
+    uploading: false,
+    // 打印机设置
+    printerEnabled: false,
+    printerName: '',
+    printerIp: '',
+    printerPort: '9100',
+    printerPaper: '80mm',
+    printerCopies: 1,
+    autoPrint: false,
+    paperList: ['58mm', '80mm'],
+    testPrinting: false
   },
 
   onLoad: function () {
@@ -38,7 +48,15 @@ Page({
         deliveryFee: cached.deliveryFee || 3,
         freeDeliveryPrice: cached.freeDeliveryPrice || 30,
         deliveryRange: cached.deliveryRange || '',
-        themeColor: cached.themeColor || '#4A90D9'
+        themeColor: cached.themeColor || '#4A90D9',
+        // 打印机
+        printerEnabled: cached.printerEnabled || false,
+        printerName: cached.printerName || '',
+        printerIp: cached.printerIp || '',
+        printerPort: cached.printerPort || '9100',
+        printerPaper: cached.printerPaper || '80mm',
+        printerCopies: cached.printerCopies || 1,
+        autoPrint: cached.autoPrint || false
       })
     }
     var cachedCats = wx.getStorageSync('shopCategories')
@@ -64,7 +82,15 @@ Page({
           freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
           deliveryRange: res.data.deliveryRange || '',
           categories: res.data.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
-          themeColor: res.data.themeColor || '#4A90D9'
+          themeColor: res.data.themeColor || '#4A90D9',
+          // 打印机
+          printerEnabled: res.data.printerEnabled || false,
+          printerName: res.data.printerName || '',
+          printerIp: res.data.printerIp || '',
+          printerPort: res.data.printerPort || '9100',
+          printerPaper: res.data.printerPaper || '80mm',
+          printerCopies: res.data.printerCopies || 1,
+          autoPrint: res.data.autoPrint || false
         })
       }
     }).catch(function () {})
@@ -162,6 +188,66 @@ Page({
     })
   },
 
+  // ========= 打印机设置 =========
+  togglePrinter: function (e) {
+    this.setData({ printerEnabled: e.detail.value })
+  },
+  toggleAutoPrint: function (e) {
+    this.setData({ autoPrint: e.detail.value })
+  },
+  onPrinterNameInput: function (e) { this.setData({ printerName: e.detail.value }) },
+  onPrinterIpInput: function (e) { this.setData({ printerIp: e.detail.value }) },
+  onPrinterPortInput: function (e) { this.setData({ printerPort: e.detail.value }) },
+  onPrinterCopiesInput: function (e) {
+    var val = parseInt(e.detail.value) || 1
+    if (val < 1) val = 1
+    if (val > 5) val = 5
+    this.setData({ printerCopies: val })
+  },
+  onPaperChange: function (e) {
+    this.setData({ printerPaper: this.data.paperList[e.detail.value] })
+  },
+
+  testPrint: function () {
+    var d = this.data
+    if (!d.printerIp) { wx.showToast({ title: '请先填写打印机IP', icon: 'none' }); return }
+    if (!d.printerPort) { wx.showToast({ title: '请先填写端口号', icon: 'none' }); return }
+    this.setData({ testPrinting: true })
+    var self = this
+
+    // 通过云函数发送测试打印指令到打印机
+    wx.cloud.callFunction({
+      name: 'printOrder',
+      data: {
+        action: 'test',
+        printerIp: d.printerIp,
+        printerPort: parseInt(d.printerPort),
+        printerPaper: d.printerPaper
+      },
+      success: function (res) {
+        self.setData({ testPrinting: false })
+        if (res.result && res.result.success) {
+          wx.showToast({ title: '测试打印已发送', icon: 'success' })
+        } else {
+          wx.showModal({
+            title: '打印失败',
+            content: '无法连接打印机，请检查IP和端口是否正确，确保打印机已开机且在同一网络',
+            showCancel: false
+          })
+        }
+      },
+      fail: function (err) {
+        console.error('测试打印失败', err)
+        self.setData({ testPrinting: false })
+        wx.showModal({
+          title: '打印失败',
+          content: '网络错误，请检查打印机IP是否正确，手机和打印机是否在同一WiFi网络',
+          showCancel: false
+        })
+      }
+    })
+  },
+
   saveSettings: function () {
     var d = this.data
     if (!d.shopName) { wx.showToast({ title: '请输入店铺名称', icon: 'none' }); return }
@@ -179,7 +265,15 @@ Page({
       freeDeliveryPrice: d.freeDeliveryPrice,
       deliveryRange: d.deliveryRange,
       categories: d.categories,
-      themeColor: d.themeColor
+      themeColor: d.themeColor,
+      // 打印机设置
+      printerEnabled: d.printerEnabled,
+      printerName: d.printerName,
+      printerIp: d.printerIp,
+      printerPort: d.printerPort,
+      printerPaper: d.printerPaper,
+      printerCopies: d.printerCopies,
+      autoPrint: d.autoPrint
     }
 
     wx.setStorageSync('shopSettings', settingsData)

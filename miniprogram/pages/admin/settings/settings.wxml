@@ -137,6 +137,74 @@
     </view>
   </view>
 
+  <!-- 打印机设置 -->
+  <view class="form-card">
+    <view class="section-header">
+      <text class="section-title">🖨️ 打印机设置</text>
+      <switch checked="{{printerEnabled}}" bindchange="togglePrinter" color="{{themeColor}}"/>
+    </view>
+
+    <block wx:if="{{printerEnabled}}">
+      <!-- 打印机名称 -->
+      <view class="form-item">
+        <text class="label">打印机名</text>
+        <input class="input" placeholder="如：前台打印机" 
+               bindinput="onPrinterNameInput" value="{{printerName}}"/>
+      </view>
+
+      <!-- 打印机IP -->
+      <view class="form-item">
+        <text class="label">IP地址</text>
+        <input class="input" type="text" placeholder="如：192.168.1.100" 
+               bindinput="onPrinterIpInput" value="{{printerIp}}"/>
+      </view>
+
+      <!-- 端口 -->
+      <view class="form-item">
+        <text class="label">端口</text>
+        <input class="input" type="number" placeholder="9100" 
+               bindinput="onPrinterPortInput" value="{{printerPort}}"/>
+      </view>
+
+      <!-- 纸张规格 -->
+      <view class="form-item">
+        <text class="label">纸张规格</text>
+        <picker mode="selector" range="{{paperList}}" bindchange="onPaperChange">
+          <view class="status-picker">
+            <text>{{printerPaper}}</text>
+            <icon type="arrow-right" size="16" color="#ccc"/>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 打印份数 -->
+      <view class="form-item">
+        <text class="label">打印份数</text>
+        <input class="input" type="number" placeholder="1" 
+               bindinput="onPrinterCopiesInput" value="{{printerCopies}}"/>
+      </view>
+
+      <!-- 自动打印 -->
+      <view class="form-item">
+        <text class="label">接单自动打印</text>
+        <switch checked="{{autoPrint}}" bindchange="toggleAutoPrint" color="{{themeColor}}"/>
+      </view>
+
+      <!-- 测试打印 -->
+      <view class="printer-test">
+        <button class="test-btn" bindtap="testPrint" loading="{{testPrinting}}" 
+                style="border:1px solid {{themeColor}};color:{{themeColor}}">
+          测试打印
+        </button>
+        <text class="printer-tip">请确保手机和打印机连接同一WiFi网络</text>
+      </view>
+    </block>
+
+    <view class="printer-off-tip" wx:else>
+      <text>开启后可连接WiFi小票打印机，新订单自动打印</text>
+    </view>
+  </view>
+
   <!-- 保存按钮 -->
   <view class="btn-section">
     <button class="save-btn" style="background:{{themeColor}}" bindtap="saveSettings" loading="{{loading}}">
