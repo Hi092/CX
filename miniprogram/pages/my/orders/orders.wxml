@@ -6,14 +6,17 @@
       <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
+      <view class="badge" wx:if="{{badgeCounts.pending > 0}}">{{badgeCounts.pending > 99 ? '99+' : badgeCounts.pending}}</view>
       <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待付款</text>
       <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'paid' ? 'active' : ''}}" bindtap="switchTab" data-tab="paid">
+      <view class="badge" wx:if="{{badgeCounts.paid > 0}}">{{badgeCounts.paid > 99 ? '99+' : badgeCounts.paid}}</view>
       <text style="{{currentTab === 'paid' ? 'color:' + themeColor : ''}}">待配送</text>
       <view class="tab-line" wx:if="{{currentTab === 'paid'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
+      <view class="badge" wx:if="{{badgeCounts.delivering > 0}}">{{badgeCounts.delivering > 99 ? '99+' : badgeCounts.delivering}}</view>
       <text style="{{currentTab === 'delivering' ? 'color:' + themeColor : ''}}">配送中</text>
       <view class="tab-line" wx:if="{{currentTab === 'delivering'}}" style="background:{{themeColor}}"></view>
     </view>
