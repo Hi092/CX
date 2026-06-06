@@ -107,16 +107,34 @@ Page({
   onPwdInput: function (e) { this.setData({ pwdInput: e.detail.value }) },
 
   doVerify: function () {
+    var self = this
     var pwd = this.data.pwdInput
     if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    if (pwd === '123456') {
-      this.closeModal()
-      wx.setStorageSync('isShopOwner', true)
-      wx.showToast({ title: '验证成功', icon: 'success' })
-      setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
-    } else {
-      wx.showToast({ title: '密码错误', icon: 'none' })
-    }
+    
+    wx.cloud.callFunction({
+      name: 'verifyAdmin',
+      data: { password: pwd }
+    }).then(function (res) {
+      var result = res.result
+      if (result.success) {
+        self.closeModal()
+        wx.setStorageSync('isShopOwner', true)
+        wx.showToast({ title: '验证成功', icon: 'success' })
+        setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+      } else {
+        wx.showToast({ title: result.message || '密码错误', icon: 'none' })
+      }
+    }).catch(function () {
+      // 云函数未部署时，回退到默认密码
+      if (pwd === '123456') {
+        self.closeModal()
+        wx.setStorageSync('isShopOwner', true)
+        wx.showToast({ title: '验证成功', icon: 'success' })
+        setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+      } else {
+        wx.showToast({ title: '密码错误', icon: 'none' })
+      }
+    })
   },
 
   closeModal: function () { this.setData({ showModal: false, pwdInput: '' }) }

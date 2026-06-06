@@ -27,8 +27,7 @@
     <!-- 店铺名称 -->
     <view class="form-item">
       <text class="label">店铺名称</text>
-      <input class="input" placeholder="请输入店铺名称" 
-             bindinput="onNameInput" value="{{shopName}}"/>
+      <input class="input" placeholder="请输入店铺名称" bindinput="onNameInput" value="{{shopName}}"/>
     </view>
 
     <!-- 营业状态 -->
@@ -46,8 +45,7 @@
     <!-- 联系电话 -->
     <view class="form-item">
       <text class="label">联系电话</text>
-      <input class="input" type="number" placeholder="请输入手机号" 
-             bindinput="onPhoneInput" value="{{shopPhone}}"/>
+      <input class="input" type="number" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{shopPhone}}"/>
     </view>
 
     <!-- 营业时间 -->
@@ -69,8 +67,7 @@
       <text class="label">起送价</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onMinPriceInput" value="{{minPrice}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onMinPriceInput" value="{{minPrice}}"/>
       </view>
     </view>
 
@@ -79,8 +76,7 @@
       <text class="label">配送费</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
       </view>
     </view>
 
@@ -89,16 +85,34 @@
       <text class="label">满额免配送</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
-               bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
+        <input class="input" type="digit" placeholder="0" bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
       </view>
     </view>
 
     <!-- 配送范围 -->
     <view class="form-item">
       <text class="label">配送范围</text>
-      <input class="input" placeholder="如：幸福小区" 
-             bindinput="onRangeInput" value="{{deliveryRange}}"/>
+      <input class="input" placeholder="如：幸福小区" bindinput="onRangeInput" value="{{deliveryRange}}"/>
+    </view>
+  </view>
+
+  <!-- 分类管理 -->
+  <view class="form-card">
+    <view class="section-header">
+      <text class="section-title">分类管理</text>
+      <view class="add-btn" style="background:{{themeColor}};color:#fff" bindtap="showAddCategory">+ 添加</view>
+    </view>
+    <view class="category-list">
+      <view class="category-item" wx:for="{{categories}}" wx:key="*this">
+        <text class="cat-name">{{item}}</text>
+        <view class="cat-del" data-index="{{index}}" bindtap="deleteCategory">×</view>
+      </view>
+      <view class="empty-cat" wx:if="{{categories.length === 0}}">暂无分类</view>
+    </view>
+    <view class="form-item" wx:if="{{showCatInput}}">
+      <text class="label">新分类</text>
+      <input class="input" placeholder="输入分类名称" value="{{newCategory}}" bindinput="onNewCatInput"/>
+      <text class="cat-ok" style="color:{{themeColor}}" bindtap="addCategory">确定</text>
     </view>
   </view>
 
@@ -109,11 +123,32 @@
       <view class="color-preview" style="background:{{themeColor}}"></view>
     </view>
     <view class="color-grid">
-      <view class="color-item {{themeColor === item ? 'active' : ''}}" 
-            wx:for="{{colorList}}" wx:key="*this"
-            style="background:{{item}}" 
-            bindtap="selectColor" data-color="{{item}}">
+      <view class="color-item {{themeColor === item ? 'active' : ''}}" wx:for="{{colorList}}" wx:key="*this"
+            style="background:{{item}}" bindtap="selectColor" data-color="{{item}}">
         <icon class="color-check" wx:if="{{themeColor === item}}" type="check" size="16" color="#fff"/>
+      </view>
+    </view>
+  </view>
+
+  <!-- 更多设置 -->
+  <view class="form-card">
+    <!-- 密码设置 -->
+    <view class="menu-item" bindtap="goPassword">
+      <view class="menu-icon-wrap">🔐</view>
+      <text class="menu-label">密码设置</text>
+      <view class="menu-right">
+        <text class="menu-status" style="color:#4CAF50">已设置</text>
+        <icon type="arrow-right" size="16" color="#ccc"/>
+      </view>
+    </view>
+
+    <!-- 打印机设置 -->
+    <view class="menu-item" bindtap="goPrinter">
+      <view class="menu-icon-wrap">🖨️</view>
+      <text class="menu-label">打印机设置</text>
+      <view class="menu-right">
+        <text class="menu-status" style="color:{{printerEnabled ? '#4CAF50' : '#999'}}">{{printerEnabled ? '已启用' : '未配置'}}</text>
+        <icon type="arrow-right" size="16" color="#ccc"/>
       </view>
     </view>
   </view>

@@ -13,6 +13,9 @@ Page({
     freeDeliveryPrice: 30,
     deliveryRange: '',
     themeColor: '#4A90D9',
+    categories: ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
+    showCatInput: false,
+    newCategory: '',
     colorList: [
       '#4A90D9', '#FF6B35', '#4CAF50', '#E91E63',
       '#9C27B0', '#FF9800', '#00BCD4', '#607D8B',
@@ -39,6 +42,7 @@ Page({
         freeDeliveryPrice: cached.freeDeliveryPrice || 30,
         deliveryRange: cached.deliveryRange || '',
         themeColor: cached.themeColor || '#4A90D9',
+        categories: cached.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
         printerEnabled: cached.printerEnabled || false
       })
     }
@@ -61,6 +65,7 @@ Page({
           freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
           deliveryRange: res.data.deliveryRange || '',
           themeColor: res.data.themeColor || '#4A90D9',
+          categories: res.data.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
           printerEnabled: res.data.printerEnabled || false
         })
       }
@@ -125,6 +130,30 @@ Page({
   onRangeInput: function (e) { this.setData({ deliveryRange: e.detail.value }) },
   selectColor: function (e) { this.setData({ themeColor: e.currentTarget.dataset.color }) },
 
+  // === 分类管理 ===
+  showAddCategory: function () { this.setData({ showCatInput: true }) },
+  onNewCatInput: function (e) { this.setData({ newCategory: e.detail.value }) },
+  addCategory: function () {
+    var name = (this.data.newCategory || '').trim()
+    if (!name) { wx.showToast({ title: '请输入分类名', icon: 'none' }); return }
+    var cats = this.data.categories
+    if (cats.indexOf(name) > -1) { wx.showToast({ title: '分类已存在', icon: 'none' }); return }
+    cats.push(name)
+    this.setData({ categories: cats, newCategory: '', showCatInput: false })
+  },
+  deleteCategory: function (e) {
+    var i = e.currentTarget.dataset.index
+    var cats = this.data.categories
+    cats.splice(i, 1)
+    this.setData({ categories: cats })
+  },
+
+  // === 密码设置 ===
+  goPassword: function () {
+    wx.navigateTo({ url: '/pages/admin/password/password' })
+  },
+
+  // === 打印机设置 ===
   goPrinter: function () {
     wx.navigateTo({ url: '/pages/admin/printer/printer' })
   },
@@ -145,7 +174,8 @@ Page({
       deliveryFee: d.deliveryFee,
       freeDeliveryPrice: d.freeDeliveryPrice,
       deliveryRange: d.deliveryRange,
-      themeColor: d.themeColor
+      themeColor: d.themeColor,
+      categories: d.categories
     }
 
     // 保留打印机等其他设置不被覆盖
