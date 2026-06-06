@@ -39,7 +39,9 @@
       <text class="status-text">配送中</text>
     </view>
     <view class="status-item" bindtap="goOrders" data-status="completed">
-      <icon type="circle-check" size="24" color="{{themeColor}}"/>
+      <view class="status-icon-wrap">
+        <icon type="circle-check" size="24" color="{{themeColor}}"/>
+      </view>
       <text class="status-text">已完成</text>
     </view>
   </view>

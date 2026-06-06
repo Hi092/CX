@@ -1,4 +1,6 @@
 var db = wx.cloud.database()
+var CONFIG_DOC_ID = 'shop_config_v1'
+var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
 
 Page({
   data: {
@@ -17,12 +19,11 @@ Page({
   },
 
   onLoad: function (options) {
-    var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
-    var cachedCats = wx.getStorageSync('shopCategories')
-    if (cachedCats && cachedCats.length > 0) {
-      this.setData({ categories: cachedCats })
-    }
+    var s = wx.getStorageSync('shopSettings') || {}
+    if (s.themeColor) this.setData({ themeColor: s.themeColor })
+    var cachedCats = wx.getStorageSync('shopCategories') || s.categories
+    if (cachedCats && cachedCats.length > 0) this.applyCategories(cachedCats)
+    else this.applyCategories(DEFAULT_CATEGORIES)
     this.loadCategories()
     if (options.id) {
       this.setData({ id: options.id, isEdit: true })
@@ -33,21 +34,45 @@ Page({
     }
   },
 
+  isArray: function (v) {
+    return Object.prototype.toString.call(v) === '[object Array]'
+  },
+
+  applyCategories: function (cats) {
+    if (!this.isArray(cats) || cats.length === 0) cats = DEFAULT_CATEGORIES
+    this.setData({ categories: cats })
+    wx.setStorageSync('shopCategories', cats)
+    var s = wx.getStorageSync('shopSettings') || {}
+    s.categories = cats
+    wx.setStorageSync('shopSettings', s)
+    if (this.data.category) {
+      var idx = cats.indexOf(this.data.category)
+      if (idx > -1) this.setData({ categoryIndex: idx })
+    }
+  },
+
   loadCategories: function () {
     var self = this
-    db.collection('settings').doc('shop').get().then(function (res) {
-      if (res.data && res.data.categories && res.data.categories.length > 0) {
-        self.setData({ categories: res.data.categories })
-        wx.setStorageSync('shopCategories', res.data.categories)
-        if (self.data.isEdit && self.data.category) {
-          var idx = res.data.categories.indexOf(self.data.category)
-          if (idx > -1) self.setData({ categoryIndex: idx })
-        }
+    db.collection('products').doc(CONFIG_DOC_ID).get().then(function (res) {
+      if (res.data && self.isArray(res.data.categories)) {
+        self.applyCategories(res.data.categories)
+      } else {
+        self.loadCategoriesFromCloud()
       }
     }).catch(function () {
-      if (self.data.categories.length === 0) {
-        self.setData({ categories: ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'] })
-      }
+      self.loadCategoriesFromCloud()
+    })
+  },
+
+  loadCategoriesFromCloud: function () {
+    var self = this
+    wx.cloud.callFunction({
+      name: 'getSettings',
+      success: function (res) {
+        var data = res.result && res.result.data
+        if (data && self.isArray(data.categories)) self.applyCategories(data.categories)
+      },
+      fail: function () {}
     })
   },
 

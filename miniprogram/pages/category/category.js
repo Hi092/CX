@@ -1,5 +1,7 @@
-// 分类页面（默认启动页）
+// 分类页面 - 统一配置读取版
 var db = wx.cloud.database()
+var CONFIG_DOC_ID = 'shop_config_v1'
+var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
 
 Page({
   data: {
@@ -35,110 +37,113 @@ Page({
   },
 
   onShow: function () {
-    var self = this
     this.calcCart()
     this.updateCartBadge()
-    var s = wx.getStorageSync('shopSettings')
-    if (s) {
-      if (s.themeColor) self.setData({ themeColor: s.themeColor })
-      if (s.shopName) self.setData({ shopName: s.shopName })
-      if (s.shopAvatar !== undefined) self.setData({ shopAvatar: s.shopAvatar || '' })
-      if (s.shopStatus) self.setData({ shopStatus: s.shopStatus })
-      if (s.shopPhone) self.setData({ shopPhone: s.shopPhone })
-    }
-    // 每次显示都清缓存重新拉，保证商家改完商品/分类立刻生效
-    wx.removeStorageSync('productsCache')
-    self.loadShopInfo()
-    self.loadProducts()
+    this.loadShopInfo()
+    this.loadProducts()
+  },
+
+  isArray: function (v) {
+    return Object.prototype.toString.call(v) === '[object Array]'
+  },
+
+  buildCategoryList: function (cats) {
+    if (!this.isArray(cats) || cats.length === 0) cats = DEFAULT_CATEGORIES
+    var list = [{ id: 0, name: '全部' }]
+    for (var i = 0; i < cats.length; i++) list.push({ id: i + 1, name: cats[i] })
+    return list
+  },
+
+  applySettings: function (raw) {
+    if (!raw) raw = {}
+    var data = raw.settings || raw
+    var cats = raw.categories || data.categories || wx.getStorageSync('shopCategories') || DEFAULT_CATEGORIES
+    if (!this.isArray(cats) || cats.length === 0) cats = DEFAULT_CATEGORIES
+
+    var s = wx.getStorageSync('shopSettings') || {}
+    s.shopName = data.shopName || s.shopName || '邻里优选'
+    s.shopAvatar = data.shopAvatar || data.bannerUrl || s.shopAvatar || ''
+    s.shopStatus = data.shopStatus || s.shopStatus || '营业中'
+    s.shopPhone = data.shopPhone || s.shopPhone || ''
+    s.themeColor = data.themeColor || s.themeColor || '#4A90D9'
+    s.minPrice = data.minPrice || s.minPrice || 20
+    s.deliveryFee = data.deliveryFee || s.deliveryFee || 3
+    s.freeDeliveryPrice = data.freeDeliveryPrice || s.freeDeliveryPrice || 30
+    s.deliveryRange = data.deliveryRange || s.deliveryRange || ''
+    s.openTime = data.openTime || s.openTime || '08:00'
+    s.closeTime = data.closeTime || s.closeTime || '23:00'
+    s.categories = cats
+    wx.setStorageSync('shopSettings', s)
+    wx.setStorageSync('shopCategories', cats)
+
+    this.setData({
+      shopName: s.shopName,
+      shopAvatar: s.shopAvatar,
+      shopStatus: s.shopStatus,
+      shopPhone: s.shopPhone,
+      themeColor: s.themeColor,
+      minPrice: s.minPrice,
+      deliveryFee: s.deliveryFee,
+      freeDeliveryPrice: s.freeDeliveryPrice,
+      categories: this.buildCategoryList(cats)
+    })
+    this.filterProducts()
   },
 
   loadShopInfo: function () {
     var self = this
-    var _applySettings = function (data) {
-      if (!data) return
-      var cats = data.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
-      var list = [{ id: 0, name: '全部' }]
-      for (var i = 0; i < cats.length; i++) {
-        list.push({ id: i + 1, name: cats[i] })
-      }
-      var tc = data.themeColor || '#4A90D9'
-      self.setData({
-        shopName: data.shopName || '邻里优选',
-        shopAvatar: data.shopAvatar || data.bannerUrl || '',
-        shopStatus: data.shopStatus || '营业中',
-        shopPhone: data.shopPhone || '',
-        themeColor: tc,
-        minPrice: data.minPrice || 20,
-        deliveryFee: data.deliveryFee || 3,
-        freeDeliveryPrice: data.freeDeliveryPrice || 30,
-        categories: list
-      })
-      wx.setStorageSync('shopSettings', {
-        minPrice: data.minPrice || 20,
-        deliveryFee: data.deliveryFee || 3,
-        freeDeliveryPrice: data.freeDeliveryPrice || 30,
-        themeColor: tc,
-        shopAvatar: data.shopAvatar || data.bannerUrl || '',
-        shopStatus: data.shopStatus || '营业中',
-        shopName: data.shopName || '邻里优选',
-        shopPhone: data.shopPhone || ''
-      })
-    }
-    var _setDefaults = function () {
-      self.setData({
-        categories: [
-          { id: 0, name: '全部' },
-          { id: 1, name: '饮料' }, { id: 2, name: '零食' },
-          { id: 3, name: '方便面' }, { id: 4, name: '日用品' },
-          { id: 5, name: '烟酒' }, { id: 6, name: '文具' },
-          { id: 7, name: '生鲜' }
-        ]
-      })
-    }
-    // 云函数读（管理员权限，所有用户可用）
+    var cached = wx.getStorageSync('shopSettings') || {}
+    if (cached) self.applySettings(cached)
+
+    // 统一优先读 products/shop_config_v1，再读 getSettings 云函数
+    db.collection('products').doc(CONFIG_DOC_ID).get().then(function (res) {
+      if (res.data) self.applySettings(res.data)
+      else self.loadSettingsFromCloud()
+    }).catch(function () {
+      self.loadSettingsFromCloud()
+    })
+  },
+
+  loadSettingsFromCloud: function () {
+    var self = this
     wx.cloud.callFunction({
       name: 'getSettings',
       success: function (res) {
-        if (res.result && res.result.success && res.result.data) {
-          _applySettings(res.result.data)
-        } else {
-          // 降级：客户端直读
-          db.collection('settings').doc('shop').get().then(function (r) {
-            _applySettings(r.data)
-          }).catch(_setDefaults)
-        }
+        if (res.result && res.result.success && res.result.data) self.applySettings(res.result.data)
       },
-      fail: function () {
-        // 降级：客户端直读
-        db.collection('settings').doc('shop').get().then(function (r) {
-          _applySettings(r.data)
-        }).catch(_setDefaults)
-      }
+      fail: function () {}
     })
+  },
+
+  cleanProducts: function (list) {
+    var arr = []
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i]
+      if (!p) continue
+      if (p._id === CONFIG_DOC_ID || p._type === 'shopConfig') continue
+      arr.push(p)
+    }
+    return arr
   },
 
   loadProducts: function () {
     var self = this
-    wx.showLoading({ title: '加载中' })
     wx.cloud.callFunction({
       name: 'getProducts',
       success: function (res) {
-        var list = (res.result && res.result.data) ? res.result.data : []
-        self.setData({ allProducts: list })
-        wx.setStorageSync('productsCache', { data: list, time: Date.now() })
+        var r = res.result || {}
+        var list = r.data || []
+        self.setData({ allProducts: self.cleanProducts(list) })
+        if (r.settings) self.applySettings(r.settings)
+        else if (r.categories && r.categories.length > 0) self.applySettings({ categories: r.categories })
         self.filterProducts()
-        wx.hideLoading()
       },
       fail: function (err) {
         console.error('getProducts失败', err)
-        // 降级：客户端直读（管理员账号能读到）
         db.collection('products').limit(100).get().then(function (res) {
-          self.setData({ allProducts: res.data })
+          self.setData({ allProducts: self.cleanProducts(res.data || []) })
           self.filterProducts()
-          wx.hideLoading()
-        }).catch(function () {
-          wx.hideLoading()
-        })
+        }).catch(function () {})
       }
     })
   },
@@ -162,7 +167,7 @@ Page({
         if (p.category !== categories[currentCategory].name) match = false
       }
       if (match && searchKey) {
-        if (p.name.toLowerCase().indexOf(searchKey.toLowerCase()) === -1) match = false
+        if (!p.name || p.name.toLowerCase().indexOf(searchKey.toLowerCase()) === -1) match = false
       }
       if (match) filtered.push(p)
     }
@@ -181,8 +186,8 @@ Page({
     for (var i = 0; i < cart.length; i++) {
       if (cart[i]._id === product._id) { idx = i; break }
     }
-    if (idx > -1) { cart[idx].quantity++ }
-    else { cart.push({ _id: product._id, name: product.name, price: Math.round(product.price * 100) / 100, image: product.image, quantity: 1 }) }
+    if (idx > -1) cart[idx].quantity++
+    else cart.push({ _id: product._id, name: product.name, price: Math.round(product.price * 100) / 100, image: product.image, quantity: 1 })
     wx.setStorageSync('cart', cart)
     this.calcCart()
     this.updateCartBadge()
@@ -253,7 +258,6 @@ Page({
   },
 
   toggleCartPopup: function () {
-    // 每次打开弹窗都从storage读最新数据，保证商品列表一定有
     var cart = wx.getStorageSync('cart') || []
     if (cart.length === 0) {
       wx.showToast({ title: '购物车是空的', icon: 'none' })
@@ -273,9 +277,7 @@ Page({
     })
   },
 
-  closeCartPopup: function () {
-    this.setData({ showCartPopup: false })
-  },
+  closeCartPopup: function () { this.setData({ showCartPopup: false }) },
 
   clearCartPopup: function () {
     var self = this
@@ -307,11 +309,8 @@ Page({
     var index = e.currentTarget.dataset.index
     var cart = wx.getStorageSync('cart') || []
     if (!cart[index]) return
-    if (cart[index].quantity <= 1) {
-      cart.splice(index, 1)
-    } else {
-      cart[index].quantity--
-    }
+    if (cart[index].quantity <= 1) cart.splice(index, 1)
+    else cart[index].quantity--
     wx.setStorageSync('cart', cart)
     this.calcCart()
     this.updateCartBadge()
@@ -341,7 +340,6 @@ Page({
 
   onPullDownRefresh: function () {
     this.loadShopInfo()
-    wx.removeStorageSync('productsCache')
     this.loadProducts()
     wx.stopPullDownRefresh()
   }

@@ -1,169 +1,151 @@
 <!--店铺设置页面-->
 <view class="container">
-  <!-- 顶部主题色头部 -->
-  <view class="page-header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
-    <text class="page-title">店铺设置</text>
-  </view>
-
-  <view class="form-card">
-    <!-- 商家头像 -->
-    <view class="section-header">
-      <text class="section-title">商家头像</text>
-    </view>
-    <view class="banner-section">
-      <view class="banner-preview" wx:if="{{shopAvatar}}">
-        <image class="banner-thumb" src="{{shopAvatar}}" mode="aspectFill"/>
-        <view class="banner-overlay">
-          <view class="banner-btn change" bindtap="chooseAvatar">更换</view>
-          <view class="banner-btn remove" bindtap="removeAvatar">移除</view>
+  <!-- 顶部渐变头部 -->
+  <view class="page-header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}CC)">
+    <view class="header-content">
+      <view class="header-avatar" wx:if="{{shopAvatar}}">
+        <image class="avatar-img" src="{{shopAvatar}}" mode="aspectFill"/>
+      </view>
+      <view class="header-avatar placeholder" wx:else>
+        <text class="avatar-text">{{shopName[0] || '店'}}</text>
+      </view>
+      <view class="header-info">
+        <text class="header-name">{{shopName}}</text>
+        <view class="header-status">
+          <text class="status-dot {{shopStatus === '营业中' ? 'open' : 'closed'}}"></text>
+          <text class="status-text">{{shopStatus}}</text>
         </view>
       </view>
-      <view class="banner-add" bindtap="chooseAvatar" wx:else>
-        <icon type="plus" size="32" color="#ccc"/>
-        <text class="add-text">{{uploading ? '上传中...' : '从相册选择'}}</text>
+    </view>
+  </view>
+
+  <!-- 店铺信息卡片 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-icon" style="background:{{themeColor}}22">
+        <text style="color:{{themeColor}}">🏪</text>
+      </view>
+      <text class="card-title">店铺信息</text>
+    </view>
+
+    <view class="form-item" bindtap="chooseAvatar">
+      <text class="label">店铺头像</text>
+      <view class="item-right">
+        <image class="preview-avatar" wx:if="{{shopAvatar}}" src="{{shopAvatar}}" mode="aspectFill"/>
+        <text class="placeholder-text" wx:else>点击上传</text>
+        <text class="arrow">›</text>
       </view>
     </view>
 
-    <!-- 店铺名称 -->
     <view class="form-item">
       <text class="label">店铺名称</text>
-      <input class="input" placeholder="请输入店铺名称" 
+      <input class="input" placeholder="请输入店铺名称"
              bindinput="onNameInput" value="{{shopName}}"/>
     </view>
 
-    <!-- 营业状态 -->
     <view class="form-item">
       <text class="label">营业状态</text>
       <picker mode="selector" range="{{statusList}}" bindchange="onStatusChange">
-        <view class="status-picker">
-          <text class="status-dot {{shopStatus === '营业中' ? 'open' : 'closed'}}"></text>
-          <text class="status-text">{{shopStatus}}</text>
-          <icon type="arrow-right" size="16" color="#ccc"/>
+        <view class="item-right">
+          <view class="status-badge {{shopStatus === '营业中' ? 'open' : 'closed'}}">
+            <text class="badge-dot"></text>
+            <text class="badge-text">{{shopStatus}}</text>
+          </view>
+          <text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
-    <!-- 联系电话 -->
     <view class="form-item">
       <text class="label">联系电话</text>
-      <input class="input" type="number" placeholder="请输入手机号" 
+      <input class="input" type="number" placeholder="请输入手机号"
              bindinput="onPhoneInput" value="{{shopPhone}}"/>
     </view>
+  </view>
 
-    <!-- 营业时间 -->
+  <!-- 经营设置卡片 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-icon" style="background:{{themeColor}}22">
+        <text style="color:{{themeColor}}">⏰</text>
+      </view>
+      <text class="card-title">经营设置</text>
+    </view>
+
     <view class="form-item">
       <text class="label">营业时间</text>
       <view class="time-picker">
         <picker mode="time" value="{{openTime}}" bindchange="onOpenTimeChange">
-          <text class="time-btn">{{openTime}}</text>
+          <view class="time-btn">
+            <text class="time-text">{{openTime}}</text>
+          </view>
         </picker>
         <text class="time-divider">至</text>
         <picker mode="time" value="{{closeTime}}" bindchange="onCloseTimeChange">
-          <text class="time-btn">{{closeTime}}</text>
+          <view class="time-btn">
+            <text class="time-text">{{closeTime}}</text>
+          </view>
         </picker>
       </view>
     </view>
 
-    <!-- 起送价 -->
     <view class="form-item">
       <text class="label">起送价</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
+        <input class="input price" type="digit" placeholder="0"
                bindinput="onMinPriceInput" value="{{minPrice}}"/>
       </view>
     </view>
 
-    <!-- 配送费 -->
     <view class="form-item">
       <text class="label">配送费</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
+        <input class="input price" type="digit" placeholder="0"
                bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
       </view>
     </view>
 
-    <!-- 免配送费金额 -->
     <view class="form-item">
       <text class="label">满额免配送</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" 
+        <input class="input price" type="digit" placeholder="0"
                bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
       </view>
     </view>
 
-    <!-- 配送范围 -->
-    <view class="form-item">
+    <view class="form-item last">
       <text class="label">配送范围</text>
-      <input class="input" placeholder="如：幸福小区" 
+      <input class="input" placeholder="如：幸福小区"
              bindinput="onRangeInput" value="{{deliveryRange}}"/>
     </view>
   </view>
 
-  <!-- 分类管理 -->
-  <view class="form-card">
-    <view class="section-header">
-      <text class="section-title">分类管理</text>
-      <view class="add-btn" style="background:{{themeColor}};color:#fff" bindtap="showAddCategory">+ 添加</view>
-    </view>
-    <view class="category-list">
-      <view class="category-item" wx:for="{{categories}}" wx:key="*this">
-        <text class="cat-name">{{item}}</text>
-        <view class="cat-del" data-index="{{index}}" bindtap="deleteCategory">×</view>
+  <!-- 主题颜色卡片 -->
+  <view class="card">
+    <view class="card-header">
+      <view class="card-icon" style="background:{{themeColor}}22">
+        <text style="color:{{themeColor}}">🎨</text>
       </view>
-      <view class="empty-cat" wx:if="{{categories.length === 0}}">暂无分类</view>
-    </view>
-    <view class="form-item" wx:if="{{showCatInput}}">
-      <text class="label">新分类</text>
-      <input class="input" placeholder="输入分类名称" value="{{newCategory}}" bindinput="onNewCatInput"/>
-      <text class="cat-ok" style="color:{{themeColor}}" bindtap="addCategory">确定</text>
-    </view>
-  </view>
-
-  <!-- 主题颜色 -->
-  <view class="form-card">
-    <view class="section-header">
-      <text class="section-title">主题颜色</text>
+      <text class="card-title">主题颜色</text>
       <view class="color-preview" style="background:{{themeColor}}"></view>
     </view>
     <view class="color-grid">
-      <view class="color-item {{themeColor === item ? 'active' : ''}}" 
+      <view class="color-item {{themeColor === item ? 'active' : ''}}"
             wx:for="{{colorList}}" wx:key="*this"
-            style="background:{{item}}" 
+            style="background:{{item}}"
             bindtap="selectColor" data-color="{{item}}">
         <icon class="color-check" wx:if="{{themeColor === item}}" type="check" size="16" color="#fff"/>
       </view>
     </view>
   </view>
 
-  <!-- 更多设置 -->
-  <view class="form-card">
-    <!-- 密码设置 -->
-    <view class="menu-item" bindtap="goPassword">
-      <view class="menu-icon-wrap">🔐</view>
-      <text class="menu-label">密码设置</text>
-      <view class="menu-right">
-        <text class="menu-status" style="color:#4CAF50">已设置</text>
-        <icon type="arrow-right" size="16" color="#ccc"/>
-      </view>
-    </view>
-
-    <!-- 打印机设置 -->
-    <view class="menu-item" bindtap="goPrinter">
-      <view class="menu-icon-wrap">🖨️</view>
-      <text class="menu-label">打印机设置</text>
-      <view class="menu-right">
-        <text class="menu-status" style="color:{{printerEnabled ? '#4CAF50' : '#999'}}">{{printerEnabled ? '已启用' : '未配置'}}</text>
-        <icon type="arrow-right" size="16" color="#ccc"/>
-      </view>
-    </view>
-  </view>
-
   <!-- 保存按钮 -->
   <view class="btn-section">
-    <button class="save-btn" style="background:{{themeColor}}" bindtap="saveSettings" loading="{{loading}}">
+    <button class="save-btn" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}CC)"
+            bindtap="saveSettings" loading="{{loading}}">
       保存设置
     </button>
   </view>

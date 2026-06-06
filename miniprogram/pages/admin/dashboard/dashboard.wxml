@@ -1,63 +1,107 @@
 <!--商家后台首页-->
 <view class="container">
-  <!-- 头部 -->
-  <view class="header" style="background:linear-gradient(135deg, {{themeColor}}, {{themeColor}}88)">
+  <!-- 头部 - 白色简洁 -->
+  <view class="header">
     <view class="shop-info">
-      <text class="shop-name">{{shopName}}</text>
-      <text class="shop-status">营业中</text>
+      <view class="shop-info-left">
+        <image class="shop-avatar" wx:if="{{shopAvatar}}" src="{{shopAvatar}}" mode="aspectFill"/>
+        <view class="shop-avatar-default" wx:else>
+          <text>{{shopName[0] || '店'}}</text>
+        </view>
+      </view>
+      <view class="shop-info-center">
+        <text class="shop-name">{{shopName}}</text>
+        <view class="shop-status-tag {{shopStatus === '营业中' ? 'open' : 'closed'}}">
+          <view class="status-dot"></view>
+          <text>{{shopStatus}}</text>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 统计卡片 -->
   <view class="stats-grid">
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{todayOrders}}</text>
+    <view class="stat-card orders">
+      <text class="stat-num">{{todayOrders}}</text>
       <text class="stat-label">今日订单</text>
+      <text class="stat-icon">📦</text>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">¥{{todayIncome}}</text>
+    <view class="stat-card income">
+      <text class="stat-num">¥{{todayIncome}}</text>
       <text class="stat-label">今日收入</text>
+      <text class="stat-icon">💰</text>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{totalProducts}}</text>
+    <view class="stat-card products">
+      <text class="stat-num">{{totalProducts}}</text>
       <text class="stat-label">商品数量</text>
+      <text class="stat-icon">🛍️</text>
     </view>
-    <view class="stat-card">
-      <text class="stat-num" style="color:{{themeColor}}">{{pendingOrders}}</text>
+    <view class="stat-card pending">
+      <text class="stat-num">{{pendingOrders}}</text>
       <text class="stat-label">待配送</text>
+      <text class="stat-icon">🚚</text>
     </view>
   </view>
 
   <!-- 功能入口 -->
   <view class="menu-card">
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/orders/orders">
-      <view class="menu-icon"><icon type="list" size="24" color="{{themeColor}}"/></view>
+      <view class="menu-icon-box" style="background:#E8F5E9">
+        <text style="font-size:24px">📋</text>
+      </view>
       <view class="menu-info">
         <text class="menu-title">订单管理</text>
         <text class="menu-desc">查看和处理订单</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/products/products">
-      <view class="menu-icon"><icon type="package" size="24" color="{{themeColor}}"/></view>
+      <view class="menu-icon-box" style="background:#E3F2FD">
+        <text style="font-size:24px">📦</text>
+      </view>
       <view class="menu-info">
         <text class="menu-title">商品管理</text>
         <text class="menu-desc">添加、编辑商品</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/settings/settings">
-      <view class="menu-icon"><icon type="settings" size="24" color="{{themeColor}}"/></view>
+      <view class="menu-icon-box" style="background:#FFF3E6">
+        <text style="font-size:24px">⚙️</text>
+      </view>
       <view class="menu-info">
         <text class="menu-title">店铺设置</text>
         <text class="menu-desc">营业时间、配送范围</text>
       </view>
-      <text class="arrow">›</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/password/password">
+      <view class="menu-icon-box" style="background:#FDE8E8">
+        <text style="font-size:24px">🔐</text>
+      </view>
+      <view class="menu-info">
+        <text class="menu-title">密码设置</text>
+        <text class="menu-desc">修改管理密码</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/printer/printer">
+      <view class="menu-icon-box" style="background:#E8EAF6">
+        <text style="font-size:24px">🖨️</text>
+      </view>
+      <view class="menu-info">
+        <text class="menu-title">打印机设置</text>
+        <text class="menu-desc">配置小票打印机</text>
+      </view>
+      <text class="menu-arrow">›</text>
     </view>
   </view>
 
   <!-- 退出商家模式 -->
-  <view class="logout-btn" bindtap="exitAdmin" style="color:{{themeColor}}">
-    退出商家模式
+  <view class="logout-btn" bindtap="exitAdmin">
+    <view class="logout-icon-box" style="background:#FDE8E8">
+      <text style="font-size:24px">🚪</text>
+    </view>
+    <text class="logout-text">退出商家模式</text>
   </view>
 </view>

@@ -1,4 +1,6 @@
 var db = wx.cloud.database()
+var CONFIG_DOC_ID = 'shop_config_v1'
+var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
 
 Page({
   data: {
@@ -13,9 +15,6 @@ Page({
     freeDeliveryPrice: 30,
     deliveryRange: '',
     themeColor: '#4A90D9',
-    categories: ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
-    showCatInput: false,
-    newCategory: '',
     colorList: [
       '#4A90D9', '#FF6B35', '#4CAF50', '#E91E63',
       '#9C27B0', '#FF9800', '#00BCD4', '#607D8B',
@@ -28,48 +27,80 @@ Page({
   },
 
   onLoad: function () {
-    var cached = wx.getStorageSync('shopSettings')
-    if (cached) {
-      this.setData({
-        shopAvatar: cached.shopAvatar || '',
-        shopName: cached.shopName || '邻里优选',
-        shopPhone: cached.shopPhone || '',
-        shopStatus: cached.shopStatus || '营业中',
-        openTime: cached.openTime || '08:00',
-        closeTime: cached.closeTime || '23:00',
-        minPrice: cached.minPrice || 20,
-        deliveryFee: cached.deliveryFee || 3,
-        freeDeliveryPrice: cached.freeDeliveryPrice || 30,
-        deliveryRange: cached.deliveryRange || '',
-        themeColor: cached.themeColor || '#4A90D9',
-        categories: cached.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
-        printerEnabled: cached.printerEnabled || false
-      })
-    }
+    this.loadCache()
     this.getSettings()
+  },
+
+  onShow: function () {
+    this.loadCache()
+    this.getSettings()
+  },
+
+  loadCache: function () {
+    var cached = wx.getStorageSync('shopSettings')
+    if (cached) this.applySettings(cached)
+  },
+
+  applySettings: function (raw) {
+    if (!raw) return
+    var data = raw.settings || raw
+    var cats = raw.categories || data.categories || wx.getStorageSync('shopCategories') || DEFAULT_CATEGORIES
+    if (cats && cats.length > 0) wx.setStorageSync('shopCategories', cats)
+
+    var merged = wx.getStorageSync('shopSettings') || {}
+    merged.shopAvatar = data.shopAvatar || data.bannerUrl || ''
+    merged.shopName = data.shopName || '邻里优选'
+    merged.shopPhone = data.shopPhone || ''
+    merged.shopStatus = data.shopStatus || '营业中'
+    merged.openTime = data.openTime || '08:00'
+    merged.closeTime = data.closeTime || '23:00'
+    merged.minPrice = data.minPrice || 20
+    merged.deliveryFee = data.deliveryFee || 3
+    merged.freeDeliveryPrice = data.freeDeliveryPrice || 30
+    merged.deliveryRange = data.deliveryRange || ''
+    merged.themeColor = data.themeColor || '#4A90D9'
+    merged.printerEnabled = data.printerEnabled || false
+    merged.categories = cats
+    wx.setStorageSync('shopSettings', merged)
+
+    this.setData({
+      shopAvatar: merged.shopAvatar,
+      shopName: merged.shopName,
+      shopPhone: merged.shopPhone,
+      shopStatus: merged.shopStatus,
+      openTime: merged.openTime,
+      closeTime: merged.closeTime,
+      minPrice: merged.minPrice,
+      deliveryFee: merged.deliveryFee,
+      freeDeliveryPrice: merged.freeDeliveryPrice,
+      deliveryRange: merged.deliveryRange,
+      themeColor: merged.themeColor,
+      printerEnabled: merged.printerEnabled
+    })
   },
 
   getSettings: function () {
     var self = this
-    db.collection('settings').doc('shop').get().then(function (res) {
-      if (res.data) {
-        self.setData({
-          shopAvatar: res.data.shopAvatar || res.data.bannerUrl || '',
-          shopName: res.data.shopName || '邻里优选',
-          shopPhone: res.data.shopPhone || '',
-          shopStatus: res.data.shopStatus || '营业中',
-          openTime: res.data.openTime || '08:00',
-          closeTime: res.data.closeTime || '23:00',
-          minPrice: res.data.minPrice || 20,
-          deliveryFee: res.data.deliveryFee || 3,
-          freeDeliveryPrice: res.data.freeDeliveryPrice || 30,
-          deliveryRange: res.data.deliveryRange || '',
-          themeColor: res.data.themeColor || '#4A90D9',
-          categories: res.data.categories || ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜'],
-          printerEnabled: res.data.printerEnabled || false
-        })
-      }
-    }).catch(function () {})
+    // 先读 products 里的统一配置，不依赖 settings 集合权限
+    db.collection('products').doc(CONFIG_DOC_ID).get().then(function (res) {
+      if (res.data) self.applySettings(res.data)
+      else self.loadSettingsFromCloud()
+    }).catch(function () {
+      self.loadSettingsFromCloud()
+    })
+  },
+
+  loadSettingsFromCloud: function () {
+    var self = this
+    wx.cloud.callFunction({
+      name: 'getSettings',
+      success: function (res) {
+        if (res.result && res.result.success && res.result.data) {
+          self.applySettings(res.result.data)
+        }
+      },
+      fail: function () {}
+    })
   },
 
   chooseAvatar: function () {
@@ -116,10 +147,7 @@ Page({
     })
   },
 
-  onStatusChange: function (e) {
-    this.setData({ shopStatus: this.data.statusList[e.detail.value] })
-  },
-
+  onStatusChange: function (e) { this.setData({ shopStatus: this.data.statusList[e.detail.value] }) },
   onNameInput: function (e) { this.setData({ shopName: e.detail.value }) },
   onPhoneInput: function (e) { this.setData({ shopPhone: e.detail.value }) },
   onOpenTimeChange: function (e) { this.setData({ openTime: e.detail.value }) },
@@ -130,40 +158,12 @@ Page({
   onRangeInput: function (e) { this.setData({ deliveryRange: e.detail.value }) },
   selectColor: function (e) { this.setData({ themeColor: e.currentTarget.dataset.color }) },
 
-  // === 分类管理 ===
-  showAddCategory: function () { this.setData({ showCatInput: true }) },
-  onNewCatInput: function (e) { this.setData({ newCategory: e.detail.value }) },
-  addCategory: function () {
-    var name = (this.data.newCategory || '').trim()
-    if (!name) { wx.showToast({ title: '请输入分类名', icon: 'none' }); return }
-    var cats = this.data.categories
-    if (cats.indexOf(name) > -1) { wx.showToast({ title: '分类已存在', icon: 'none' }); return }
-    cats.push(name)
-    this.setData({ categories: cats, newCategory: '', showCatInput: false })
-  },
-  deleteCategory: function (e) {
-    var i = e.currentTarget.dataset.index
-    var cats = this.data.categories
-    cats.splice(i, 1)
-    this.setData({ categories: cats })
-  },
+  goPrinter: function () { wx.navigateTo({ url: '/pages/admin/printer/printer' }) },
+  goPassword: function () { wx.navigateTo({ url: '/pages/admin/password/password' }) },
 
-  // === 密码设置 ===
-  goPassword: function () {
-    wx.navigateTo({ url: '/pages/admin/password/password' })
-  },
-
-  // === 打印机设置 ===
-  goPrinter: function () {
-    wx.navigateTo({ url: '/pages/admin/printer/printer' })
-  },
-
-  saveSettings: function () {
+  buildSettingsData: function () {
     var d = this.data
-    if (!d.shopName) { wx.showToast({ title: '请输入店铺名称', icon: 'none' }); return }
-    this.setData({ loading: true })
-
-    var settingsData = {
+    return {
       shopAvatar: d.shopAvatar,
       shopName: d.shopName,
       shopPhone: d.shopPhone,
@@ -175,29 +175,59 @@ Page({
       freeDeliveryPrice: d.freeDeliveryPrice,
       deliveryRange: d.deliveryRange,
       themeColor: d.themeColor,
-      categories: d.categories
+      printerEnabled: d.printerEnabled
     }
+  },
 
-    // 保留打印机等其他设置不被覆盖
+  saveSettings: function () {
+    var settingsData = this.buildSettingsData()
+    if (!settingsData.shopName) { wx.showToast({ title: '请输入店铺名称', icon: 'none' }); return }
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+    wx.showLoading({ title: '保存中...' })
+
     var cached = wx.getStorageSync('shopSettings') || {}
+    var cats = wx.getStorageSync('shopCategories') || cached.categories || DEFAULT_CATEGORIES
     for (var k in settingsData) { cached[k] = settingsData[k] }
+    cached.categories = cats
     wx.setStorageSync('shopSettings', cached)
+    wx.setStorageSync('shopCategories', cats)
     wx.removeStorageSync('productsCache')
 
+    var docData = {}
+    for (var key in cached) { docData[key] = cached[key] }
+    docData._type = 'shopConfig'
+    docData.key = 'shopSettings'
+    docData.categories = cats
+    docData.updateTime = db.serverDate()
+
     var self = this
-    wx.cloud.callFunction({
-      name: 'updateSettings',
-      data: { data: settingsData },
-      success: function () {
-        self.setData({ loading: false })
-        wx.showToast({ title: '设置已保存', icon: 'success' })
-        setTimeout(function () { wx.navigateBack() }, 1000)
-      },
-      fail: function (err) {
-        console.error('updateSettings失败', err)
-        self.setData({ loading: false })
-        wx.showToast({ title: '保存失败，请重试', icon: 'none' })
-      }
+    var ok = function () {
+      wx.cloud.callFunction({ name: 'updateSettings', data: { data: cached } })
+      wx.hideLoading()
+      self.setData({ loading: false })
+      wx.showToast({ title: '设置已保存', icon: 'success' })
+      setTimeout(function () { wx.navigateBack() }, 800)
+    }
+    var fail = function (err) {
+      console.error('保存配置失败', err)
+      // 兜底再走原 settings 云函数
+      wx.cloud.callFunction({
+        name: 'updateSettings',
+        data: { data: cached },
+        success: function () { ok() },
+        fail: function (err2) {
+          wx.hideLoading()
+          console.error('updateSettings失败', err2)
+          self.setData({ loading: false })
+          wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+        }
+      })
+    }
+
+    db.collection('products').doc(CONFIG_DOC_ID).update({ data: docData }).then(ok).catch(function () {
+      db.collection('products').doc(CONFIG_DOC_ID).set({ data: docData }).then(ok).catch(fail)
     })
   }
 })
