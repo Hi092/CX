@@ -27,7 +27,8 @@
     <!-- 店铺名称 -->
     <view class="form-item">
       <text class="label">店铺名称</text>
-      <input class="input" placeholder="请输入店铺名称" bindinput="onNameInput" value="{{shopName}}"/>
+      <input class="input" placeholder="请输入店铺名称" 
+             bindinput="onNameInput" value="{{shopName}}"/>
     </view>
 
     <!-- 营业状态 -->
@@ -45,7 +46,8 @@
     <!-- 联系电话 -->
     <view class="form-item">
       <text class="label">联系电话</text>
-      <input class="input" type="number" placeholder="请输入手机号" bindinput="onPhoneInput" value="{{shopPhone}}"/>
+      <input class="input" type="number" placeholder="请输入手机号" 
+             bindinput="onPhoneInput" value="{{shopPhone}}"/>
     </view>
 
     <!-- 营业时间 -->
@@ -67,7 +69,8 @@
       <text class="label">起送价</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" bindinput="onMinPriceInput" value="{{minPrice}}"/>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onMinPriceInput" value="{{minPrice}}"/>
       </view>
     </view>
 
@@ -76,7 +79,8 @@
       <text class="label">配送费</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onDeliveryFeeInput" value="{{deliveryFee}}"/>
       </view>
     </view>
 
@@ -85,14 +89,16 @@
       <text class="label">满额免配送</text>
       <view class="price-input">
         <text class="symbol">¥</text>
-        <input class="input" type="digit" placeholder="0" bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
+        <input class="input" type="digit" placeholder="0" 
+               bindinput="onFreeDeliveryInput" value="{{freeDeliveryPrice}}"/>
       </view>
     </view>
 
     <!-- 配送范围 -->
     <view class="form-item">
       <text class="label">配送范围</text>
-      <input class="input" placeholder="如：幸福小区" bindinput="onRangeInput" value="{{deliveryRange}}"/>
+      <input class="input" placeholder="如：幸福小区" 
+             bindinput="onRangeInput" value="{{deliveryRange}}"/>
     </view>
   </view>
 
@@ -123,8 +129,10 @@
       <view class="color-preview" style="background:{{themeColor}}"></view>
     </view>
     <view class="color-grid">
-      <view class="color-item {{themeColor === item ? 'active' : ''}}" wx:for="{{colorList}}" wx:key="*this"
-            style="background:{{item}}" bindtap="selectColor" data-color="{{item}}">
+      <view class="color-item {{themeColor === item ? 'active' : ''}}" 
+            wx:for="{{colorList}}" wx:key="*this"
+            style="background:{{item}}" 
+            bindtap="selectColor" data-color="{{item}}">
         <icon class="color-check" wx:if="{{themeColor === item}}" type="check" size="16" color="#fff"/>
       </view>
     </view>
