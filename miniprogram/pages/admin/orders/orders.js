@@ -46,7 +46,6 @@ Page({
   refreshData: function (showLoading) {
     this.getOrders(showLoading)
     this.getStats()
-    this.loadAdminBadges()
   },
 
   loadTheme: function () {
@@ -68,7 +67,9 @@ Page({
     else query = query.where({ status: status })
 
     query.orderBy('createTime', 'desc').limit(100).get().then(function (res) {
-      self.applyOrders(res.data || [])
+      var list = res.data || []
+      console.log('adminOrders tab=' + status, 'count=' + list.length, list.slice(0, 3))
+      self.applyOrders(list)
     }).catch(function (err) {
       console.error('getOrders失败', err)
       self.setData({ orders: [], loading: false })
@@ -84,8 +85,15 @@ Page({
     this.setData({ orders: orders, loading: false })
   },
 
-  loadAdminBadges: function () {
+  // loadAdminBadges已合并到getStats
+
+  getStats: function () {
     var self = this
+    db.collection('orders').where({ status: _.in(ADMIN_VISIBLE_STATUS) }).limit(300).get().then(function (res) {
+      self.applyStats(res.data || [])
+    }).catch(function (err) {
+      console.error('getStats失败', err)
+    })
     db.collection('orders').where({ status: _.in(ADMIN_REMIND_STATUS) }).limit(300).get().then(function (res) {
       var list = res.data || []
       var counts = { all: 0, paid: 0, delivering: 0 }
@@ -94,19 +102,9 @@ Page({
         if (list[i].status === 'delivering') counts.delivering++
       }
       counts.all = counts.paid + counts.delivering
-      self.setData({ badgeCounts: counts })
+      self.setData({ badgeCounts: counts, stats: self.data.stats })
     }).catch(function (err) {
       console.error('loadAdminBadges失败', err)
-    })
-  },
-
-  getStats: function () {
-    var self = this
-    db.collection('orders').where({ status: _.in(ADMIN_VISIBLE_STATUS) }).limit(300).get().then(function (res) {
-      self.applyStats(res.data || [])
-    }).catch(function (err) {
-      console.error('getStats失败', err)
-      self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
     })
   },
 
@@ -124,7 +122,7 @@ Page({
     this.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
   },
 
-  refreshStats: function () { this.getStats(); this.loadAdminBadges() },
+  refreshStats: function () { this.getStats() },
 
   getStatusText: function (status) {
     var map = { 'pending': '待付款', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
