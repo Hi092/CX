@@ -11,7 +11,7 @@ Page({
     showModal: false,
     pwdInput: '',
     verifying: false,
-    _openid: '',
+    currentOpenid: '',
     badgeCounts: { pending: 0, paid: 0, delivering: 0 }
   },
 
@@ -28,7 +28,7 @@ Page({
 
   loadBadges: function () {
     var self = this
-    var openid = self.data._openid
+    var openid = self.data.currentOpenid
     if (!openid) {
       wx.cloud.callFunction({
         name: 'manageOrder',
@@ -36,7 +36,7 @@ Page({
         success: function (res) {
           var id = res.result && res.result.openid
           if (!id) return
-          self.setData({ _openid: id })
+          self.setData({ currentOpenid: id })
           self.fetchBadgeCounts(id)
         },
         fail: function () {}
@@ -65,9 +65,7 @@ Page({
         }
       }
       self.setData({ badgeCounts: counts })
-    }).catch(function (err) {
-      console.error('读取角标失败', err)
-    })
+    }).catch(function () {})
   },
 
   login: function () {
