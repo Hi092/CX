@@ -25,15 +25,19 @@ Page({
 
   loadBadges: function () {
     var self = this
-    db.collection('orders').limit(50).get().then(function (res) {
-      var counts = { pending: 0, paid: 0, delivering: 0 }
-      var list = res.data
-      for (var i = 0; i < list.length; i++) {
-        if (counts[list[i].status] !== undefined) {
-          counts[list[i].status]++
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'badgesMine' },
+      success: function (res) {
+        if (res.result && res.result.success) {
+          self.setData({ badgeCounts: res.result.counts || { pending: 0, paid: 0, delivering: 0 } })
+        } else {
+          self.setData({ badgeCounts: { pending: 0, paid: 0, delivering: 0 } })
         }
+      },
+      fail: function () {
+        self.setData({ badgeCounts: { pending: 0, paid: 0, delivering: 0 } })
       }
-      self.setData({ badgeCounts: counts })
     })
   },
 
@@ -60,9 +64,7 @@ Page({
     wx.navigateTo({ url: url })
   },
 
-  goAddress: function () {
-    wx.navigateTo({ url: '/pages/my/address/address' })
-  },
+  goAddress: function () { wx.navigateTo({ url: '/pages/my/address/address' }) },
 
   callShop: function () {
     var phone = this.data.shopPhone
@@ -73,9 +75,7 @@ Page({
     wx.makePhoneCall({ phoneNumber: phone })
   },
 
-  goSettings: function () {
-    wx.navigateTo({ url: '/pages/my/settings/settings' })
-  },
+  goSettings: function () { wx.navigateTo({ url: '/pages/my/settings/settings' }) },
 
   changeAvatar: function () {
     var self = this
@@ -110,7 +110,6 @@ Page({
     var self = this
     var pwd = this.data.pwdInput
     if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    
     wx.cloud.callFunction({
       name: 'verifyAdmin',
       data: { password: pwd }
@@ -125,7 +124,6 @@ Page({
         wx.showToast({ title: result.message || '密码错误', icon: 'none' })
       }
     }).catch(function () {
-      // 云函数未部署时，回退到默认密码
       if (pwd === '123456') {
         self.closeModal()
         wx.setStorageSync('isShopOwner', true)

@@ -11,17 +11,20 @@ Page({
   },
 
   onLoad: function () {
-    var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    this.loadTheme()
     this.getOrders()
     this.getStats()
   },
 
   onShow: function () {
-    var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    this.loadTheme()
     this.getOrders()
     this.getStats()
+  },
+
+  loadTheme: function () {
+    var s = wx.getStorageSync('shopSettings')
+    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
   },
 
   switchTab: function (e) {
@@ -32,66 +35,85 @@ Page({
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'listAdmin', status: self.data.currentTab },
+      success: function (res) {
+        if (res.result && res.result.success) self.applyOrders(res.result.data || [])
+        else self.getOrdersDirect()
+      },
+      fail: function () { self.getOrdersDirect() }
+    })
+  },
+
+  getOrdersDirect: function () {
+    var self = this
     var query = db.collection('orders').orderBy('createTime', 'desc')
     if (self.data.currentTab !== 'all') {
-      if (self.data.currentTab === 'pending') {
-        query = query.where({ status: db.command.in(['pending', 'paid']) })
-      } else {
-        query = query.where({ status: self.data.currentTab })
-      }
+      if (self.data.currentTab === 'pending') query = query.where({ status: db.command.in(['pending', 'paid']) })
+      else query = query.where({ status: self.data.currentTab })
     }
     query.limit(50).get().then(function (res) {
-      var orders = res.data
-      for (var i = 0; i < orders.length; i++) {
-        orders[i].statusText = self.getStatusText(orders[i].status)
-        orders[i].createTimeText = self.formatTime(orders[i].createTime)
-      }
-      self.setData({ orders: orders, loading: false })
+      self.applyOrders(res.data || [])
     }).catch(function (err) {
       console.error('getOrders失败', err)
       self.setData({ orders: [], loading: false })
     })
   },
 
+  applyOrders: function (orders) {
+    for (var i = 0; i < orders.length; i++) {
+      orders[i].statusText = this.getStatusText(orders[i].status)
+      orders[i].createTimeText = this.formatTime(orders[i].createTime)
+    }
+    this.setData({ orders: orders, loading: false })
+  },
+
   getStats: function () {
     var self = this
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'statsAdmin' },
+      success: function (res) {
+        if (res.result && res.result.success) self.applyStats(res.result.data || [])
+        else self.getStatsDirect()
+      },
+      fail: function () { self.getStatsDirect() }
+    })
+  },
+
+  getStatsDirect: function () {
+    var self = this
     db.collection('orders').limit(100).get().then(function (res) {
-      var orders = res.data
-      var now = new Date()
-      var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
-      var income = 0, todayCount = 0
-      for (var i = 0; i < orders.length; i++) {
-        var ct = orders[i].createTime
-        var ctDate = null
-        if (ct && ct.$date) ctDate = new Date(ct.$date)
-        else if (ct) ctDate = new Date(ct)
-        if (!ctDate) continue
-        if (ctDate.getFullYear() !== y || ctDate.getMonth() !== m || ctDate.getDate() !== d) continue
-        todayCount++
-        var st = orders[i].status
-        if (st === 'completed' || st === 'paid' || st === 'delivering') {
-          income += (orders[i].finalPrice || orders[i].totalPrice || 0)
-        }
-      }
-      console.log('getStats结果:', todayCount, income.toFixed(2))
-      self.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
+      self.applyStats(res.data || [])
     }).catch(function (err) {
       console.error('getStats失败', err)
       self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
     })
   },
 
-  refreshStats: function () {
-    var self = this
-    // 先清零让UI有变化反馈，再延迟拉真实数据
-    self.setData({ stats: { todayOrders: 0, todayIncome: '0.00' } })
-    setTimeout(function () {
-      self.getStats()
-    }, 1000)
+  applyStats: function (orders) {
+    var now = new Date()
+    var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
+    var income = 0, todayCount = 0
+    for (var i = 0; i < orders.length; i++) {
+      var ct = orders[i].createTime
+      var ctDate = null
+      if (ct && ct.$date) ctDate = new Date(ct.$date)
+      else if (ct) ctDate = new Date(ct)
+      if (!ctDate) continue
+      if (ctDate.getFullYear() !== y || ctDate.getMonth() !== m || ctDate.getDate() !== d) continue
+      todayCount++
+      var st = orders[i].status
+      if (st === 'completed' || st === 'paid' || st === 'delivering') income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+    }
+    this.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
   },
 
+  refreshStats: function () { this.getStats() },
+
   getStatusText: function (status) {
-    var map = { 'pending': '待配送', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
+    var map = { 'pending': '待付款', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
     return map[status] || status
   },
 
@@ -102,19 +124,37 @@ Page({
     return pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
   },
 
+  updateStatus: function (orderId, status, toastTitle, directData) {
+    var self = this
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'updateStatus', id: orderId, status: status },
+      success: function (res) {
+        if (res.result && res.result.success) {
+          wx.showToast({ title: toastTitle, icon: 'success' })
+          self.getOrders()
+          self.refreshStats()
+        } else {
+          wx.showToast({ title: '操作失败', icon: 'none' })
+        }
+      },
+      fail: function () {
+        db.collection('orders').doc(orderId).update({ data: directData }).then(function () {
+          wx.showToast({ title: toastTitle, icon: 'success' })
+          self.getOrders()
+          self.refreshStats()
+        }).catch(function () { wx.showToast({ title: '操作失败', icon: 'none' }) })
+      }
+    })
+  },
+
   startDelivery: function (e) {
     var orderId = e.currentTarget.dataset.id
     var self = this
     wx.showModal({
       title: '确认配送', content: '确认开始配送这个订单吗？',
       success: function (res) {
-        if (res.confirm) {
-          db.collection('orders').doc(orderId).update({ data: { status: 'delivering', deliveryTime: db.serverDate() } }).then(function () {
-            wx.showToast({ title: '已开始配送', icon: 'success' })
-            self.getOrders()
-            self.refreshStats()
-          })
-        }
+        if (res.confirm) self.updateStatus(orderId, 'delivering', '已开始配送', { status: 'delivering', deliveryTime: db.serverDate() })
       }
     })
   },
@@ -125,22 +165,11 @@ Page({
     wx.showModal({
       title: '确认送达', content: '确认订单已送达吗？',
       success: function (res) {
-        if (res.confirm) {
-          db.collection('orders').doc(orderId).update({ data: { status: 'completed', completeTime: db.serverDate() } }).then(function () {
-            wx.showToast({ title: '已完成', icon: 'success' })
-            self.getOrders()
-            self.refreshStats()
-          })
-        }
+        if (res.confirm) self.updateStatus(orderId, 'completed', '已完成', { status: 'completed', completeTime: db.serverDate() })
       }
     })
   },
 
-  callPhone: function (e) {
-    wx.makePhoneCall({ phoneNumber: e.currentTarget.dataset.phone })
-  },
-
-  viewDetail: function (e) {
-    wx.navigateTo({ url: '/pages/order/detail?id=' + e.currentTarget.dataset.id })
-  }
+  callPhone: function (e) { wx.makePhoneCall({ phoneNumber: e.currentTarget.dataset.phone }) },
+  viewDetail: function (e) { wx.navigateTo({ url: '/pages/order/detail?id=' + e.currentTarget.dataset.id + '&admin=1' }) }
 })

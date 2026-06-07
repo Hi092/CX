@@ -6,7 +6,8 @@ Page({
     order: null,
     loading: true,
     themeColor: '#4A90D9',
-    shopPhone: ''
+    shopPhone: '',
+    isAdmin: false
   },
 
   onLoad: function (options) {
@@ -15,27 +16,44 @@ Page({
       if (s.themeColor) this.setData({ themeColor: s.themeColor })
       if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
     }
+    this.setData({ isAdmin: options.admin === '1' })
     if (options.id) this.loadOrder(options.id)
   },
 
   loadOrder: function (id) {
     var self = this
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'get', id: id, admin: self.data.isAdmin },
+      success: function (res) {
+        if (res.result && res.result.success && res.result.data) self.applyOrder(res.result.data)
+        else self.loadOrderDirect(id)
+      },
+      fail: function () { self.loadOrderDirect(id) }
+    })
+  },
+
+  loadOrderDirect: function (id) {
+    var self = this
     db.collection('orders').doc(id).get().then(function (res) {
-      var order = res.data
-      order.statusText = self.getStatusText(order.status)
-      order.createTimeText = self.formatTime(order.createTime)
-      if (order.payTime) order.payTimeText = self.formatTime(order.payTime)
-      if (order.deliveryTime) order.deliveryTimeText = self.formatTime(order.deliveryTime)
-      if (order.completeTime) order.completeTimeText = self.formatTime(order.completeTime)
-      self.setData({ order: order, loading: false })
+      self.applyOrder(res.data)
     }).catch(function () {
       wx.showToast({ title: '订单不存在', icon: 'none' })
       setTimeout(function () { wx.navigateBack() }, 1500)
     })
   },
 
+  applyOrder: function (order) {
+    order.statusText = this.getStatusText(order.status)
+    order.createTimeText = this.formatTime(order.createTime)
+    if (order.payTime) order.payTimeText = this.formatTime(order.payTime)
+    if (order.deliveryTime) order.deliveryTimeText = this.formatTime(order.deliveryTime)
+    if (order.completeTime) order.completeTimeText = this.formatTime(order.completeTime)
+    this.setData({ order: order, loading: false })
+  },
+
   getStatusText: function (status) {
-    var map = { 'pending': '待配送', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
+    var map = { 'pending': '待付款', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
     return map[status] || status
   },
 
@@ -55,7 +73,5 @@ Page({
     wx.makePhoneCall({ phoneNumber: phone })
   },
 
-  callPhone: function (e) {
-    wx.makePhoneCall({ phoneNumber: e.currentTarget.dataset.phone })
-  }
+  callPhone: function (e) { wx.makePhoneCall({ phoneNumber: e.currentTarget.dataset.phone }) }
 })

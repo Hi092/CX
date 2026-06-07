@@ -6,13 +6,15 @@ Page({
     orders: [],
     currentTab: 'all',
     loading: true,
-    themeColor: '#4A90D9'
+    themeColor: '#4A90D9',
+    openid: ''
   },
 
   onLoad: function (options) {
     var s = wx.getStorageSync('shopSettings')
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     if (options.status) this.setData({ currentTab: options.status })
+    this.loadOpenid()
     this.getOrders()
     this.startWatch()
   },
@@ -27,17 +29,34 @@ Page({
     if (this._watch) this._watch.close()
   },
 
+  loadOpenid: function () {
+    var self = this
+    wx.cloud.callFunction({
+      name: 'login',
+      success: function (res) {
+        if (res.result && res.result.openid) self.setData({ openid: res.result.openid })
+      },
+      fail: function () {}
+    })
+  },
+
   startWatch: function () {
     var self = this
-    this._watch = db.collection('orders').where({}).watch({
-      onChange: function (snapshot) {
-        if (snapshot.type !== 'init' && snapshot.docs.length > 0) {
-          self.getOrders()
-          wx.showToast({ title: '订单状态已更新', icon: 'none' })
-        }
-      },
-      onError: function (err) {
-        console.error('实时监听失败:', err)
+    wx.cloud.callFunction({
+      name: 'login',
+      success: function (res) {
+        var openid = res.result && res.result.openid
+        if (!openid) return
+        self.setData({ openid: openid })
+        self._watch = db.collection('orders').where({ customerOpenid: openid }).watch({
+          onChange: function (snapshot) {
+            if (snapshot.type !== 'init') {
+              self.getOrders()
+              wx.showToast({ title: '订单状态已更新', icon: 'none' })
+            }
+          },
+          onError: function (err) { console.error('实时监听失败:', err) }
+        })
       }
     })
   },
@@ -50,21 +69,42 @@ Page({
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'listMine', status: self.data.currentTab },
+      success: function (res) {
+        if (res.result && res.result.success) {
+          self.applyOrders(res.result.data || [])
+        } else {
+          self.getOrdersDirect()
+        }
+      },
+      fail: function () { self.getOrdersDirect() }
+    })
+  },
+
+  getOrdersDirect: function () {
+    var self = this
     db.collection('orders').orderBy('createTime', 'desc').limit(50).get().then(function (res) {
       var all = res.data
       var orders = []
       for (var i = 0; i < all.length; i++) {
-        if (self.data.currentTab === 'all' || all[i].status === self.data.currentTab) {
-          all[i].statusText = self.getStatusText(all[i].status)
-          all[i].createTimeText = self.formatTime(all[i].createTime)
-          orders.push(all[i])
-        }
+        if (self.data.openid && all[i].customerOpenid && all[i].customerOpenid !== self.data.openid) continue
+        if (self.data.currentTab === 'all' || all[i].status === self.data.currentTab) orders.push(all[i])
       }
-      self.setData({ orders: orders, loading: false })
+      self.applyOrders(orders)
     }).catch(function (err) {
       console.error('我的订单查询失败:', err)
       self.setData({ orders: [], loading: false })
     })
+  },
+
+  applyOrders: function (orders) {
+    for (var i = 0; i < orders.length; i++) {
+      orders[i].statusText = this.getStatusText(orders[i].status)
+      orders[i].createTimeText = this.formatTime(orders[i].createTime)
+    }
+    this.setData({ orders: orders, loading: false })
   },
 
   getStatusText: function (status) {
