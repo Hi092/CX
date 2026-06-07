@@ -181,7 +181,7 @@
   justify-content: space-between;
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+  box-shadow: 0 -1rpx 6rpx rgba(0,0,0,0.04);
 }
 
 .submit-info {
@@ -200,4 +200,10 @@
 
 .submit-btn::after {
   border: none;
+}
+
+.submit-btn[disabled] {
+  opacity: 0.7;
+  color: #fff !important;
+  background: #999 !important;
 }

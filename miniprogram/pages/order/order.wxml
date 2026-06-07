@@ -67,6 +67,6 @@
       <text>合计: </text>
       <text class="price" style="color:{{themeColor}}"><text class="symbol">¥</text><text class="num">{{finalPrice}}</text></text>
     </view>
-    <button class="submit-btn" bindtap="submitOrder" loading="{{loading}}" style="background:{{themeColor}}">提交订单</button>
+    <button class="submit-btn" bindtap="submitOrder" disabled="{{submitting}}" style="background:{{themeColor}}">{{submitting ? '提交中...' : '提交订单'}}</button>
   </view>
 </view>
