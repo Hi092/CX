@@ -38,6 +38,27 @@ async function getOwnOrders(openid, status) {
   return result
 }
 
+async function getMyOrderCounts(openid) {
+  var counts = { pending: 0, paid: 0, delivering: 0 }
+  var seen = {}
+  var queries = [
+    db.collection('orders').where({ customerOpenid: openid, status: _.in(['pending', 'paid', 'delivering']) }).limit(300).get(),
+    db.collection('orders').where({ _openid: openid, status: _.in(['pending', 'paid', 'delivering']) }).limit(300).get()
+  ]
+  for (var i = 0; i < queries.length; i++) {
+    try {
+      var res = await queries[i]
+      for (var j = 0; j < res.data.length; j++) {
+        var item = res.data[j]
+        if (seen[item._id]) continue
+        seen[item._id] = true
+        if (counts[item.status] !== undefined) counts[item.status]++
+      }
+    } catch (e) {}
+  }
+  return counts
+}
+
 async function getShopConfig() {
   try {
     var cfg = await db.collection('products').doc(CONFIG_DOC_ID).get()
@@ -165,11 +186,7 @@ exports.main = async (event, context) => {
     }
 
     if (action === 'badgesMine') {
-      var mineOrders = await getOwnOrders(openid, 'all')
-      var counts = { pending: 0, paid: 0, delivering: 0 }
-      for (var b = 0; b < mineOrders.length; b++) {
-        if (counts[mineOrders[b].status] !== undefined) counts[mineOrders[b].status]++
-      }
+      var counts = await getMyOrderCounts(openid)
       return { success: true, counts: counts }
     }
 
