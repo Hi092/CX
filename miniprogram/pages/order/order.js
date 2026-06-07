@@ -4,10 +4,12 @@ var db = wx.cloud.database()
 Page({
   data: {
     items: [],
-    totalPrice: '0.00',
+    previewTotal: '0.00',
+    previewFee: '0.00',
     finalPrice: '0.00',
     deliveryFee: 3,
     freeDeliveryPrice: 30,
+    minPrice: 20,
     address: null,
     remark: '',
     loading: false,
@@ -15,31 +17,33 @@ Page({
   },
 
   onLoad: function () {
-    this.loadOrderData()
+    this.loadLocalPreview()
     this.getAddress()
   },
 
   onShow: function () {
-    this.loadOrderData()
+    this.loadLocalPreview()
     this.getAddress()
   },
 
-  loadOrderData: function () {
+  loadLocalPreview: function () {
     var items = wx.getStorageSync('checkoutItems') || []
     var totalPrice = 0
     for (var i = 0; i < items.length; i++) totalPrice += items[i].price * items[i].quantity
     var settings = wx.getStorageSync('shopSettings') || {}
     var deliveryFee = settings.deliveryFee !== undefined ? settings.deliveryFee : 3
     var freeDeliveryPrice = settings.freeDeliveryPrice !== undefined ? settings.freeDeliveryPrice : 30
-    var themeColor = settings.themeColor || '#4A90D9'
+    var minPrice = settings.minPrice !== undefined ? settings.minPrice : 20
     var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
     this.setData({
       items: items,
-      totalPrice: totalPrice.toFixed(2),
+      previewTotal: totalPrice.toFixed(2),
+      previewFee: fee.toFixed(2),
       finalPrice: (totalPrice + fee).toFixed(2),
       deliveryFee: deliveryFee,
       freeDeliveryPrice: freeDeliveryPrice,
-      themeColor: themeColor
+      minPrice: minPrice,
+      themeColor: settings.themeColor || '#4A90D9'
     })
   },
 
@@ -56,71 +60,96 @@ Page({
   chooseAddress: function () { wx.navigateTo({ url: '/pages/my/address/address?select=1' }) },
   onRemarkInput: function (e) { this.setData({ remark: e.detail.value }) },
 
-  buildOrder: function () {
-    var items = this.data.items
-    var totalPrice = parseFloat(this.data.totalPrice)
-    var deliveryFee = totalPrice >= this.data.freeDeliveryPrice ? 0 : this.data.deliveryFee
-    var finalPrice = totalPrice + deliveryFee
-    var order = {
-      orderNo: this._genOrderNo(),
-      items: [],
-      totalPrice: totalPrice,
-      deliveryFee: deliveryFee,
-      finalPrice: finalPrice,
-      address: this.data.address,
-      remark: this.data.remark,
-      status: 'pending'
-    }
+  buildSubmitItems: function () {
+    var items = this.data.items || []
+    var out = []
     for (var i = 0; i < items.length; i++) {
-      order.items.push({
-        productId: items[i]._id,
-        name: items[i].name,
-        price: items[i].price,
-        quantity: items[i].quantity,
-        image: items[i].image
-      })
+      if (!items[i]._id || !items[i].quantity || items[i].quantity <= 0) continue
+      out.push({ productId: items[i]._id, quantity: items[i].quantity })
     }
-    return order
+    return out
   },
 
   submitOrder: function () {
-    var items = this.data.items
+    var items = this.buildSubmitItems()
     if (!items || items.length === 0) { wx.showToast({ title: '请选择商品', icon: 'none' }); return }
     var address = this.data.address
     if (!address) { wx.showToast({ title: '请选择收货地址', icon: 'none' }); return }
-    var settings = wx.getStorageSync('shopSettings')
-    if (settings && settings.shopStatus === '歇业') {
-      wx.showToast({ title: '店铺已歇业，暂时无法下单', icon: 'none' })
-      return
-    }
     if (this.data.loading) return
     this.setData({ loading: true })
 
     var self = this
-    var order = this.buildOrder()
     wx.cloud.callFunction({
       name: 'manageOrder',
-      data: { action: 'create', order: order },
+      data: {
+        action: 'create',
+        items: items,
+        address: address,
+        remark: this.data.remark || ''
+      },
       success: function (res) {
         if (res.result && res.result.success) {
-          self.afterOrderCreated(res.result.id, order.finalPrice)
+          var r = res.result
+          self.setData({
+            previewTotal: r.totalPrice.toFixed(2),
+            previewFee: r.deliveryFee.toFixed(2),
+            finalPrice: r.finalPrice.toFixed(2)
+          })
+          self.afterOrderCreated(r.id, r.finalPrice, r.orderNo)
         } else {
           self.setData({ loading: false })
-          wx.showToast({ title: '下单失败', icon: 'none' })
+          var msg = '下单失败'
+          var code = res.result && res.result.error
+          if (code === 'SHOP_CLOSED') msg = '店铺已歇业，暂时无法下单'
+          else if (code === 'UNDER_MIN_PRICE') msg = '未满起送价'
+          else if (code === 'STOCK_NOT_ENOUGH') msg = (res.result.name || '商品') + '库存不足'
+          else if (code === 'PRODUCT_UNAVAILABLE') msg = (res.result.name || '商品') + '已下架'
+          wx.showToast({ title: msg, icon: 'none' })
         }
       },
       fail: function (err) {
         console.error('manageOrder下单失败，降级直写', err)
-        self.createOrderDirect(order)
+        self.createOrderDirect(items)
       }
     })
   },
 
-  createOrderDirect: function (order) {
+  createOrderDirect: function (submitItems) {
     var self = this
-    order.createTime = db.serverDate()
+    var settings = wx.getStorageSync('shopSettings') || {}
+    if (settings.shopStatus === '歇业') {
+      wx.showToast({ title: '店铺已歇业，暂时无法下单', icon: 'none' })
+      this.setData({ loading: false })
+      return
+    }
+
+    var cartItems = this.data.items || []
+    var totalPrice = 0
+    var orderItems = []
+    for (var i = 0; i < cartItems.length; i++) {
+      var ci = cartItems[i]
+      totalPrice += ci.price * ci.quantity
+      orderItems.push({ productId: ci._id, name: ci.name, price: ci.price, quantity: ci.quantity, image: ci.image })
+    }
+    totalPrice = Math.round(totalPrice * 100) / 100
+    var freeDeliveryPrice = settings.freeDeliveryPrice !== undefined ? settings.freeDeliveryPrice : 30
+    var deliveryFee = settings.deliveryFee !== undefined ? settings.deliveryFee : 3
+    var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
+    var finalPrice = Math.round((totalPrice + fee) * 100) / 100
+
+    var order = {
+      orderNo: this._genOrderNo(),
+      items: orderItems,
+      totalPrice: totalPrice,
+      deliveryFee: fee,
+      finalPrice: finalPrice,
+      address: this.data.address,
+      remark: this.data.remark || '',
+      status: 'pending',
+      source: 'miniprogram_fallback'
+    }
     db.collection('orders').add({ data: order }).then(function (res) {
-      self.afterOrderCreated(res._id, order.finalPrice)
+      self.afterOrderCreated(res._id, finalPrice, order.orderNo)
     }).catch(function (err) {
       console.error('下单失败', err)
       wx.showToast({ title: '下单失败', icon: 'none' })
@@ -128,9 +157,9 @@ Page({
     })
   },
 
-  afterOrderCreated: function (orderId, finalPrice) {
+  afterOrderCreated: function (orderId, finalPrice, orderNo) {
     var cart = wx.getStorageSync('cart') || []
-    var items = this.data.items
+    var items = this.data.items || []
     var ids = {}
     for (var i = 0; i < items.length; i++) ids[items[i]._id] = true
     var newCart = []
@@ -138,7 +167,7 @@ Page({
     wx.setStorageSync('cart', newCart)
     wx.removeStorageSync('checkoutItems')
     wx.removeStorageSync('selectedAddress')
-    this.simulatePay(orderId, finalPrice)
+    this.simulatePay(orderId, finalPrice, orderNo)
   },
 
   _genOrderNo: function () {
@@ -149,10 +178,11 @@ Page({
     return '' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + r
   },
 
-  simulatePay: function (orderId, price) {
+  simulatePay: function (orderId, price, orderNo) {
     var self = this
     wx.showModal({
-      title: '模拟支付', content: '订单金额: ¥' + price.toFixed(2),
+      title: '模拟支付',
+      content: '订单金额: ¥' + price.toFixed(2),
       confirmText: '确认支付', cancelText: '取消',
       success: function (res) {
         if (res.confirm) {
@@ -177,7 +207,10 @@ Page({
           self.setData({ loading: false })
           setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
         } else {
-          var msg = res.result && res.result.error === 'STOCK_NOT_ENOUGH' ? (res.result.productName + '库存不足') : '支付失败'
+          var msg = '支付失败'
+          var code = res.result && res.result.error
+          if (code === 'STOCK_NOT_ENOUGH') msg = (res.result.productName || '商品') + '库存不足'
+          else if (code === 'PRODUCT_UNAVAILABLE') msg = (res.result.productName || '商品') + '已下架'
           wx.showToast({ title: msg, icon: 'none' })
           self.setData({ loading: false })
         }
