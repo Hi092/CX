@@ -1,4 +1,4 @@
-// 订单确认页 - 云函数优先，失败无缝直连
+// 订单确认页 - 云函数优先，失败无缝直连，带最小报错日志
 var db = wx.cloud.database()
 
 Page({
@@ -18,13 +18,21 @@ Page({
   },
 
   onLoad: function () {
-    this.loadLocalPreview()
-    this.getAddress()
+    try {
+      this.loadLocalPreview()
+      this.getAddress()
+    } catch (err) {
+      console.error('确认订单onLoad报错', err)
+    }
   },
 
   onShow: function () {
-    this.loadLocalPreview()
-    this.getAddress()
+    try {
+      this.loadLocalPreview()
+      this.getAddress()
+    } catch (err) {
+      console.error('确认订单onShow报错', err)
+    }
   },
 
   loadLocalPreview: function () {
@@ -72,39 +80,46 @@ Page({
   },
 
   submitOrder: function () {
-    var items = this.buildSubmitItems()
-    if (!items || items.length === 0) { wx.showToast({ title: '请选择商品', icon: 'none' }); return }
-    var address = this.data.address
-    if (!address) { wx.showToast({ title: '请选择收货地址', icon: 'none' }); return }
-    if (this.data.submitting) return
-    this.setData({ submitting: true, loading: true })
+    try {
+      var items = this.buildSubmitItems()
+      if (!items || items.length === 0) { wx.showToast({ title: '请选择商品', icon: 'none' }); return }
+      var address = this.data.address
+      if (!address) { wx.showToast({ title: '请选择收货地址', icon: 'none' }); return }
+      if (this.data.submitting) return
+      this.setData({ submitting: true, loading: true })
 
-    var self = this
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: {
-        action: 'create',
-        items: items,
-        address: address,
-        remark: this.data.remark || ''
-      },
-      success: function (res) {
-        if (res.result && res.result.success) {
-          var r = res.result
-          self.setData({
-            previewTotal: r.totalPrice.toFixed(2),
-            previewFee: r.deliveryFee.toFixed(2),
-            finalPrice: r.finalPrice.toFixed(2)
-          })
-          self.startPayFlow(r.id, r.finalPrice, true)
-        } else {
+      var self = this
+      wx.cloud.callFunction({
+        name: 'manageOrder',
+        data: {
+          action: 'create',
+          items: items,
+          address: address,
+          remark: this.data.remark || ''
+        },
+        success: function (res) {
+          if (res.result && res.result.success) {
+            var r = res.result
+            self.setData({
+              previewTotal: r.totalPrice.toFixed(2),
+              previewFee: r.deliveryFee.toFixed(2),
+              finalPrice: r.finalPrice.toFixed(2)
+            })
+            self.startPayFlow(r.id, r.finalPrice, true)
+          } else {
+            console.warn('manageOrder下单返回失败，走直连', res)
+            self.createOrderDirect()
+          }
+        },
+        fail: function (err) {
+          console.error('manageOrder下单请求失败，走直连', err)
           self.createOrderDirect()
         }
-      },
-      fail: function () {
-        self.createOrderDirect()
-      }
-    })
+      })
+    } catch (err) {
+      console.error('submitOrder报错', err)
+      this.setData({ submitting: false, loading: false })
+    }
   },
 
   createOrderDirect: function () {
@@ -181,10 +196,12 @@ Page({
         if (res.result && res.result.success) {
           self.onPaySuccess()
         } else {
+          console.warn('manageOrder支付返回失败，走直连', res)
           self.payOrderDirect(orderId)
         }
       },
-      fail: function () {
+      fail: function (err) {
+        console.error('manageOrder支付请求失败，走直连', err)
         self.payOrderDirect(orderId)
       }
     })
