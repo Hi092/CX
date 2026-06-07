@@ -154,6 +154,8 @@ Page({
       address: this.data.address,
       remark: this.data.remark || '',
       status: 'pending',
+      createTime: db.serverDate(),
+      pendingExpireAt: new Date(Date.now() + 10 * 60 * 1000),
       source: 'miniprogram_fallback'
     }
     db.collection('orders').add({ data: order }).then(function (res) {
@@ -181,7 +183,7 @@ Page({
         } else {
           wx.showToast({ title: '订单已保存', icon: 'none' })
           self.setData({ submitting: false, loading: false })
-          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
+          setTimeout(function () { wx.redirectTo({ url: '/pages/my/orders/orders?status=pending' }) }, 1200)
         }
       }
     })

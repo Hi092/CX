@@ -1,6 +1,8 @@
-// 商家订单管理 - 直读订单
+// 商家订单管理 - 只显示已付款后的订单，红气泡按订单数提醒
 var db = wx.cloud.database()
 var _ = db.command
+var ADMIN_VISIBLE_STATUS = ['paid', 'delivering', 'completed']
+var ADMIN_REMIND_STATUS = ['paid', 'delivering']
 
 Page({
   data: {
@@ -8,19 +10,43 @@ Page({
     currentTab: 'all',
     loading: true,
     stats: { todayOrders: 0, todayIncome: '0.00' },
+    badgeCounts: { all: 0, paid: 0, delivering: 0 },
     themeColor: '#4A90D9'
   },
 
   onLoad: function () {
     this.loadTheme()
-    this.getOrders()
-    this.getStats()
+    this.refreshData(true)
   },
 
   onShow: function () {
     this.loadTheme()
-    this.getOrders()
+    this.refreshData(true)
+    this.startAutoRefresh()
+  },
+
+  onHide: function () { this.stopAutoRefresh() },
+  onUnload: function () { this.stopAutoRefresh() },
+
+  startAutoRefresh: function () {
+    var self = this
+    this.stopAutoRefresh()
+    this.adminRefreshTimer = setInterval(function () {
+      self.refreshData(false)
+    }, 15000)
+  },
+
+  stopAutoRefresh: function () {
+    if (this.adminRefreshTimer) {
+      clearInterval(this.adminRefreshTimer)
+      this.adminRefreshTimer = null
+    }
+  },
+
+  refreshData: function (showLoading) {
+    this.getOrders(showLoading)
     this.getStats()
+    this.loadAdminBadges()
   },
 
   loadTheme: function () {
@@ -30,18 +56,18 @@ Page({
 
   switchTab: function (e) {
     this.setData({ currentTab: e.currentTarget.dataset.tab })
-    this.getOrders()
+    this.getOrders(true)
   },
 
-  getOrders: function () {
+  getOrders: function (showLoading) {
     var self = this
-    self.setData({ loading: true })
-    var query = db.collection('orders').orderBy('createTime', 'desc')
-    if (self.data.currentTab !== 'all') {
-      if (self.data.currentTab === 'pending') query = query.where({ status: _.in(['pending', 'paid']) })
-      else query = query.where({ status: self.data.currentTab })
-    }
-    query.limit(100).get().then(function (res) {
+    if (showLoading !== false) self.setData({ loading: true })
+    var status = self.data.currentTab
+    var query = db.collection('orders')
+    if (status === 'all') query = query.where({ status: _.in(ADMIN_VISIBLE_STATUS) })
+    else query = query.where({ status: status })
+
+    query.orderBy('createTime', 'desc').limit(100).get().then(function (res) {
       self.applyOrders(res.data || [])
     }).catch(function (err) {
       console.error('getOrders失败', err)
@@ -52,14 +78,31 @@ Page({
   applyOrders: function (orders) {
     for (var i = 0; i < orders.length; i++) {
       orders[i].statusText = this.getStatusText(orders[i].status)
+      orders[i].statusClass = orders[i].status
       orders[i].createTimeText = this.formatTime(orders[i].createTime)
     }
     this.setData({ orders: orders, loading: false })
   },
 
+  loadAdminBadges: function () {
+    var self = this
+    db.collection('orders').where({ status: _.in(ADMIN_REMIND_STATUS) }).limit(300).get().then(function (res) {
+      var list = res.data || []
+      var counts = { all: 0, paid: 0, delivering: 0 }
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].status === 'paid') counts.paid++
+        if (list[i].status === 'delivering') counts.delivering++
+      }
+      counts.all = counts.paid + counts.delivering
+      self.setData({ badgeCounts: counts })
+    }).catch(function (err) {
+      console.error('loadAdminBadges失败', err)
+    })
+  },
+
   getStats: function () {
     var self = this
-    db.collection('orders').limit(100).get().then(function (res) {
+    db.collection('orders').where({ status: _.in(ADMIN_VISIBLE_STATUS) }).limit(300).get().then(function (res) {
       self.applyStats(res.data || [])
     }).catch(function (err) {
       console.error('getStats失败', err)
@@ -72,20 +115,16 @@ Page({
     var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
     var income = 0, todayCount = 0
     for (var i = 0; i < orders.length; i++) {
-      var ct = orders[i].createTime
-      var ctDate = null
-      if (ct && ct.$date) ctDate = new Date(ct.$date)
-      else if (ct) ctDate = new Date(ct)
+      var ctDate = toDate(orders[i].createTime)
       if (!ctDate) continue
       if (ctDate.getFullYear() !== y || ctDate.getMonth() !== m || ctDate.getDate() !== d) continue
       todayCount++
-      var st = orders[i].status
-      if (st === 'completed' || st === 'paid' || st === 'delivering') income += (orders[i].finalPrice || orders[i].totalPrice || 0)
+      income += (orders[i].finalPrice || orders[i].totalPrice || 0)
     }
     this.setData({ stats: { todayOrders: todayCount, todayIncome: income.toFixed(2) } })
   },
 
-  refreshStats: function () { this.getStats() },
+  refreshStats: function () { this.getStats(); this.loadAdminBadges() },
 
   getStatusText: function (status) {
     var map = { 'pending': '待付款', 'paid': '待配送', 'delivering': '配送中', 'completed': '已完成' }
@@ -93,8 +132,8 @@ Page({
   },
 
   formatTime: function (timestamp) {
-    if (!timestamp) return ''
-    var d = typeof timestamp === 'object' && timestamp.$date ? new Date(timestamp.$date) : new Date(timestamp)
+    var d = toDate(timestamp)
+    if (!d) return ''
     var pad = function (n) { return n < 10 ? '0' + n : '' + n }
     return pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
   },
@@ -103,8 +142,7 @@ Page({
     var self = this
     db.collection('orders').doc(orderId).update({ data: directData }).then(function () {
       wx.showToast({ title: toastTitle, icon: 'success' })
-      self.getOrders()
-      self.refreshStats()
+      self.refreshData(false)
     }).catch(function () {
       wx.showToast({ title: '操作失败', icon: 'none' })
     })
@@ -132,6 +170,16 @@ Page({
     })
   },
 
-  callPhone: function (e) { wx.makePhoneCall({ phoneNumber: e.currentTarget.dataset.phone }) },
+  callPhone: function (e) {
+    var phone = e.currentTarget.dataset.phone
+    if (phone) wx.makePhoneCall({ phoneNumber: phone })
+  },
+
   viewDetail: function (e) { wx.navigateTo({ url: '/pages/order/detail?id=' + e.currentTarget.dataset.id + '&admin=1' }) }
 })
+
+function toDate(timestamp) {
+  if (!timestamp) return null
+  if (typeof timestamp === 'object' && timestamp.$date) return new Date(timestamp.$date)
+  return new Date(timestamp)
+}

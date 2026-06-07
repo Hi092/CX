@@ -23,6 +23,25 @@ Page({
   onShow: function () {
     this.loadFromCache()
     this.refreshData()
+    this.startAutoRefresh()
+  },
+
+  onHide: function () { this.stopAutoRefresh() },
+  onUnload: function () { this.stopAutoRefresh() },
+
+  startAutoRefresh: function () {
+    var self = this
+    this.stopAutoRefresh()
+    this.dashboardTimer = setInterval(function () {
+      self.refreshData()
+    }, 15000)
+  },
+
+  stopAutoRefresh: function () {
+    if (this.dashboardTimer) {
+      clearInterval(this.dashboardTimer)
+      this.dashboardTimer = null
+    }
   },
 
   loadFromCache: function () {
@@ -92,13 +111,13 @@ Page({
         var ctTime = 0
         if (ct && ct.$date) ctTime = new Date(ct.$date).getTime()
         else if (ct) ctTime = new Date(ct).getTime()
-        if (ctTime < todayStart || ctTime >= todayEnd) continue
-        totalOrders++
         var status = orders[i].status
-        if (status === 'completed' || status === 'paid' || status === 'delivering') {
+        var isToday = ctTime >= todayStart && ctTime < todayEnd
+        if (isToday && (status === 'completed' || status === 'paid' || status === 'delivering')) {
+          totalOrders++
           income += (orders[i].finalPrice || orders[i].totalPrice || 0)
         }
-        if (status === 'pending' || status === 'paid' || status === 'delivering') pending++
+        if (status === 'paid') pending++
       }
       self.setData({
         todayOrders: totalOrders,

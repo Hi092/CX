@@ -142,6 +142,19 @@
   margin-left: 10rpx;
   font-weight: 300;
 }
+.menu-badge {
+  min-width: 34rpx;
+  height: 34rpx;
+  line-height: 34rpx;
+  padding: 0 10rpx;
+  border-radius: 18rpx;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-right: 14rpx;
+}
 
 /* 退出按钮 */
 .logout-btn {

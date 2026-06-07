@@ -29,9 +29,11 @@
   flex: 1; text-align: center; padding: 24rpx 0;
   font-size: 28rpx; color: #666;
   display: flex; flex-direction: column; align-items: center;
+  position: relative;
 }
 .tab.active { font-weight: bold; }
 .tab-line { width: 40rpx; height: 4rpx; border-radius: 2rpx; margin-top: 8rpx; }
+.tab-badge { position: absolute; top: 8rpx; right: 18rpx; min-width: 30rpx; height: 30rpx; line-height: 30rpx; padding: 0 8rpx; border-radius: 16rpx; background: #e74c3c; color: #fff; font-size: 20rpx; font-weight: 700; text-align: center; }
 
 .order-card {
   background: #fff;

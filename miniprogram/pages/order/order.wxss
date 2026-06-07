@@ -178,24 +178,32 @@
   background: #fff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -1rpx 6rpx rgba(0,0,0,0.04);
+  box-sizing: border-box;
 }
 
 .submit-info {
   font-size: 30rpx;
+  flex: 1;
+  min-width: 0;
 }
 
 .submit-btn {
   color: #fff;
   border: none;
   border-radius: 50rpx;
-  padding: 16rpx 50rpx;
+  padding: 16rpx 56rpx;
+  min-width: 220rpx;
   font-size: 30rpx;
-  margin-left: auto;
-  display: block;
+  margin-left: 24rpx;
+  margin-right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .submit-btn::after {

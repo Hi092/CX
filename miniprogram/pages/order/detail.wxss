@@ -22,5 +22,13 @@
 .price { font-weight: bold; }
 .free { color: #4CAF50; }
 .divider { height: 1rpx; background: #f0f0f0; margin: 12rpx 0; }
+.pending-actions { margin: 20rpx; background: #fff; border-radius: 16rpx; padding: 24rpx; }
+.pending-note { color: #f39c12; background: #fff7e6; padding: 16rpx; border-radius: 12rpx; font-size: 26rpx; margin-bottom: 20rpx; }
+.action-row { display: flex; justify-content: flex-end; gap: 20rpx; }
+.action-btn { margin: 0; min-width: 180rpx; height: 64rpx; line-height: 64rpx; border-radius: 32rpx; font-size: 28rpx; }
+.action-btn::after { border: none; }
+.action-btn.danger { background: #fff0f0; color: #e74c3c; }
+.action-btn.primary { color: #fff; }
+.action-btn[disabled] { opacity: 0.7; }
 .contact-btn { margin: 20rpx; background: #fff; border-radius: 16rpx; padding: 24rpx; text-align: center; font-size: 30rpx; font-weight: 600; }
 .loading { text-align: center; padding: 100rpx; color: #999; }

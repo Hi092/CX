@@ -1,5 +1,6 @@
 var db = wx.cloud.database()
 var _ = db.command
+var PENDING_EXPIRE_MS = 10 * 60 * 1000
 
 Page({
   data: {
@@ -60,6 +61,7 @@ Page({
         for (var j = 0; j < arr.length; j++) {
           var item = arr[j]
           if (seen[item._id]) continue
+          if (item.status === 'pending' && isPendingExpired(item)) continue
           seen[item._id] = true
           if (counts[item.status] !== undefined) counts[item.status]++
         }
@@ -174,3 +176,18 @@ Page({
 
   closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false }) }
 })
+
+function isPendingExpired(order) {
+  var createMs = getTimeMs(order.createTime)
+  if (!createMs) return false
+  return Date.now() - createMs >= PENDING_EXPIRE_MS
+}
+
+function getTimeMs(timestamp) {
+  if (!timestamp) return 0
+  if (typeof timestamp === 'number') return timestamp
+  if (typeof timestamp === 'object' && timestamp.getTime) return timestamp.getTime()
+  if (typeof timestamp === 'object' && timestamp.$date) return new Date(timestamp.$date).getTime()
+  var t = new Date(timestamp).getTime()
+  return isNaN(t) ? 0 : t
+}

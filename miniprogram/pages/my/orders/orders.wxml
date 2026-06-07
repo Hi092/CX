@@ -22,32 +22,51 @@
       <view class="tab-line" wx:if="{{currentTab === 'completed'}}" style="background:{{themeColor}}"></view>
     </view>
   </view>
-  
+
   <view class="order-list">
-    <view class="order-card" wx:for="{{orders}}" wx:key="_id" bindtap="viewDetail" data-id="{{item._id}}">
-      <view class="order-header">
-        <text class="order-no">订单号: {{item.orderNo}}</text>
-        <text class="order-status" style="color:{{themeColor}}">{{item.statusText}}</text>
+    <view class="swipe-row" wx:for="{{orders}}" wx:key="_id">
+      <view class="delete-bg" wx:if="{{item.status === 'pending'}}" catchtap="deletePendingOrder" data-id="{{item._id}}">
+        <text>删除</text>
       </view>
-      <view class="order-items">
-        <view class="order-item" wx:for="{{item.items}}" wx:for-item="product" wx:key="name">
-          <text class="item-name">{{product.name}}</text>
-          <text class="item-qty">x{{product.quantity}}</text>
-          <text class="item-price">¥{{product.price}}</text>
+
+      <view class="order-card {{item.swiped ? 'swiped' : ''}}"
+            bindtap="viewDetail"
+            bindtouchstart="onCardTouchStart"
+            bindtouchend="onCardTouchEnd"
+            data-id="{{item._id}}"
+            data-status="{{item.status}}">
+        <view class="order-header">
+          <text class="order-no">订单号: {{item.orderNo}}</text>
+          <text class="order-status" style="color:{{themeColor}}">{{item.statusText}}</text>
         </view>
-      </view>
-      <view class="order-footer">
-        <text class="order-time">{{item.createTimeText}}</text>
-        <text class="order-total" style="color:{{themeColor}}">合计: ¥{{item.finalPrice}}</text>
+        <view class="order-items">
+          <view class="order-item" wx:for="{{item.items}}" wx:for-item="product" wx:key="name">
+            <text class="item-name">{{product.name}}</text>
+            <text class="item-qty">x{{product.quantity}}</text>
+            <text class="item-price">¥{{product.price}}</text>
+          </view>
+        </view>
+        <view class="pending-tip" wx:if="{{item.status === 'pending'}}">
+          <text>未支付，{{item.pendingExpireText}}。点击订单可重新付款，左滑可删除。</text>
+        </view>
+        <view class="order-footer">
+          <text class="order-time">{{item.createTimeText}}</text>
+          <text class="order-total" style="color:{{themeColor}}">合计: ¥{{item.finalPrice}}</text>
+        </view>
+        <view class="order-actions" wx:if="{{item.status === 'pending'}}">
+          <button class="mini-btn plain" catchtap="viewDetailOnly" data-id="{{item._id}}">详情</button>
+          <button class="mini-btn danger" catchtap="deletePendingOrder" data-id="{{item._id}}">删除</button>
+          <button class="mini-btn primary" style="background:{{themeColor}}" catchtap="payAgain" data-id="{{item._id}}">重新付款</button>
+        </view>
       </view>
     </view>
   </view>
-  
+
   <view class="empty" wx:if="{{orders.length === 0 && !loading}}">
     <icon type="list" size="60" color="#ccc"/>
     <text>暂无订单</text>
   </view>
-  
+
   <view class="loading" wx:if="{{loading}}">
     <text>加载中...</text>
   </view>

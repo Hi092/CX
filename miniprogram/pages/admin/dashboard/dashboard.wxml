@@ -53,6 +53,7 @@
         <text class="menu-title">订单管理</text>
         <text class="menu-desc">查看和处理订单</text>
       </view>
+      <text class="menu-badge" wx:if="{{pendingOrders > 0}}">{{pendingOrders}}</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/products/products">

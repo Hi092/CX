@@ -3,12 +3,42 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 const CONFIG_DOC_ID = 'shop_config_v1'
+const PENDING_EXPIRE_MS = 10 * 60 * 1000
 
 function getOrderTimeTextField(status) {
   if (status === 'paid') return { payTime: db.serverDate() }
   if (status === 'delivering') return { deliveryTime: db.serverDate() }
   if (status === 'completed') return { completeTime: db.serverDate() }
   return {}
+}
+
+function getTimeMs(timestamp) {
+  if (!timestamp) return 0
+  if (typeof timestamp === 'number') return timestamp
+  if (timestamp.getTime) return timestamp.getTime()
+  if (timestamp.$date) return new Date(timestamp.$date).getTime()
+  var t = new Date(timestamp).getTime()
+  return isNaN(t) ? 0 : t
+}
+
+function isPendingExpired(order) {
+  if (!order || order.status !== 'pending') return false
+  var createMs = getTimeMs(order.createTime)
+  if (!createMs) return false
+  return Date.now() - createMs >= PENDING_EXPIRE_MS
+}
+
+async function removeExpiredPendingOrders(orders) {
+  var keep = []
+  for (var i = 0; i < orders.length; i++) {
+    var order = orders[i]
+    if (isPendingExpired(order)) {
+      try { await db.collection('orders').doc(order._id).remove() } catch (e) {}
+    } else {
+      keep.push(order)
+    }
+  }
+  return keep
 }
 
 async function getOwnOrders(openid, status) {
@@ -127,6 +157,7 @@ exports.main = async (event, context) => {
         remark: event.remark || '',
         status: 'pending',
         createTime: db.serverDate(),
+        pendingExpireAt: new Date(Date.now() + PENDING_EXPIRE_MS),
         source: 'miniprogram'
       }
       var addRes = await db.collection('orders').add({ data: order })
@@ -140,6 +171,10 @@ exports.main = async (event, context) => {
       if (!order) return { success: false, error: 'ORDER_NOT_FOUND' }
       if (order.customerOpenid && order.customerOpenid !== openid) return { success: false, error: 'NO_PERMISSION' }
       if (order.status !== 'pending') return { success: true, alreadyPaid: true }
+      if (isPendingExpired(order)) {
+        try { await db.collection('orders').doc(id).remove() } catch (removeErr) {}
+        return { success: false, error: 'ORDER_EXPIRED' }
+      }
 
       for (var i = 0; i < order.items.length; i++) {
         var item = order.items[i]
@@ -161,11 +196,13 @@ exports.main = async (event, context) => {
 
     if (action === 'listMine') {
       var mine = await getOwnOrders(openid, event.status)
+      mine = await removeExpiredPendingOrders(mine)
       return { success: true, data: mine }
     }
 
     if (action === 'badgesMine') {
       var mineOrders = await getOwnOrders(openid, 'all')
+      mineOrders = await removeExpiredPendingOrders(mineOrders)
       var counts = { pending: 0, paid: 0, delivering: 0 }
       for (var b = 0; b < mineOrders.length; b++) {
         if (counts[mineOrders[b].status] !== undefined) counts[mineOrders[b].status]++
@@ -176,15 +213,17 @@ exports.main = async (event, context) => {
     if (action === 'listAdmin') {
       var query = db.collection('orders').orderBy('createTime', 'desc')
       if (event.status && event.status !== 'all') {
-        if (event.status === 'todo' || event.status === 'pending') query = query.where({ status: _.in(['pending', 'paid']) })
+        if (event.status === 'todo') query = query.where({ status: 'paid' })
         else query = query.where({ status: event.status })
+      } else {
+        query = query.where({ status: _.in(['paid', 'delivering', 'completed']) })
       }
       var adminRes = await query.limit(100).get()
       return { success: true, data: adminRes.data }
     }
 
     if (action === 'statsAdmin') {
-      var allRes = await db.collection('orders').orderBy('createTime', 'desc').limit(300).get()
+      var allRes = await db.collection('orders').where({ status: _.in(['paid', 'delivering', 'completed']) }).orderBy('createTime', 'desc').limit(300).get()
       return { success: true, data: allRes.data }
     }
 
@@ -201,10 +240,33 @@ exports.main = async (event, context) => {
     if (action === 'get') {
       var getRes = await db.collection('orders').doc(event.id).get()
       var orderData = getRes.data
+      if (!orderData) return { success: false, error: 'ORDER_NOT_FOUND' }
+      if (isPendingExpired(orderData)) {
+        try { await db.collection('orders').doc(event.id).remove() } catch (expireErr) {}
+        return { success: false, error: 'ORDER_EXPIRED' }
+      }
       if (!event.admin && orderData.customerOpenid && orderData.customerOpenid !== openid) {
         return { success: false, error: 'NO_PERMISSION' }
       }
       return { success: true, data: orderData }
+    }
+
+    if (action === 'delete') {
+      var deleteId = event.id
+      var deleteRes = await db.collection('orders').doc(deleteId).get()
+      var deleteOrder = deleteRes.data
+      if (!deleteOrder) return { success: true, deleted: true }
+      if (deleteOrder.status !== 'pending') return { success: false, error: 'ONLY_PENDING_CAN_DELETE' }
+      if (deleteOrder.customerOpenid && deleteOrder.customerOpenid !== openid) return { success: false, error: 'NO_PERMISSION' }
+      if (!deleteOrder.customerOpenid && deleteOrder._openid && deleteOrder._openid !== openid) return { success: false, error: 'NO_PERMISSION' }
+      await db.collection('orders').doc(deleteId).remove()
+      return { success: true }
+    }
+
+    if (action === 'cleanupPending') {
+      var pendingMine = await getOwnOrders(openid, 'pending')
+      await removeExpiredPendingOrders(pendingMine)
+      return { success: true }
     }
 
     if (action === 'getOpenid') {

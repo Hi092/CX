@@ -17,14 +17,17 @@
   <view class="tab-bar">
     <view class="tab {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
       <text style="{{currentTab === 'all' ? 'color:' + themeColor : ''}}">全部</text>
+      <text class="tab-badge" wx:if="{{badgeCounts.all > 0}}">{{badgeCounts.all}}</text>
       <view class="tab-line" wx:if="{{currentTab === 'all'}}" style="background:{{themeColor}}"></view>
     </view>
-    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
-      <text style="{{currentTab === 'pending' ? 'color:' + themeColor : ''}}">待处理</text>
-      <view class="tab-line" wx:if="{{currentTab === 'pending'}}" style="background:{{themeColor}}"></view>
+    <view class="tab {{currentTab === 'paid' ? 'active' : ''}}" bindtap="switchTab" data-tab="paid">
+      <text style="{{currentTab === 'paid' ? 'color:' + themeColor : ''}}">待配送</text>
+      <text class="tab-badge" wx:if="{{badgeCounts.paid > 0}}">{{badgeCounts.paid}}</text>
+      <view class="tab-line" wx:if="{{currentTab === 'paid'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'delivering' ? 'active' : ''}}" bindtap="switchTab" data-tab="delivering">
       <text style="{{currentTab === 'delivering' ? 'color:' + themeColor : ''}}">配送中</text>
+      <text class="tab-badge" wx:if="{{badgeCounts.delivering > 0}}">{{badgeCounts.delivering}}</text>
       <view class="tab-line" wx:if="{{currentTab === 'delivering'}}" style="background:{{themeColor}}"></view>
     </view>
     <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
