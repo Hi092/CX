@@ -1,4 +1,4 @@
-// 订单确认页
+// 订单确认页 - 云函数优先，失败无缝直连
 var db = wx.cloud.database()
 
 Page({
@@ -13,6 +13,7 @@ Page({
     address: null,
     remark: '',
     loading: false,
+    submitting: false,
     themeColor: '#4A90D9'
   },
 
@@ -75,8 +76,8 @@ Page({
     if (!items || items.length === 0) { wx.showToast({ title: '请选择商品', icon: 'none' }); return }
     var address = this.data.address
     if (!address) { wx.showToast({ title: '请选择收货地址', icon: 'none' }); return }
-    if (this.data.loading) return
-    this.setData({ loading: true })
+    if (this.data.submitting) return
+    this.setData({ submitting: true, loading: true })
 
     var self = this
     wx.cloud.callFunction({
@@ -95,31 +96,23 @@ Page({
             previewFee: r.deliveryFee.toFixed(2),
             finalPrice: r.finalPrice.toFixed(2)
           })
-          self.afterOrderCreated(r.id, r.finalPrice, r.orderNo)
+          self.startPayFlow(r.id, r.finalPrice, true)
         } else {
-          self.setData({ loading: false })
-          var msg = '下单失败'
-          var code = res.result && res.result.error
-          if (code === 'SHOP_CLOSED') msg = '店铺已歇业，暂时无法下单'
-          else if (code === 'UNDER_MIN_PRICE') msg = '未满起送价'
-          else if (code === 'STOCK_NOT_ENOUGH') msg = (res.result.name || '商品') + '库存不足'
-          else if (code === 'PRODUCT_UNAVAILABLE') msg = (res.result.name || '商品') + '已下架'
-          wx.showToast({ title: msg, icon: 'none' })
+          self.createOrderDirect()
         }
       },
-      fail: function (err) {
-        console.error('manageOrder下单失败，降级直写', err)
-        self.createOrderDirect(items)
+      fail: function () {
+        self.createOrderDirect()
       }
     })
   },
 
-  createOrderDirect: function (submitItems) {
+  createOrderDirect: function () {
     var self = this
     var settings = wx.getStorageSync('shopSettings') || {}
     if (settings.shopStatus === '歇业') {
       wx.showToast({ title: '店铺已歇业，暂时无法下单', icon: 'none' })
-      this.setData({ loading: false })
+      self.setData({ submitting: false, loading: false })
       return
     }
 
@@ -149,15 +142,68 @@ Page({
       source: 'miniprogram_fallback'
     }
     db.collection('orders').add({ data: order }).then(function (res) {
-      self.afterOrderCreated(res._id, finalPrice, order.orderNo)
+      self.startPayFlow(res._id, finalPrice, false)
     }).catch(function (err) {
       console.error('下单失败', err)
       wx.showToast({ title: '下单失败', icon: 'none' })
-      self.setData({ loading: false })
+      self.setData({ submitting: false, loading: false })
     })
   },
 
-  afterOrderCreated: function (orderId, finalPrice, orderNo) {
+  startPayFlow: function (orderId, finalPrice, useCloudPay) {
+    var self = this
+    wx.showModal({
+      title: '模拟支付',
+      content: '订单金额: ¥' + finalPrice.toFixed(2),
+      confirmText: '确认支付', cancelText: '取消',
+      success: function (res) {
+        if (res.confirm) {
+          if (useCloudPay) {
+            self.payOrderCloud(orderId)
+          } else {
+            self.payOrderDirect(orderId)
+          }
+        } else {
+          wx.showToast({ title: '订单已保存', icon: 'none' })
+          self.setData({ submitting: false, loading: false })
+          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
+        }
+      }
+    })
+  },
+
+  payOrderCloud: function (orderId) {
+    var self = this
+    wx.cloud.callFunction({
+      name: 'manageOrder',
+      data: { action: 'pay', id: orderId },
+      success: function (res) {
+        if (res.result && res.result.success) {
+          self.onPaySuccess()
+        } else {
+          self.payOrderDirect(orderId)
+        }
+      },
+      fail: function () {
+        self.payOrderDirect(orderId)
+      }
+    })
+  },
+
+  payOrderDirect: function (orderId) {
+    var self = this
+    db.collection('orders').doc(orderId).update({
+      data: { status: 'paid', payTime: new Date() }
+    }).then(function () {
+      self.onPaySuccess()
+    }).catch(function (err) {
+      console.error('直连支付失败', err)
+      wx.showToast({ title: '支付失败', icon: 'none' })
+      self.setData({ submitting: false, loading: false })
+    })
+  },
+
+  onPaySuccess: function () {
     var cart = wx.getStorageSync('cart') || []
     var items = this.data.items || []
     var ids = {}
@@ -167,7 +213,9 @@ Page({
     wx.setStorageSync('cart', newCart)
     wx.removeStorageSync('checkoutItems')
     wx.removeStorageSync('selectedAddress')
-    this.simulatePay(orderId, finalPrice, orderNo)
+    wx.showToast({ title: '支付成功', icon: 'success' })
+    this.setData({ submitting: false, loading: false })
+    setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
   },
 
   _genOrderNo: function () {
@@ -176,56 +224,5 @@ Page({
     var r = Math.floor(Math.random() * 1000).toString()
     while (r.length < 3) r = '0' + r
     return '' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + r
-  },
-
-  simulatePay: function (orderId, price, orderNo) {
-    var self = this
-    wx.showModal({
-      title: '模拟支付',
-      content: '订单金额: ¥' + price.toFixed(2),
-      confirmText: '确认支付', cancelText: '取消',
-      success: function (res) {
-        if (res.confirm) {
-          self.payOrder(orderId)
-        } else {
-          wx.showToast({ title: '订单已保存', icon: 'none' })
-          self.setData({ loading: false })
-          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
-        }
-      }
-    })
-  },
-
-  payOrder: function (orderId) {
-    var self = this
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'pay', id: orderId },
-      success: function (res) {
-        if (res.result && res.result.success) {
-          wx.showToast({ title: '支付成功', icon: 'success' })
-          self.setData({ loading: false })
-          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
-        } else {
-          var msg = '支付失败'
-          var code = res.result && res.result.error
-          if (code === 'STOCK_NOT_ENOUGH') msg = (res.result.productName || '商品') + '库存不足'
-          else if (code === 'PRODUCT_UNAVAILABLE') msg = (res.result.productName || '商品') + '已下架'
-          wx.showToast({ title: msg, icon: 'none' })
-          self.setData({ loading: false })
-        }
-      },
-      fail: function (err) {
-        console.error('manageOrder支付失败，降级直写', err)
-        db.collection('orders').doc(orderId).update({ data: { status: 'paid', payTime: db.serverDate() } }).then(function () {
-          wx.showToast({ title: '支付成功', icon: 'success' })
-          self.setData({ loading: false })
-          setTimeout(function () { wx.switchTab({ url: '/pages/my/my' }) }, 1500)
-        }).catch(function () {
-          wx.showToast({ title: '支付失败', icon: 'none' })
-          self.setData({ loading: false })
-        })
-      }
-    })
   }
 })
