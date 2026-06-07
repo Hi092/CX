@@ -17,6 +17,32 @@ Page({
     this.getOrders()
     this.getStats()
     this.getBadges()
+    this._startAutoRefresh()
+  },
+
+  onHide: function () {
+    this._stopAutoRefresh()
+  },
+
+  onUnload: function () {
+    this._stopAutoRefresh()
+  },
+
+  _startAutoRefresh: function () {
+    var self = this
+    self._stopAutoRefresh()
+    self._refreshTimer = setInterval(function () {
+      self.getOrders()
+      self.getStats()
+      self.getBadges()
+    }, 15000)
+  },
+
+  _stopAutoRefresh: function () {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer)
+      this._refreshTimer = null
+    }
   },
 
   switchTab: function (e) {
