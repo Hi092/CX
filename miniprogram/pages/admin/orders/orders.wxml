@@ -39,6 +39,10 @@
       <text style="{{currentTab === 'completed' ? 'color:' + themeColor : ''}}">已完成</text>
       <view class="tab-line" wx:if="{{currentTab === 'completed'}}" style="background:{{themeColor}}"></view>
     </view>
+    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
+      <text style="{{currentTab === 'completed' ? 'color:' + themeColor : ''}}">已完成</text>
+      <view class="tab-line" wx:if="{{currentTab === 'completed'}}" style="background:{{themeColor}}"></view>
+    </view>
   </view>
 
   <!-- 订单列表 -->
