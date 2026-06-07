@@ -8,7 +8,7 @@ Page({
     loading: true,
     stats: { todayOrders: 0, todayIncome: '0.00', activeCount: 0, paidCount: 0, deliveringCount: 0 },
     themeColor: '#4A90D9',
-    lastDeliveryDebug: null
+    badgeCounts: { all: 0, paid: 0, delivering: 0 }
   },
 
   onShow: function () {
@@ -16,11 +16,23 @@ Page({
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     this.getOrders()
     this.getStats()
+    this.getBadges()
   },
 
   switchTab: function (e) {
     this.setData({ currentTab: e.currentTarget.dataset.tab })
     this.getOrders()
+  },
+
+  getBadges: function () {
+    var self = this
+    var paidQ = db.collection('orders').where({ status: 'paid' }).count()
+    var delivQ = db.collection('orders').where({ status: 'delivering' }).count()
+    Promise.all([paidQ, delivQ]).then(function (res) {
+      var p = res[0].total || 0
+      var d = res[1].total || 0
+      self.setData({ badgeCounts: { all: p + d, paid: p, delivering: d } })
+    })
   },
 
   getOrders: function () {
@@ -88,10 +100,8 @@ Page({
       confirmText: '开始配送',
       success: function (res) {
         if (!res.confirm) return
-        self.setData({ lastDeliveryDebug: { orderId: orderId, time: new Date().toISOString(), action: 'before_update' } })
         db.collection('orders').doc(orderId).get().then(function (check) {
           console.log('开始配送 before', orderId, check.data && check.data.status)
-          self.setData({ lastDeliveryDebug: { orderId: orderId, time: new Date().toISOString(), action: 'checked', beforeStatus: check.data && check.data.status } })
           return db.collection('orders').doc(orderId).update({
             data: { status: 'delivering', deliveryTime: db.serverDate() }
           })
@@ -99,10 +109,11 @@ Page({
           return db.collection('orders').doc(orderId).get()
         }).then(function (after) {
           console.log('开始配送 after', orderId, after.data && after.data.status)
-          self.setData({ lastDeliveryDebug: { orderId: orderId, time: new Date().toISOString(), action: 'updated', afterStatus: after.data && after.data.status } })
           wx.showToast({ title: '已开始配送', icon: 'success' })
+          self.setData({ currentTab: 'delivering' })
           self.getOrders()
           self.getStats()
+          self.getBadges()
         }).catch(function (err) {
           console.error('开始配送失败', err)
           wx.showToast({ title: '操作失败', icon: 'none' })
@@ -127,6 +138,7 @@ Page({
           wx.showToast({ title: '已完成', icon: 'success' })
           self.getOrders()
           self.getStats()
+          self.getBadges()
         }).catch(function (err) {
           console.error('确认送达失败', err)
           wx.showToast({ title: '操作失败', icon: 'none' })
