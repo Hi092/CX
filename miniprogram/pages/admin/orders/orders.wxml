@@ -11,6 +11,11 @@
       <text class="stat-num">¥{{stats.todayIncome}}</text>
       <text class="stat-label">今日收入</text>
     </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.activeCount}}</text>
+      <text class="stat-label">待处理</text>
+    </view>
   </view>
 
   <!-- Tab栏 -->
