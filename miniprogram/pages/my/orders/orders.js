@@ -30,10 +30,26 @@ Page({
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     this.getOrders()
     this.startPendingTimer()
+    this._startAutoRefresh()
   },
 
-  onHide: function () { this.stopPendingTimer() },
-  onUnload: function () { this.stopPendingTimer() },
+  onHide: function () { this.stopPendingTimer(); this._stopAutoRefresh() },
+  onUnload: function () { this.stopPendingTimer(); this._stopAutoRefresh() },
+
+  _startAutoRefresh: function () {
+    var self = this
+    self._stopAutoRefresh()
+    self._refreshTimer = setInterval(function () {
+      self.getOrders()
+    }, 15000)
+  },
+
+  _stopAutoRefresh: function () {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer)
+      this._refreshTimer = null
+    }
+  },
 
   startPendingTimer: function () {
     var self = this

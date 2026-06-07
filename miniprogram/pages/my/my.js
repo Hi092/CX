@@ -25,6 +25,30 @@ Page({
       if (s.shopPhone) this.setData({ shopPhone: s.shopPhone })
     }
     this.loadBadges()
+    this._startAutoRefresh()
+  },
+
+  onHide: function () {
+    this._stopAutoRefresh()
+  },
+
+  onUnload: function () {
+    this._stopAutoRefresh()
+  },
+
+  _startAutoRefresh: function () {
+    var self = this
+    self._stopAutoRefresh()
+    self._refreshTimer = setInterval(function () {
+      self.loadBadges()
+    }, 15000)
+  },
+
+  _stopAutoRefresh: function () {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer)
+      this._refreshTimer = null
+    }
   },
 
   loadBadges: function () {
