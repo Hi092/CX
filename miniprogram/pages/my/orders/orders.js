@@ -1,4 +1,4 @@
-// 我的订单 - 稳定直查当前用户订单
+// 我的订单 - 不依赖login云函数
 var db = wx.cloud.database()
 var _ = db.command
 
@@ -35,17 +35,20 @@ Page({
     var openid = self.data.openid
     if (!openid) {
       wx.cloud.callFunction({
-        name: 'login',
+        name: 'manageOrder',
+        data: { action: 'getOpenid' },
         success: function (res) {
           var id = res.result && res.result.openid
           if (!id) {
+            console.warn('订单页拿不到openid', res)
             self.setData({ orders: [], loading: false })
             return
           }
           self.setData({ openid: id })
           self.fetchOrders(id)
         },
-        fail: function () {
+        fail: function (err) {
+          console.error('订单页获取openid失败', err)
           self.setData({ orders: [], loading: false })
         }
       })
@@ -54,27 +57,24 @@ Page({
     }
   },
 
-  buildBase: function (status) {
-    if (!status || status === 'all') return null
-    return { status: status }
-  },
-
   fetchOrders: function (openid) {
     var self = this
     var status = self.data.currentTab
-    var base = self.buildBase(status)
     var q1Where = { customerOpenid: openid }
     var q2Where = { _openid: openid }
-    if (base) {
-      q1Where.status = base.status
-      q2Where.status = base.status
+    if (status && status !== 'all') {
+      q1Where.status = status
+      q2Where.status = status
     }
+
     var q1 = db.collection('orders').where(q1Where).orderBy('createTime', 'desc').limit(100).get()
     var q2 = db.collection('orders').where(q2Where).orderBy('createTime', 'desc').limit(100).get()
 
     Promise.all([q1, q2]).then(function (res) {
-      var lists = [res[0].data, res[1].data]
-      var merged = self.mergeOrders(lists, status)
+      var list1 = res[0].data || []
+      var list2 = res[1].data || []
+      console.log('订单页 => openid:', openid, 'customerOpenid:', list1.length, '_openid:', list2.length)
+      var merged = self.mergeOrders([list1, list2], status)
       self.applyOrders(merged)
     }).catch(function (err) {
       console.error('我的订单查询失败:', err)

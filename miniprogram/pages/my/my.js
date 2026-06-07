@@ -11,6 +11,7 @@ Page({
     showModal: false,
     pwdInput: '',
     verifying: false,
+    _openid: '',
     badgeCounts: { pending: 0, paid: 0, delivering: 0 }
   },
 
@@ -27,10 +28,11 @@ Page({
 
   loadBadges: function () {
     var self = this
-    var openid = self.data._openid || ''
+    var openid = self.data._openid
     if (!openid) {
       wx.cloud.callFunction({
-        name: 'login',
+        name: 'manageOrder',
+        data: { action: 'getOpenid' },
         success: function (res) {
           var id = res.result && res.result.openid
           if (!id) return
