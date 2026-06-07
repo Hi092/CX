@@ -100,23 +100,28 @@ Page({
       confirmText: '开始配送',
       success: function (res) {
         if (!res.confirm) return
-        db.collection('orders').doc(orderId).get().then(function (check) {
-          console.log('开始配送 before', orderId, check.data && check.data.status)
-          return db.collection('orders').doc(orderId).update({
-            data: { status: 'delivering', deliveryTime: db.serverDate() }
-          })
-        }).then(function () {
-          return db.collection('orders').doc(orderId).get()
-        }).then(function (after) {
-          console.log('开始配送 after', orderId, after.data && after.data.status)
-          wx.showToast({ title: '已开始配送', icon: 'success' })
-          self.setData({ currentTab: 'delivering' })
-          self.getOrders()
-          self.getStats()
-          self.getBadges()
-        }).catch(function (err) {
-          console.error('开始配送失败', err)
-          wx.showToast({ title: '操作失败', icon: 'none' })
+        wx.showLoading({ title: '处理中...' })
+        wx.cloud.callFunction({
+          name: 'manageOrder',
+          data: { action: 'updateStatus', id: orderId, status: 'delivering' },
+          success: function (r) {
+            wx.hideLoading()
+            if (r.result && r.result.success) {
+              wx.showToast({ title: '已开始配送', icon: 'success' })
+              self.setData({ currentTab: 'delivering' })
+              self.getOrders()
+              self.getStats()
+              self.getBadges()
+            } else {
+              console.error('开始配送云函数返回', r)
+              wx.showToast({ title: '操作失败: ' + (r.result && r.result.error || '未知'), icon: 'none' })
+            }
+          },
+          fail: function (err) {
+            wx.hideLoading()
+            console.error('开始配送云函数调用失败', err)
+            wx.showToast({ title: '网络失败', icon: 'none' })
+          }
         })
       }
     })
@@ -132,16 +137,27 @@ Page({
       confirmText: '确认送达',
       success: function (res) {
         if (!res.confirm) return
-        db.collection('orders').doc(orderId).update({
-          data: { status: 'completed', completeTime: db.serverDate() }
-        }).then(function () {
-          wx.showToast({ title: '已完成', icon: 'success' })
-          self.getOrders()
-          self.getStats()
-          self.getBadges()
-        }).catch(function (err) {
-          console.error('确认送达失败', err)
-          wx.showToast({ title: '操作失败', icon: 'none' })
+        wx.showLoading({ title: '处理中...' })
+        wx.cloud.callFunction({
+          name: 'manageOrder',
+          data: { action: 'updateStatus', id: orderId, status: 'completed' },
+          success: function (r) {
+            wx.hideLoading()
+            if (r.result && r.result.success) {
+              wx.showToast({ title: '已完成', icon: 'success' })
+              self.getOrders()
+              self.getStats()
+              self.getBadges()
+            } else {
+              console.error('确认送达云函数返回', r)
+              wx.showToast({ title: '操作失败: ' + (r.result && r.result.error || '未知'), icon: 'none' })
+            }
+          },
+          fail: function (err) {
+            wx.hideLoading()
+            console.error('确认送达云函数调用失败', err)
+            wx.showToast({ title: '网络失败', icon: 'none' })
+          }
         })
       }
     })

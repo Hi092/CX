@@ -4,10 +4,9 @@ var db = wx.cloud.database()
 Page({
   data: {
     items: [],
-    previewTotal: '0.00',
-    previewFee: '0.00',
-    finalPrice: '0.00',
+    totalPrice: '0.00',
     deliveryFee: 3,
+    finalPrice: '0.00',
     freeDeliveryPrice: 30,
     minPrice: 20,
     address: null,
@@ -46,10 +45,9 @@ Page({
     var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
     this.setData({
       items: items,
-      previewTotal: totalPrice.toFixed(2),
-      previewFee: fee.toFixed(2),
+      totalPrice: totalPrice.toFixed(2),
+      deliveryFee: fee,
       finalPrice: (totalPrice + fee).toFixed(2),
-      deliveryFee: deliveryFee,
       freeDeliveryPrice: freeDeliveryPrice,
       minPrice: minPrice,
       themeColor: settings.themeColor || '#4A90D9'
@@ -101,8 +99,8 @@ Page({
           if (res.result && res.result.success) {
             var r = res.result
             self.setData({
-              previewTotal: r.totalPrice.toFixed(2),
-              previewFee: r.deliveryFee.toFixed(2),
+              totalPrice: r.totalPrice.toFixed(2),
+              deliveryFee: r.deliveryFee,
               finalPrice: r.finalPrice.toFixed(2)
             })
             self.startPayFlow(r.id, r.finalPrice, true)
