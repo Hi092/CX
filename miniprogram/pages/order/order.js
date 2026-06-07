@@ -18,13 +18,10 @@ Page({
     var items = wx.getStorageSync('checkoutItems') || []
     var totalPrice = 0
     for (var i = 0; i < items.length; i++) totalPrice += items[i].price * items[i].quantity
-    var settings = wx.getStorageSync('shopSettings')
-    var deliveryFee = 3, freeDeliveryPrice = 30, themeColor = '#4A90D9'
-    if (settings) {
-      deliveryFee = settings.deliveryFee || 3
-      freeDeliveryPrice = settings.freeDeliveryPrice || 30
-      themeColor = settings.themeColor || '#4A90D9'
-    }
+    var settings = wx.getStorageSync('shopSettings') || {}
+    var deliveryFee = settings.deliveryFee !== undefined ? settings.deliveryFee : 3
+    var freeDeliveryPrice = settings.freeDeliveryPrice !== undefined ? settings.freeDeliveryPrice : 30
+    var themeColor = settings.themeColor || '#4A90D9'
     var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
     this.setData({
       items: items, totalPrice: totalPrice.toFixed(2),

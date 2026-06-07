@@ -66,9 +66,9 @@ Page({
     s.shopStatus = data.shopStatus || s.shopStatus || '营业中'
     s.shopPhone = data.shopPhone || s.shopPhone || ''
     s.themeColor = data.themeColor || s.themeColor || '#4A90D9'
-    s.minPrice = data.minPrice || s.minPrice || 20
-    s.deliveryFee = data.deliveryFee || s.deliveryFee || 3
-    s.freeDeliveryPrice = data.freeDeliveryPrice || s.freeDeliveryPrice || 30
+    s.minPrice = data.minPrice !== undefined ? data.minPrice : (s.minPrice !== undefined ? s.minPrice : 20)
+    s.deliveryFee = data.deliveryFee !== undefined ? data.deliveryFee : (s.deliveryFee !== undefined ? s.deliveryFee : 3)
+    s.freeDeliveryPrice = data.freeDeliveryPrice !== undefined ? data.freeDeliveryPrice : (s.freeDeliveryPrice !== undefined ? s.freeDeliveryPrice : 30)
     s.deliveryRange = data.deliveryRange || s.deliveryRange || ''
     s.openTime = data.openTime || s.openTime || '08:00'
     s.closeTime = data.closeTime || s.closeTime || '23:00'
@@ -111,7 +111,7 @@ Page({
       success: function (res) {
         if (res.result && res.result.success && res.result.data) self.applySettings(res.result.data)
       },
-      fail: function () {}
+      fail: function (err) { console.error('getSettings失败', err) }
     })
   },
 
@@ -143,7 +143,7 @@ Page({
         db.collection('products').limit(100).get().then(function (res) {
           self.setData({ allProducts: self.cleanProducts(res.data || []) })
           self.filterProducts()
-        }).catch(function () {})
+        }).catch(function (err2) { console.error('直读商品失败', err2) })
       }
     })
   },

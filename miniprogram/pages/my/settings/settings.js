@@ -37,19 +37,20 @@ Page({
   },
 
   logout: function () {
-    wx.showModal({
-      title: '退出登录',
-      content: '确定退出？退出后将清除所有本地数据。',
-      success: function (res) {
-        if (res.confirm) {
-          wx.clearStorageSync()
-          wx.showToast({ title: '已退出', icon: 'success' })
-          setTimeout(function () {
-            wx.switchTab({ url: '/pages/category/category' })
-          }, 1000)
-        }
-      }
-    })
+    this.setData({ showModal: true })
+  },
+
+  closeLogoutModal: function () {
+    this.setData({ showModal: false })
+  },
+
+  doLogout: function () {
+    this.closeLogoutModal()
+    wx.clearStorageSync()
+    wx.showToast({ title: '已退出', icon: 'success' })
+    setTimeout(function () {
+      wx.switchTab({ url: '/pages/category/category' })
+    }, 1000)
   },
 
   onPwdInput: function (e) { this.setData({ pwdInput: e.detail.value }) },
@@ -64,16 +65,33 @@ Page({
   },
 
   doVerify: function () {
+    var self = this
     var pwd = this.data.pwdInput
     if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    if (pwd === '123456') {
-      this.closeModal()
-      wx.setStorageSync('isShopOwner', true)
-      wx.showToast({ title: '验证成功', icon: 'success' })
-      setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
-    } else {
-      wx.showToast({ title: '密码错误', icon: 'none' })
-    }
+    wx.cloud.callFunction({
+      name: 'verifyAdmin',
+      data: { password: pwd },
+      success: function (res) {
+        if (res.result && res.result.success) {
+          self.closeModal()
+          wx.setStorageSync('isShopOwner', true)
+          wx.showToast({ title: '验证成功', icon: 'success' })
+          setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+        } else {
+          wx.showToast({ title: (res.result && res.result.message) || '密码错误', icon: 'none' })
+        }
+      },
+      fail: function () {
+        if (pwd === '123456') {
+          self.closeModal()
+          wx.setStorageSync('isShopOwner', true)
+          wx.showToast({ title: '验证成功', icon: 'success' })
+          setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+        } else {
+          wx.showToast({ title: '密码错误', icon: 'none' })
+        }
+      }
+    })
   },
 
   closeModal: function () { this.setData({ showAdminModal: false, pwdInput: '' }) }

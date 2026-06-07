@@ -8,13 +8,7 @@ Page({
     loading: false
   },
 
-  onLoad: function () {
-    // 从缓存读取当前密码（如果有）
-    var cached = wx.getStorageSync('shopSettings')
-    if (cached && cached.shopPassword) {
-      // 不显示密码，但标记已设置
-    }
-  },
+  onLoad: function () {},
 
   onOldPwdInput: function (e) { this.setData({ oldPassword: e.detail.value }) },
   onNewPwdInput: function (e) { this.setData({ newPassword: e.detail.value }) },
@@ -26,19 +20,17 @@ Page({
     if (!d.newPassword) { wx.showToast({ title: '请输入新密码', icon: 'none' }); return }
     if (d.newPassword.length < 4) { wx.showToast({ title: '密码至少4位', icon: 'none' }); return }
     if (d.newPassword !== d.confirmPassword) { wx.showToast({ title: '两次密码不一致', icon: 'none' }); return }
+    if (d.loading) return
 
     this.setData({ loading: true })
     var self = this
 
-    // 验证旧密码
     wx.cloud.callFunction({
       name: 'verifyAdmin',
       data: { password: d.oldPassword },
       success: function (res) {
-        if (res.result && res.result.valid) {
-          // 旧密码正确，更新密码
-          self.updatePassword(d.newPassword)
-        } else {
+        if (res.result && res.result.valid) self.updatePassword(d.newPassword)
+        else {
           self.setData({ loading: false })
           wx.showToast({ title: '当前密码错误', icon: 'none' })
         }
@@ -52,22 +44,28 @@ Page({
 
   updatePassword: function (newPwd) {
     var self = this
-    // 更新数据库中的密码
-    db.collection('settings').doc('shop').update({
-      data: { shopPassword: newPwd }
-    }).then(function () {
-      // 更新本地缓存
-      var cached = wx.getStorageSync('shopSettings') || {}
-      cached.shopPassword = newPwd
-      wx.setStorageSync('shopSettings', cached)
-      
-      self.setData({ loading: false })
-      wx.showToast({ title: '密码已更新', icon: 'success' })
-      setTimeout(function () { wx.navigateBack() }, 1000)
-    }).catch(function (err) {
-      console.error('更新密码失败', err)
-      self.setData({ loading: false })
-      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+    var cached = wx.getStorageSync('shopSettings') || {}
+    cached.shopPassword = newPwd
+    wx.setStorageSync('shopSettings', cached)
+
+    // 统一走 updateSettings：同步 products/shop_config_v1 和 settings/shop
+    wx.cloud.callFunction({
+      name: 'updateSettings',
+      data: { data: cached },
+      success: function (res) {
+        self.setData({ loading: false })
+        if (res.result && res.result.success === false) {
+          wx.showToast({ title: '保存失败', icon: 'none' })
+          return
+        }
+        wx.showToast({ title: '密码已更新', icon: 'success' })
+        setTimeout(function () { wx.navigateBack() }, 1000)
+      },
+      fail: function (err) {
+        console.error('更新密码失败', err)
+        self.setData({ loading: false })
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+      }
     })
   }
 })

@@ -12,21 +12,22 @@ Page({
     themeColor: '#4A90D9'
   },
 
+  applySettings: function () {
+    var settings = wx.getStorageSync('shopSettings') || {}
+    this.setData({
+      minPrice: settings.minPrice !== undefined ? settings.minPrice : 20,
+      deliveryFee: settings.deliveryFee !== undefined ? settings.deliveryFee : 3,
+      freeDeliveryPrice: settings.freeDeliveryPrice !== undefined ? settings.freeDeliveryPrice : 30,
+      themeColor: settings.themeColor || '#4A90D9'
+    })
+  },
+
   onLoad: function () {
-    var settings = wx.getStorageSync('shopSettings')
-    if (settings) {
-      this.setData({
-        minPrice: settings.minPrice || 20,
-        deliveryFee: settings.deliveryFee || 3,
-        freeDeliveryPrice: settings.freeDeliveryPrice || 30,
-        themeColor: settings.themeColor || '#4A90D9'
-      })
-    }
+    this.applySettings()
   },
 
   onShow: function () {
-    var s = wx.getStorageSync('shopSettings')
-    if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    this.applySettings()
     this.loadCart()
   },
 

@@ -134,6 +134,7 @@ Page({
   },
 
   onSearch: function (e) { this.setData({ searchKey: e.detail.value }); this.filterProducts() },
+  doSearch: function () { this.filterProducts() },
   clearSearch: function () { this.setData({ searchKey: '' }); this.filterProducts() },
   filterCategory: function (e) { this.setData({ currentCategory: e.currentTarget.dataset.id }); this.filterProducts() },
   addProduct: function () { wx.navigateTo({ url: '/pages/admin/products/edit' }) },

@@ -12,6 +12,7 @@ Page({
     category: '',
     description: '',
     image: '',
+    imageChanged: false,
     categories: [],
     categoryIndex: 0,
     loading: false,
@@ -88,7 +89,8 @@ Page({
         category: product.category,
         categoryIndex: categoryIndex > -1 ? categoryIndex : 0,
         description: product.description || '',
-        image: product.image || ''
+        image: product.image || '',
+        imageChanged: false
       })
     })
   },
@@ -97,7 +99,7 @@ Page({
     var self = this
     wx.chooseImage({
       count: 1, sizeType: ['compressed'], sourceType: ['album', 'camera'],
-      success: function (res) { self.setData({ image: res.tempFilePaths[0] }) }
+      success: function (res) { self.setData({ image: res.tempFilePaths[0], imageChanged: true }) }
     })
   },
 
@@ -121,7 +123,7 @@ Page({
 
     this.setData({ loading: true })
     var self = this
-    var uploadTask = data.image ? this.uploadImage(data.image) : Promise.resolve('')
+    var uploadTask = data.image && data.imageChanged ? this.uploadImage(data.image) : Promise.resolve(data.image || '')
 
     uploadTask.then(function (imageUrl) {
       var productData = {

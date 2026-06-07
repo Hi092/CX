@@ -45,7 +45,7 @@ Page({
     if (!raw) return
     var data = raw.settings || raw
     var cats = raw.categories || data.categories || wx.getStorageSync('shopCategories') || DEFAULT_CATEGORIES
-    if (cats && cats.length > 0) wx.setStorageSync('shopCategories', cats)
+    if (cats) wx.setStorageSync('shopCategories', cats)
 
     var merged = wx.getStorageSync('shopSettings') || {}
     merged.shopAvatar = data.shopAvatar || data.bannerUrl || ''
@@ -54,9 +54,9 @@ Page({
     merged.shopStatus = data.shopStatus || '营业中'
     merged.openTime = data.openTime || '08:00'
     merged.closeTime = data.closeTime || '23:00'
-    merged.minPrice = data.minPrice || 20
-    merged.deliveryFee = data.deliveryFee || 3
-    merged.freeDeliveryPrice = data.freeDeliveryPrice || 30
+    merged.minPrice = data.minPrice !== undefined ? data.minPrice : 20
+    merged.deliveryFee = data.deliveryFee !== undefined ? data.deliveryFee : 3
+    merged.freeDeliveryPrice = data.freeDeliveryPrice !== undefined ? data.freeDeliveryPrice : 30
     merged.deliveryRange = data.deliveryRange || ''
     merged.themeColor = data.themeColor || '#4A90D9'
     merged.printerEnabled = data.printerEnabled || false

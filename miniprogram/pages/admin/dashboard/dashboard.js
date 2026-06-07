@@ -56,26 +56,32 @@ Page({
     this.loadStats()
   },
 
+  applyShopInfo: function (data) {
+    if (!data) return
+    this.setData({
+      shopName: data.shopName || '我的店铺',
+      shopAvatar: data.shopAvatar || data.bannerUrl || '',
+      shopStatus: data.shopStatus || '营业中',
+      themeColor: data.themeColor || '#4A90D9'
+    })
+    var cached = wx.getStorageSync('shopSettings') || {}
+    for (var k in data) cached[k] = data[k]
+    wx.setStorageSync('shopSettings', cached)
+  },
+
   loadShopInfo: function () {
     var self = this
-    db.collection('settings').doc('shop').get().then(function (res) {
-      if (res.data) {
-        var data = res.data
-        self.setData({
-          shopName: data.shopName || '我的店铺',
-          shopAvatar: data.shopAvatar || data.bannerUrl || '',
-          shopStatus: data.shopStatus || '营业中',
-          themeColor: data.themeColor || '#4A90D9'
-        })
-        // 更新缓存
-        var cached = wx.getStorageSync('shopSettings') || {}
-        cached.shopName = data.shopName
-        cached.shopAvatar = data.shopAvatar || data.bannerUrl
-        cached.shopStatus = data.shopStatus
-        cached.themeColor = data.themeColor
-        wx.setStorageSync('shopSettings', cached)
+    wx.cloud.callFunction({
+      name: 'getSettings',
+      success: function (res) {
+        if (res.result && res.result.success && res.result.data) self.applyShopInfo(res.result.data)
+      },
+      fail: function () {
+        db.collection('products').doc('shop_config_v1').get().then(function (res) {
+          if (res.data) self.applyShopInfo(res.data)
+        }).catch(function (err2) { console.error('后台首页读取配置失败', err2) })
       }
-    }).catch(function () {})
+    })
   },
 
   loadStats: function () {
@@ -96,7 +102,7 @@ Page({
       fail: function () {
         db.collection('products').count().then(function (res) {
           self.setData({ totalProducts: res.total })
-        }).catch(function () {})
+        }).catch(function (err2) { console.error('后台首页读取配置失败', err2) })
       }
     })
 

@@ -37,21 +37,31 @@ Page({
       var list = self._parseCommunities(cached)
       if (list.length > 0) self.setData({ communities: list })
     }
-    // 再从数据库读
-    var db = wx.cloud.database()
-    db.collection('settings').doc('shop').get().then(function (res) {
-      if (res.data) {
-        var list = self._parseCommunities(res.data)
-        if (list.length > 0) {
-          self.setData({ communities: list })
-          // 如果已选的community不在列表里，不影响
-          if (self.data.community) {
-            var idx = list.indexOf(self.data.community)
-            if (idx > -1) self.setData({ communityIndex: idx })
-          }
-        }
+    // 再从统一配置读
+    wx.cloud.callFunction({
+      name: 'getSettings',
+      success: function (res) {
+        var data = res.result && res.result.data
+        if (data) self._applyCommunities(data)
+      },
+      fail: function () {
+        var db = wx.cloud.database()
+        db.collection('products').doc('shop_config_v1').get().then(function (res) {
+          if (res.data) self._applyCommunities(res.data)
+        }).catch(function (err2) { console.error('读取配送范围失败', err2) })
       }
-    }).catch(function () {})
+    })
+  },
+
+  _applyCommunities: function (settings) {
+    var list = this._parseCommunities(settings)
+    if (list.length > 0) {
+      this.setData({ communities: list })
+      if (this.data.community) {
+        var idx = list.indexOf(this.data.community)
+        if (idx > -1) this.setData({ communityIndex: idx })
+      }
+    }
   },
 
   _parseCommunities: function (settings) {
