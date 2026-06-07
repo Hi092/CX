@@ -1,4 +1,4 @@
-// 商品管理页面
+// 商品管理页面 - 直读商品和配置
 var db = wx.cloud.database()
 var CONFIG_DOC_ID = 'shop_config_v1'
 var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
@@ -25,7 +25,6 @@ Page({
 
   onShow: function () {
     this.loadTheme()
-    this.loadCategories()
     this.getProducts()
   },
 
@@ -55,32 +54,11 @@ Page({
     else if (self.isArray(shopSettings.categories)) self.applyCategories(shopSettings.categories)
     else self.applyCategories(DEFAULT_CATEGORIES)
 
-    // 统一从 products/shop_config_v1 读配置，避免 settings 集合权限问题
     db.collection('products').doc(CONFIG_DOC_ID).get().then(function (res) {
-      if (res.data && self.isArray(res.data.categories)) {
-        self.applyCategories(res.data.categories)
-      } else {
-        self.loadCategoriesFromCloud()
-      }
-    }).catch(function () {
-      self.loadCategoriesFromCloud()
+      if (res.data && self.isArray(res.data.categories)) self.applyCategories(res.data.categories)
+    }).catch(function (err) {
+      console.error('读取分类配置失败', err)
     })
-  },
-
-  loadCategoriesFromCloud: function () {
-    var self = this
-    wx.cloud.callFunction({
-      name: 'getSettings',
-      success: function (res) {
-        var data = res.result && res.result.data
-        if (data && self.isArray(data.categories)) self.applyCategories(data.categories)
-      },
-      fail: function () {}
-    })
-  },
-
-  onPullDownRefresh: function () {
-    this.getProducts().then(function () { wx.stopPullDownRefresh() })
   },
 
   cleanProducts: function (list) {
@@ -97,22 +75,13 @@ Page({
   getProducts: function () {
     var self = this
     self.setData({ loading: true })
-    return db.collection('products').limit(100).get().then(function (res) {
+    db.collection('products').limit(100).get().then(function (res) {
       self.setData({ allProducts: self.cleanProducts(res.data || []) })
       self.filterProducts()
-    }).catch(function () {
-      wx.cloud.callFunction({
-        name: 'getProducts',
-        success: function (res) {
-          var list = (res.result && res.result.data) ? res.result.data : []
-          self.setData({ allProducts: self.cleanProducts(list) })
-          self.filterProducts()
-        },
-        fail: function () {
-          self.setData({ allProducts: [], loading: false })
-          self.filterProducts()
-        }
-      })
+    }).catch(function (err) {
+      console.error('读取商品失败', err)
+      self.setData({ allProducts: [], loading: false })
+      self.filterProducts()
     })
   },
 
@@ -141,7 +110,6 @@ Page({
   editProduct: function (e) { wx.navigateTo({ url: '/pages/admin/products/edit?id=' + e.currentTarget.dataset.id }) },
   viewProduct: function (e) { wx.navigateTo({ url: '/pages/admin/products/edit?id=' + e.currentTarget.dataset.id }) },
 
-  // ========= 分类管理 =========
   toggleCatPanel: function () { this.setData({ showCatPanel: !this.data.showCatPanel }) },
 
   addCategory: function () {
@@ -197,32 +165,23 @@ Page({
     docData.categories = cats
     docData.updateTime = db.serverDate()
 
-    var finished = false
-    var done = function () {
-      if (finished) return
-      finished = true
+    db.collection('products').doc(CONFIG_DOC_ID).update({ data: docData }).then(function () {
       wx.cloud.callFunction({ name: 'updateSettings', data: { data: cached } })
       wx.hideLoading()
       self.setData({ savingCats: false, showCatPanel: false, categories: cats, allCategories: cats })
       wx.showToast({ title: '分类已保存', icon: 'success' })
-    }
-    var fail = function (err) {
-      console.error('保存分类失败', err)
-      wx.cloud.callFunction({
-        name: 'updateSettings',
-        data: { data: cached },
-        success: done,
-        fail: function (err2) {
-          wx.hideLoading()
-          console.error('updateSettings保存分类失败', err2)
-          self.setData({ savingCats: false })
-          wx.showToast({ title: '保存失败', icon: 'none' })
-        }
+    }).catch(function () {
+      db.collection('products').doc(CONFIG_DOC_ID).set({ data: docData }).then(function () {
+        wx.cloud.callFunction({ name: 'updateSettings', data: { data: cached } })
+        wx.hideLoading()
+        self.setData({ savingCats: false, showCatPanel: false, categories: cats, allCategories: cats })
+        wx.showToast({ title: '分类已保存', icon: 'success' })
+      }).catch(function (err) {
+        wx.hideLoading()
+        console.error('保存分类失败', err)
+        self.setData({ savingCats: false })
+        wx.showToast({ title: '保存失败', icon: 'none' })
       })
-    }
-
-    db.collection('products').doc(CONFIG_DOC_ID).update({ data: docData }).then(done).catch(function () {
-      db.collection('products').doc(CONFIG_DOC_ID).set({ data: docData }).then(done).catch(fail)
     })
   },
 
@@ -236,18 +195,23 @@ Page({
       title: actionText, content: '确定要' + actionText + '吗？',
       success: function (res) {
         if (res.confirm) {
-          wx.cloud.callFunction({
-            name: 'manageProduct',
-            data: { action: 'toggleStatus', id: id, data: { status: newStatus } },
-            success: function (res) {
-              if (res.result && res.result.success) {
-                wx.showToast({ title: '已' + actionText, icon: 'success' })
-                self.getProducts()
-              } else {
-                wx.showToast({ title: '操作失败', icon: 'none' })
-              }
-            },
-            fail: function () { wx.showToast({ title: '操作失败', icon: 'none' }) }
+          db.collection('products').doc(id).update({ data: { status: newStatus } }).then(function () {
+            wx.showToast({ title: '已' + actionText, icon: 'success' })
+            self.getProducts()
+          }).catch(function () {
+            wx.cloud.callFunction({
+              name: 'manageProduct',
+              data: { action: 'toggleStatus', id: id, data: { status: newStatus } },
+              success: function (res) {
+                if (res.result && res.result.success) {
+                  wx.showToast({ title: '已' + actionText, icon: 'success' })
+                  self.getProducts()
+                } else {
+                  wx.showToast({ title: '操作失败', icon: 'none' })
+                }
+              },
+              fail: function () { wx.showToast({ title: '操作失败', icon: 'none' }) }
+            })
           })
         }
       }
@@ -262,22 +226,28 @@ Page({
       success: function (res) {
         if (res.confirm) {
           wx.showLoading({ title: '删除中...' })
-          wx.cloud.callFunction({
-            name: 'manageProduct',
-            data: { action: 'delete', id: id },
-            success: function (res) {
-              wx.hideLoading()
-              if (res.result && res.result.success) {
-                wx.showToast({ title: '已删除', icon: 'success' })
-                self.getProducts()
-              } else {
+          db.collection('products').doc(id).remove().then(function () {
+            wx.hideLoading()
+            wx.showToast({ title: '已删除', icon: 'success' })
+            self.getProducts()
+          }).catch(function () {
+            wx.cloud.callFunction({
+              name: 'manageProduct',
+              data: { action: 'delete', id: id },
+              success: function (res) {
+                wx.hideLoading()
+                if (res.result && res.result.success) {
+                  wx.showToast({ title: '已删除', icon: 'success' })
+                  self.getProducts()
+                } else {
+                  wx.showToast({ title: '删除失败', icon: 'none' })
+                }
+              },
+              fail: function () {
+                wx.hideLoading()
                 wx.showToast({ title: '删除失败', icon: 'none' })
               }
-            },
-            fail: function () {
-              wx.hideLoading()
-              wx.showToast({ title: '删除失败', icon: 'none' })
-            }
+            })
           })
         }
       }

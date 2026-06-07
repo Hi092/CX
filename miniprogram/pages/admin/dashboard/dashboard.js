@@ -1,5 +1,6 @@
-// 商家后台首页 - 优化加载速度
+// 商家后台首页 - 直接读配置，避免云函数延迟
 var db = wx.cloud.database()
+var CONFIG_DOC_ID = 'shop_config_v1'
 
 Page({
   data: {
@@ -15,16 +16,12 @@ Page({
   },
 
   onLoad: function () {
-    // 先从缓存加载，秒显示
     this.loadFromCache()
-    // 后台刷新数据
     this.refreshData()
   },
 
   onShow: function () {
-    // 先从缓存加载
     this.loadFromCache()
-    // 后台刷新
     this.refreshData()
   },
 
@@ -50,8 +47,6 @@ Page({
   },
 
   refreshData: function () {
-    var self = this
-    // 并行加载，不阻塞UI
     this.loadShopInfo()
     this.loadStats()
   },
@@ -71,16 +66,10 @@ Page({
 
   loadShopInfo: function () {
     var self = this
-    wx.cloud.callFunction({
-      name: 'getSettings',
-      success: function (res) {
-        if (res.result && res.result.success && res.result.data) self.applyShopInfo(res.result.data)
-      },
-      fail: function () {
-        db.collection('products').doc('shop_config_v1').get().then(function (res) {
-          if (res.data) self.applyShopInfo(res.data)
-        }).catch(function (err2) { console.error('后台首页读取配置失败', err2) })
-      }
+    db.collection('products').doc(CONFIG_DOC_ID).get().then(function (res) {
+      if (res.data) self.applyShopInfo(res.data)
+    }).catch(function (err) {
+      console.error('后台首页读取配置失败', err)
     })
   },
 
@@ -91,22 +80,10 @@ Page({
     var todayStart = new Date(y, m, d).getTime()
     var todayEnd = new Date(y, m, d + 1).getTime()
 
-    // 用云函数获取统计数据，更快
-    wx.cloud.callFunction({
-      name: 'getProducts',
-      success: function (res) {
-        if (res.result && res.result.data) {
-          self.setData({ totalProducts: res.result.data.length })
-        }
-      },
-      fail: function () {
-        db.collection('products').count().then(function (res) {
-          self.setData({ totalProducts: res.total })
-        }).catch(function (err2) { console.error('后台首页读取配置失败', err2) })
-      }
-    })
+    db.collection('products').count().then(function (res) {
+      self.setData({ totalProducts: res.total })
+    }).catch(function () {})
 
-    // 读订单统计
     db.collection('orders').limit(100).get().then(function (res) {
       var orders = res.data
       var income = 0, pending = 0, totalOrders = 0
@@ -128,7 +105,6 @@ Page({
         todayIncome: income.toFixed(2),
         pendingOrders: pending
       })
-      // 缓存统计数据
       wx.setStorageSync('dashboardStats', {
         todayOrders: totalOrders,
         todayIncome: income.toFixed(2),

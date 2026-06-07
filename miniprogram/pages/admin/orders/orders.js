@@ -1,5 +1,6 @@
-// 商家订单管理
+// 商家订单管理 - 直读订单
 var db = wx.cloud.database()
+var _ = db.command
 
 Page({
   data: {
@@ -35,25 +36,12 @@ Page({
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'listAdmin', status: self.data.currentTab },
-      success: function (res) {
-        if (res.result && res.result.success) self.applyOrders(res.result.data || [])
-        else self.getOrdersDirect()
-      },
-      fail: function () { self.getOrdersDirect() }
-    })
-  },
-
-  getOrdersDirect: function () {
-    var self = this
     var query = db.collection('orders').orderBy('createTime', 'desc')
     if (self.data.currentTab !== 'all') {
-      if (self.data.currentTab === 'pending') query = query.where({ status: db.command.in(['pending', 'paid']) })
+      if (self.data.currentTab === 'pending') query = query.where({ status: _.in(['pending', 'paid']) })
       else query = query.where({ status: self.data.currentTab })
     }
-    query.limit(50).get().then(function (res) {
+    query.limit(100).get().then(function (res) {
       self.applyOrders(res.data || [])
     }).catch(function (err) {
       console.error('getOrders失败', err)
@@ -70,19 +58,6 @@ Page({
   },
 
   getStats: function () {
-    var self = this
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'statsAdmin' },
-      success: function (res) {
-        if (res.result && res.result.success) self.applyStats(res.result.data || [])
-        else self.getStatsDirect()
-      },
-      fail: function () { self.getStatsDirect() }
-    })
-  },
-
-  getStatsDirect: function () {
     var self = this
     db.collection('orders').limit(100).get().then(function (res) {
       self.applyStats(res.data || [])
@@ -126,25 +101,12 @@ Page({
 
   updateStatus: function (orderId, status, toastTitle, directData) {
     var self = this
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'updateStatus', id: orderId, status: status },
-      success: function (res) {
-        if (res.result && res.result.success) {
-          wx.showToast({ title: toastTitle, icon: 'success' })
-          self.getOrders()
-          self.refreshStats()
-        } else {
-          wx.showToast({ title: '操作失败', icon: 'none' })
-        }
-      },
-      fail: function () {
-        db.collection('orders').doc(orderId).update({ data: directData }).then(function () {
-          wx.showToast({ title: toastTitle, icon: 'success' })
-          self.getOrders()
-          self.refreshStats()
-        }).catch(function () { wx.showToast({ title: '操作失败', icon: 'none' }) })
-      }
+    db.collection('orders').doc(orderId).update({ data: directData }).then(function () {
+      wx.showToast({ title: toastTitle, icon: 'success' })
+      self.getOrders()
+      self.refreshStats()
+    }).catch(function () {
+      wx.showToast({ title: '操作失败', icon: 'none' })
     })
   },
 

@@ -1,5 +1,6 @@
-// 我的订单
+// 我的订单 - 直读当前用户订单
 var db = wx.cloud.database()
+var _ = db.command
 
 Page({
   data: {
@@ -14,9 +15,7 @@ Page({
     var s = wx.getStorageSync('shopSettings')
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
     if (options.status) this.setData({ currentTab: options.status })
-    this.loadOpenid()
     this.getOrders()
-    this.startWatch()
   },
 
   onShow: function () {
@@ -25,74 +24,72 @@ Page({
     this.getOrders()
   },
 
-  onUnload: function () {
-    if (this._watch) this._watch.close()
-  },
-
-  loadOpenid: function () {
-    var self = this
-    wx.cloud.callFunction({
-      name: 'login',
-      success: function (res) {
-        if (res.result && res.result.openid) self.setData({ openid: res.result.openid })
-      },
-      fail: function () {}
-    })
-  },
-
-  startWatch: function () {
-    var self = this
-    wx.cloud.callFunction({
-      name: 'login',
-      success: function (res) {
-        var openid = res.result && res.result.openid
-        if (!openid) return
-        self.setData({ openid: openid })
-        self._watch = db.collection('orders').where({ customerOpenid: openid }).watch({
-          onChange: function (snapshot) {
-            if (snapshot.type !== 'init') {
-              self.getOrders()
-              wx.showToast({ title: '订单状态已更新', icon: 'none' })
-            }
-          },
-          onError: function (err) { console.error('实时监听失败:', err) }
-        })
-      }
-    })
-  },
-
   switchTab: function (e) {
     this.setData({ currentTab: e.currentTarget.dataset.tab })
     this.getOrders()
   },
 
+  buildQuery: function (openid, status, limit) {
+    var base = { status: status || _.neq('deleted') }
+    var q1 = db.collection('orders').where(Object.assign({ customerOpenid: openid }, base)).orderBy('createTime', 'desc').limit(limit)
+    var q2 = db.collection('orders').where(Object.assign({ _openid: openid }, base)).orderBy('createTime', 'desc').limit(limit)
+    return [q1, q2]
+  },
+
+  mergeOrders: function (lists, status) {
+    var seen = {}
+    var out = []
+    for (var i = 0; i < lists.length; i++) {
+      var arr = lists[i] || []
+      for (var j = 0; j < arr.length; j++) {
+        var item = arr[j]
+        if (seen[item._id]) continue
+        if (status && status !== 'all' && item.status !== status) continue
+        seen[item._id] = true
+        out.push(item)
+      }
+    }
+    out.sort(function (a, b) {
+      var at = a.createTime && a.createTime.getTime ? a.createTime.getTime() : 0
+      var bt = b.createTime && b.createTime.getTime ? b.createTime.getTime() : 0
+      return bt - at
+    })
+    return out
+  },
+
   getOrders: function () {
     var self = this
     self.setData({ loading: true })
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'listMine', status: self.data.currentTab },
-      success: function (res) {
-        if (res.result && res.result.success) {
-          self.applyOrders(res.result.data || [])
-        } else {
-          self.getOrdersDirect()
+    var openid = self.data.openid
+    if (!openid) {
+      wx.cloud.callFunction({
+        name: 'login',
+        success: function (res) {
+          var id = res.result && res.result.openid
+          if (!id) {
+            self.setData({ orders: [], loading: false })
+            return
+          }
+          self.setData({ openid: id })
+          self.fetchOrders(id)
+        },
+        fail: function () {
+          self.setData({ orders: [], loading: false })
         }
-      },
-      fail: function () { self.getOrdersDirect() }
-    })
+      })
+    } else {
+      self.fetchOrders(openid)
+    }
   },
 
-  getOrdersDirect: function () {
+  fetchOrders: function (openid) {
     var self = this
-    db.collection('orders').orderBy('createTime', 'desc').limit(50).get().then(function (res) {
-      var all = res.data
-      var orders = []
-      for (var i = 0; i < all.length; i++) {
-        if (self.data.openid && all[i].customerOpenid && all[i].customerOpenid !== self.data.openid) continue
-        if (self.data.currentTab === 'all' || all[i].status === self.data.currentTab) orders.push(all[i])
-      }
-      self.applyOrders(orders)
+    var status = self.data.currentTab
+    var queries = self.buildQuery(openid, status, 100)
+    Promise.all([queries[0].get(), queries[1].get()]).then(function (res) {
+      var lists = [res[0].data, res[1].data]
+      var merged = self.mergeOrders(lists, status)
+      self.applyOrders(merged)
     }).catch(function (err) {
       console.error('我的订单查询失败:', err)
       self.setData({ orders: [], loading: false })

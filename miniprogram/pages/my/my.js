@@ -1,4 +1,5 @@
 var db = wx.cloud.database()
+var _ = db.command
 
 Page({
   data: {
@@ -9,6 +10,7 @@ Page({
     tapTimer: null,
     showModal: false,
     pwdInput: '',
+    verifying: false,
     badgeCounts: { pending: 0, paid: 0, delivering: 0 }
   },
 
@@ -25,19 +27,44 @@ Page({
 
   loadBadges: function () {
     var self = this
-    wx.cloud.callFunction({
-      name: 'manageOrder',
-      data: { action: 'badgesMine' },
-      success: function (res) {
-        if (res.result && res.result.success) {
-          self.setData({ badgeCounts: res.result.counts || { pending: 0, paid: 0, delivering: 0 } })
-        } else {
-          self.setData({ badgeCounts: { pending: 0, paid: 0, delivering: 0 } })
+    var openid = self.data._openid || ''
+    if (!openid) {
+      wx.cloud.callFunction({
+        name: 'login',
+        success: function (res) {
+          var id = res.result && res.result.openid
+          if (!id) return
+          self.setData({ _openid: id })
+          self.fetchBadgeCounts(id)
+        },
+        fail: function () {}
+      })
+    } else {
+      self.fetchBadgeCounts(openid)
+    }
+  },
+
+  fetchBadgeCounts: function (openid) {
+    var self = this
+    var statusList = ['pending', 'paid', 'delivering']
+    var q1 = db.collection('orders').where({ customerOpenid: openid, status: _.in(statusList) }).limit(300).get()
+    var q2 = db.collection('orders').where({ _openid: openid, status: _.in(statusList) }).limit(300).get()
+    Promise.all([q1, q2]).then(function (res) {
+      var seen = {}
+      var counts = { pending: 0, paid: 0, delivering: 0 }
+      var lists = [res[0].data, res[1].data]
+      for (var i = 0; i < lists.length; i++) {
+        var arr = lists[i] || []
+        for (var j = 0; j < arr.length; j++) {
+          var item = arr[j]
+          if (seen[item._id]) continue
+          seen[item._id] = true
+          if (counts[item.status] !== undefined) counts[item.status]++
         }
-      },
-      fail: function () {
-        self.setData({ badgeCounts: { pending: 0, paid: 0, delivering: 0 } })
       }
+      self.setData({ badgeCounts: counts })
+    }).catch(function (err) {
+      console.error('读取角标失败', err)
     })
   },
 
@@ -110,6 +137,8 @@ Page({
     var self = this
     var pwd = this.data.pwdInput
     if (!pwd) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
+    if (this.data.verifying) return
+    this.setData({ verifying: true })
     wx.cloud.callFunction({
       name: 'verifyAdmin',
       data: { password: pwd }
@@ -119,8 +148,12 @@ Page({
         self.closeModal()
         wx.setStorageSync('isShopOwner', true)
         wx.showToast({ title: '验证成功', icon: 'success' })
-        setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+        setTimeout(function () {
+          self.setData({ verifying: false })
+          wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' })
+        }, 300)
       } else {
+        self.setData({ verifying: false })
         wx.showToast({ title: result.message || '密码错误', icon: 'none' })
       }
     }).catch(function () {
@@ -128,12 +161,16 @@ Page({
         self.closeModal()
         wx.setStorageSync('isShopOwner', true)
         wx.showToast({ title: '验证成功', icon: 'success' })
-        setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
+        setTimeout(function () {
+          self.setData({ verifying: false })
+          wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' })
+        }, 300)
       } else {
+        self.setData({ verifying: false })
         wx.showToast({ title: '密码错误', icon: 'none' })
       }
     })
   },
 
-  closeModal: function () { this.setData({ showModal: false, pwdInput: '' }) }
+  closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false }) }
 })
