@@ -12,6 +12,7 @@ Page({
     showModal: false,
     pwdInput: '',
     verifying: false,
+    rememberDevice: false,
     currentOpenid: '',
     badgeCounts: { pending: 0, paid: 0, delivering: 0 }
   },
@@ -154,7 +155,19 @@ Page({
     if (this.data.tapTimer) clearTimeout(this.data.tapTimer)
     var t = setTimeout(function () { self.setData({ tapCount: 0 }) }, 2000)
     this.setData({ tapCount: c, tapTimer: t })
-    if (c >= 5) this.setData({ showModal: true, tapCount: 0 })
+    if (c >= 5) {
+      // 如果记住了设备，直接进后台
+      if (wx.getStorageSync('adminAutoLogin')) {
+        wx.setStorageSync('isShopOwner', true)
+        wx.showToast({ title: '已进入商家模式', icon: 'success' })
+        this.setData({ tapCount: 0 })
+        setTimeout(function () {
+          wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' })
+        }, 300)
+        return
+      }
+      this.setData({ showModal: true, tapCount: 0, rememberDevice: false })
+    }
   },
 
   onPwdInput: function (e) { this.setData({ pwdInput: e.detail.value }) },
@@ -173,6 +186,7 @@ Page({
       if (result.success) {
         self.closeModal()
         wx.setStorageSync('isShopOwner', true)
+        if (self.data.rememberDevice) wx.setStorageSync('adminAutoLogin', true)
         wx.showToast({ title: '验证成功', icon: 'success' })
         setTimeout(function () {
           self.setData({ verifying: false })
@@ -186,6 +200,7 @@ Page({
       if (pwd === '123456') {
         self.closeModal()
         wx.setStorageSync('isShopOwner', true)
+        if (self.data.rememberDevice) wx.setStorageSync('adminAutoLogin', true)
         wx.showToast({ title: '验证成功', icon: 'success' })
         setTimeout(function () {
           self.setData({ verifying: false })
@@ -198,7 +213,9 @@ Page({
     })
   },
 
-  closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false }) }
+  closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false, rememberDevice: false }) }
+
+  toggleRemember: function () { this.setData({ rememberDevice: !this.data.rememberDevice }) }
 })
 
 function isPendingExpired(order) {

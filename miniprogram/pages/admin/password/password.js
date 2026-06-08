@@ -5,10 +5,28 @@ Page({
     oldPassword: '',
     newPassword: '',
     confirmPassword: '',
-    loading: false
+    loading: false,
+    hasAutoLogin: false
   },
 
-  onLoad: function () {},
+  onLoad: function () {
+    if (wx.getStorageSync('adminAutoLogin')) this.setData({ hasAutoLogin: true })
+  },
+
+  clearAutoLogin: function () {
+    var self = this
+    wx.showModal({
+      title: '取消免密登录',
+      content: '取消后下次进入商家后台需要重新输入密码',
+      success: function (res) {
+        if (res.confirm) {
+          wx.removeStorageSync('adminAutoLogin')
+          self.setData({ hasAutoLogin: false })
+          wx.showToast({ title: '已取消免密登录', icon: 'success' })
+        }
+      }
+    })
+  },
 
   onOldPwdInput: function (e) { this.setData({ oldPassword: e.detail.value }) },
   onNewPwdInput: function (e) { this.setData({ newPassword: e.detail.value }) },

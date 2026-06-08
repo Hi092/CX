@@ -12,7 +12,11 @@ Page({
     totalProducts: 0,
     pendingOrders: 0,
     themeColor: '#4A90D9',
-    loading: false
+    loading: false,
+    yesterdayIncome: '0.00',
+    weekIncome: '0.00',
+    monthIncome: '0.00',
+    yearIncome: '0.00'
   },
 
   onLoad: function () {
@@ -98,37 +102,68 @@ Page({
     var y = now.getFullYear(), m = now.getMonth(), d = now.getDate()
     var todayStart = new Date(y, m, d).getTime()
     var todayEnd = new Date(y, m, d + 1).getTime()
+    var yesterdayStart = new Date(y, m, d - 1).getTime()
+    var yesterdayEnd = todayStart
+
+    // 本周一0点
+    var dayOfWeek = now.getDay() || 7
+    var weekStart = new Date(y, m, d - dayOfWeek + 1).getTime()
+    // 本月1号0点
+    var monthStart = new Date(y, m, 1).getTime()
+    // 今年1月1号0点
+    var yearStart = new Date(y, 0, 1).getTime()
 
     db.collection('products').count().then(function (res) {
       self.setData({ totalProducts: res.total })
     }).catch(function () {})
 
-    db.collection('orders').limit(100).get().then(function (res) {
+    // 查最近500单，覆盖到一年
+    db.collection('orders').orderBy('createTime', 'desc').limit(500).get().then(function (res) {
       var orders = res.data
-      var income = 0, pending = 0, totalOrders = 0
+      var todayInc = 0, yesterdayInc = 0, weekInc = 0, monthInc = 0, yearInc = 0
+      var pending = 0, totalOrders = 0
+
       for (var i = 0; i < orders.length; i++) {
         var ct = orders[i].createTime
         var ctTime = 0
         if (ct && ct.$date) ctTime = new Date(ct.$date).getTime()
         else if (ct) ctTime = new Date(ct).getTime()
         var status = orders[i].status
-        var isToday = ctTime >= todayStart && ctTime < todayEnd
-        if (isToday && (status === 'completed' || status === 'paid' || status === 'delivering')) {
-          totalOrders++
-          income += (orders[i].finalPrice || orders[i].totalPrice || 0)
-        }
+        var hasIncome = (status === 'completed' || status === 'paid' || status === 'delivering')
+        var price = orders[i].finalPrice || orders[i].totalPrice || 0
+
         if (status === 'paid') pending++
+
+        if (!hasIncome || ctTime <= 0) continue
+
+        if (ctTime >= todayStart && ctTime < todayEnd) {
+          totalOrders++
+          todayInc += price
+        }
+        if (ctTime >= yesterdayStart && ctTime < yesterdayEnd) yesterdayInc += price
+        if (ctTime >= weekStart) weekInc += price
+        if (ctTime >= monthStart) monthInc += price
+        if (ctTime >= yearStart) yearInc += price
       }
+
       self.setData({
         todayOrders: totalOrders,
-        todayIncome: income.toFixed(2),
-        pendingOrders: pending
+        todayIncome: todayInc.toFixed(2),
+        pendingOrders: pending,
+        yesterdayIncome: yesterdayInc.toFixed(2),
+        weekIncome: weekInc.toFixed(2),
+        monthIncome: monthInc.toFixed(2),
+        yearIncome: yearInc.toFixed(2)
       })
       wx.setStorageSync('dashboardStats', {
         todayOrders: totalOrders,
-        todayIncome: income.toFixed(2),
+        todayIncome: todayInc.toFixed(2),
         totalProducts: self.data.totalProducts,
-        pendingOrders: pending
+        pendingOrders: pending,
+        yesterdayIncome: yesterdayInc.toFixed(2),
+        weekIncome: weekInc.toFixed(2),
+        monthIncome: monthInc.toFixed(2),
+        yearIncome: yearInc.toFixed(2)
       })
     }).catch(function (err) {
       console.error('loadStats失败', err)

@@ -99,6 +99,55 @@
   opacity: 0.4;
 }
 
+/* 收入统计卡片 */
+.revenue-card {
+  background: #fff;
+  margin: 24rpx;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.06);
+}
+.revenue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.revenue-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.revenue-grid {
+  display: flex;
+  justify-content: space-between;
+}
+.revenue-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 8rpx;
+  border-radius: 16rpx;
+  margin: 0 6rpx;
+}
+.revenue-item:first-child { margin-left: 0; }
+.revenue-item:last-child { margin-right: 0; }
+.revenue-item.yesterday { background: #FFF8E1; }
+.revenue-item.week { background: #E8F5E9; }
+.revenue-item.month { background: #E3F2FD; }
+.revenue-item.year { background: #F3E5F5; }
+.revenue-label {
+  display: block;
+  font-size: 22rpx;
+  color: #888;
+  margin-bottom: 8rpx;
+}
+.revenue-num {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #333;
+}
+
 /* 菜单卡片 */
 .menu-card {
   background: #fff;

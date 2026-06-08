@@ -35,6 +35,7 @@ Page({
   },
 
   loadLocalPreview: function () {
+    var self = this
     var items = wx.getStorageSync('checkoutItems') || []
     var totalPrice = 0
     for (var i = 0; i < items.length; i++) totalPrice += items[i].price * items[i].quantity
@@ -43,14 +44,22 @@ Page({
     var freeDeliveryPrice = settings.freeDeliveryPrice !== undefined ? settings.freeDeliveryPrice : 30
     var minPrice = settings.minPrice !== undefined ? settings.minPrice : 20
     var fee = totalPrice >= freeDeliveryPrice ? 0 : deliveryFee
-    this.setData({
-      items: items,
-      totalPrice: totalPrice.toFixed(2),
-      deliveryFee: fee,
-      finalPrice: (totalPrice + fee).toFixed(2),
-      freeDeliveryPrice: freeDeliveryPrice,
-      minPrice: minPrice,
-      themeColor: settings.themeColor || '#4A90D9'
+    // 解析云存储图片
+    var itemsCopy = []
+    for (var j = 0; j < items.length; j++) itemsCopy.push({
+      _id: items[j]._id, name: items[j].name, price: items[j].price,
+      image: items[j].image, quantity: items[j].quantity
+    })
+    this.resolveCloudImageURLs(itemsCopy, function (resolved) {
+      self.setData({
+        items: resolved,
+        totalPrice: totalPrice.toFixed(2),
+        deliveryFee: fee,
+        finalPrice: (totalPrice + fee).toFixed(2),
+        freeDeliveryPrice: freeDeliveryPrice,
+        minPrice: minPrice,
+        themeColor: settings.themeColor || '#4A90D9'
+      })
     })
   },
 
@@ -62,6 +71,34 @@ Page({
       if (addresses[i].isDefault) { this.setData({ address: addresses[i] }); return }
     }
     if (addresses.length > 0) this.setData({ address: addresses[0] })
+  },
+
+  resolveCloudImageURLs: function (items, callback) {
+    if (!items || items.length === 0) { callback(items); return }
+    var fileIDs = []
+    var indices = []
+    for (var i = 0; i < items.length; i++) {
+      var img = items[i] && items[i].image
+      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
+        fileIDs.push(img)
+        indices.push(i)
+      }
+    }
+    if (fileIDs.length === 0) { callback(items); return }
+    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
+      var map = {}
+      var list = res.fileList || []
+      for (var j = 0; j < list.length; j++) {
+        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
+      }
+      for (var k = 0; k < indices.length; k++) {
+        var url = map[fileIDs[k]]
+        if (url) items[indices[k]].image = url
+      }
+      callback(items)
+    }).catch(function () {
+      callback(items)
+    })
   },
 
   chooseAddress: function () { wx.navigateTo({ url: '/pages/my/address/address?select=1' }) },

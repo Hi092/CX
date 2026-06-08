@@ -133,16 +133,22 @@ Page({
       success: function (res) {
         var r = res.result || {}
         var list = r.data || []
-        self.setData({ allProducts: self.cleanProducts(list) })
-        if (r.settings) self.applySettings(r.settings)
-        else if (r.categories && r.categories.length > 0) self.applySettings({ categories: r.categories })
-        self.filterProducts()
+        var products = self.cleanProducts(list)
+        self.resolveCloudImageURLs(products, function (resolved) {
+          self.setData({ allProducts: resolved })
+          if (r.settings) self.applySettings(r.settings)
+          else if (r.categories && r.categories.length > 0) self.applySettings({ categories: r.categories })
+          self.filterProducts()
+        })
       },
       fail: function (err) {
         console.error('getProducts失败', err)
         db.collection('products').limit(100).get().then(function (res) {
-          self.setData({ allProducts: self.cleanProducts(res.data || []) })
-          self.filterProducts()
+          var products = self.cleanProducts(res.data || [])
+          self.resolveCloudImageURLs(products, function (resolved) {
+            self.setData({ allProducts: resolved })
+            self.filterProducts()
+          })
         }).catch(function (err2) { console.error('直读商品失败', err2) })
       }
     })
@@ -174,6 +180,37 @@ Page({
     this.setData({ products: filtered })
   },
 
+  resolveCloudImageURLs: function (items, callback) {
+    if (!items || items.length === 0) { callback(items); return }
+    var fileIDs = []
+    var indices = []
+    for (var i = 0; i < items.length; i++) {
+      var img = items[i] && items[i].image
+      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
+        fileIDs.push(img)
+        indices.push(i)
+      }
+    }
+    if (fileIDs.length === 0) { callback(items); return }
+    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
+      var map = {}
+      var list = res.fileList || []
+      for (var j = 0; j < list.length; j++) {
+        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
+      }
+      for (var k = 0; k < indices.length; k++) {
+        var url = map[fileIDs[k]]
+        if (url) {
+          items[indices[k]]._imageFileID = fileIDs[k]
+          items[indices[k]].image = url
+        }
+      }
+      callback(items)
+    }).catch(function () {
+      callback(items)
+    })
+  },
+
   onSearch: function (e) {
     this.setData({ searchKey: e.detail.value })
     this.filterProducts()
@@ -187,7 +224,7 @@ Page({
       if (cart[i]._id === product._id) { idx = i; break }
     }
     if (idx > -1) cart[idx].quantity++
-    else cart.push({ _id: product._id, name: product.name, price: Math.round(product.price * 100) / 100, image: product.image, quantity: 1 })
+    else cart.push({ _id: product._id, name: product.name, price: Math.round(product.price * 100) / 100, image: product._imageFileID || product.image, quantity: 1 })
     wx.setStorageSync('cart', cart)
     this.calcCart()
     this.updateCartBadge()
@@ -237,17 +274,26 @@ Page({
   },
 
   calcCart: function () {
+    var self = this
     var cart = wx.getStorageSync('cart') || []
     var totalCount = 0, totalPrice = 0
     for (var i = 0; i < cart.length; i++) {
       totalCount += cart[i].quantity
       totalPrice += Math.round(cart[i].price * cart[i].quantity * 100) / 100
     }
-    this.setData({
-      totalCount: totalCount,
-      totalPrice: totalPrice.toFixed(2),
-      diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2),
-      cartItems: cart
+    // 解析购物车图片
+    var cartCopy = []
+    for (var j = 0; j < cart.length; j++) cartCopy.push({
+      _id: cart[j]._id, name: cart[j].name, price: cart[j].price,
+      image: cart[j].image, quantity: cart[j].quantity
+    })
+    self.resolveCloudImageURLs(cartCopy, function (resolved) {
+      self.setData({
+        totalCount: totalCount,
+        totalPrice: totalPrice.toFixed(2),
+        diffPrice: Math.max(0, self.data.minPrice - totalPrice).toFixed(2),
+        cartItems: resolved
+      })
     })
   },
 
@@ -258,6 +304,7 @@ Page({
   },
 
   toggleCartPopup: function () {
+    var self = this
     var cart = wx.getStorageSync('cart') || []
     if (cart.length === 0) {
       wx.showToast({ title: '购物车是空的', icon: 'none' })
@@ -268,12 +315,19 @@ Page({
       totalCount += cart[i].quantity
       totalPrice += Math.round(cart[i].price * cart[i].quantity * 100) / 100
     }
-    this.setData({
-      showCartPopup: !this.data.showCartPopup,
-      cartItems: cart,
-      totalCount: totalCount,
-      totalPrice: totalPrice.toFixed(2),
-      diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2)
+    var cartCopy = []
+    for (var j = 0; j < cart.length; j++) cartCopy.push({
+      _id: cart[j]._id, name: cart[j].name, price: cart[j].price,
+      image: cart[j].image, quantity: cart[j].quantity
+    })
+    self.resolveCloudImageURLs(cartCopy, function (resolved) {
+      self.setData({
+        showCartPopup: !self.data.showCartPopup,
+        cartItems: resolved,
+        totalCount: totalCount,
+        totalPrice: totalPrice.toFixed(2),
+        diffPrice: Math.max(0, self.data.minPrice - totalPrice).toFixed(2)
+      })
     })
   },
 
