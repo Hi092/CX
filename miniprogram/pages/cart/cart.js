@@ -1,4 +1,6 @@
 // 购物车页面
+var cloudImage = require('../../utils/cloudImage')
+
 Page({
   data: {
     cart: [],
