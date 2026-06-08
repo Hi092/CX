@@ -1,5 +1,7 @@
 // 商品管理页面 - 直读商品和配置
 var db = wx.cloud.database()
+var cloudImage = require("../../../utils/cloudImage")
+
 var CONFIG_DOC_ID = 'shop_config_v1'
 var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
 
@@ -77,7 +79,7 @@ Page({
     self.setData({ loading: true })
     db.collection('products').limit(100).get().then(function (res) {
       var products = self.cleanProducts(res.data || [])
-      self.resolveCloudImageURLs(products, function (resolved) {
+      cloudImage.resolveCloudImageURLs(products, function (resolved) {
         self.setData({ allProducts: resolved })
         self.filterProducts()
       })
@@ -103,37 +105,6 @@ Page({
       if (match) filtered.push(p)
     }
     this.setData({ products: filtered, loading: false })
-  },
-
-  resolveCloudImageURLs: function (items, callback) {
-    if (!items || items.length === 0) { callback(items); return }
-    var fileIDs = []
-    var indices = []
-    for (var i = 0; i < items.length; i++) {
-      var img = items[i] && items[i].image
-      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
-        fileIDs.push(img)
-        indices.push(i)
-      }
-    }
-    if (fileIDs.length === 0) { callback(items); return }
-    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
-      var map = {}
-      var list = res.fileList || []
-      for (var j = 0; j < list.length; j++) {
-        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
-      }
-      for (var k = 0; k < indices.length; k++) {
-        var url = map[fileIDs[k]]
-        if (url) {
-          items[indices[k]]._imageFileID = fileIDs[k]
-          items[indices[k]].image = url
-        }
-      }
-      callback(items)
-    }).catch(function () {
-      callback(items)
-    })
   },
 
   onSearch: function (e) { this.setData({ searchKey: e.detail.value }); this.filterProducts() },

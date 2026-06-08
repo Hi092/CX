@@ -1,5 +1,6 @@
 // 分类页面 - 统一配置读取版
 var db = wx.cloud.database()
+var cloudImage = require('../../utils/cloudImage')
 var CONFIG_DOC_ID = 'shop_config_v1'
 var DEFAULT_CATEGORIES = ['饮料', '零食', '方便面', '日用品', '烟酒', '文具', '生鲜']
 
@@ -134,7 +135,7 @@ Page({
         var r = res.result || {}
         var list = r.data || []
         var products = self.cleanProducts(list)
-        self.resolveCloudImageURLs(products, function (resolved) {
+        cloudImage.resolveCloudImageURLs(products, function (resolved) {
           self.setData({ allProducts: resolved })
           if (r.settings) self.applySettings(r.settings)
           else if (r.categories && r.categories.length > 0) self.applySettings({ categories: r.categories })
@@ -145,7 +146,7 @@ Page({
         console.error('getProducts失败', err)
         db.collection('products').limit(100).get().then(function (res) {
           var products = self.cleanProducts(res.data || [])
-          self.resolveCloudImageURLs(products, function (resolved) {
+          cloudImage.resolveCloudImageURLs(products, function (resolved) {
             self.setData({ allProducts: resolved })
             self.filterProducts()
           })
@@ -178,37 +179,6 @@ Page({
       if (match) filtered.push(p)
     }
     this.setData({ products: filtered })
-  },
-
-  resolveCloudImageURLs: function (items, callback) {
-    if (!items || items.length === 0) { callback(items); return }
-    var fileIDs = []
-    var indices = []
-    for (var i = 0; i < items.length; i++) {
-      var img = items[i] && items[i].image
-      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
-        fileIDs.push(img)
-        indices.push(i)
-      }
-    }
-    if (fileIDs.length === 0) { callback(items); return }
-    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
-      var map = {}
-      var list = res.fileList || []
-      for (var j = 0; j < list.length; j++) {
-        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
-      }
-      for (var k = 0; k < indices.length; k++) {
-        var url = map[fileIDs[k]]
-        if (url) {
-          items[indices[k]]._imageFileID = fileIDs[k]
-          items[indices[k]].image = url
-        }
-      }
-      callback(items)
-    }).catch(function () {
-      callback(items)
-    })
   },
 
   onSearch: function (e) {
@@ -287,7 +257,7 @@ Page({
       _id: cart[j]._id, name: cart[j].name, price: cart[j].price,
       image: cart[j].image, quantity: cart[j].quantity
     })
-    self.resolveCloudImageURLs(cartCopy, function (resolved) {
+    cloudImage.resolveCloudImageURLs(cartCopy, function (resolved) {
       self.setData({
         totalCount: totalCount,
         totalPrice: totalPrice.toFixed(2),
@@ -320,7 +290,7 @@ Page({
       _id: cart[j]._id, name: cart[j].name, price: cart[j].price,
       image: cart[j].image, quantity: cart[j].quantity
     })
-    self.resolveCloudImageURLs(cartCopy, function (resolved) {
+    cloudImage.resolveCloudImageURLs(cartCopy, function (resolved) {
       self.setData({
         showCartPopup: !self.data.showCartPopup,
         cartItems: resolved,

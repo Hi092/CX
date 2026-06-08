@@ -48,7 +48,7 @@ Page({
       _id: cart[k]._id, name: cart[k].name, price: cart[k].price,
       image: cart[k].image, quantity: cart[k].quantity, selected: cart[k].selected
     })
-    this.resolveCloudImageURLs(cartCopy, function (resolved) {
+    cloudImage.resolveCloudImageURLs(cartCopy, function (resolved) {
       self.setData({ cart: resolved })
       self.calcTotal()
     })
@@ -66,34 +66,6 @@ Page({
       totalCount: totalCount,
       selectAll: cart.length > 0 ? selectAll : false,
       diffPrice: Math.max(0, this.data.minPrice - totalPrice).toFixed(2)
-    })
-  },
-
-  resolveCloudImageURLs: function (items, callback) {
-    if (!items || items.length === 0) { callback(items); return }
-    var fileIDs = []
-    var indices = []
-    for (var i = 0; i < items.length; i++) {
-      var img = items[i] && items[i].image
-      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
-        fileIDs.push(img)
-        indices.push(i)
-      }
-    }
-    if (fileIDs.length === 0) { callback(items); return }
-    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
-      var map = {}
-      var list = res.fileList || []
-      for (var j = 0; j < list.length; j++) {
-        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
-      }
-      for (var k = 0; k < indices.length; k++) {
-        var url = map[fileIDs[k]]
-        if (url) items[indices[k]].image = url
-      }
-      callback(items)
-    }).catch(function () {
-      callback(items)
     })
   },
 
@@ -135,7 +107,17 @@ Page({
   },
 
   saveCart: function () {
-    wx.setStorageSync('cart', this.data.cart)
+    var cart = this.data.cart
+    // 存回原始 fileID，避免临时URL过期
+    var toSave = []
+    for (var i = 0; i < cart.length; i++) {
+      toSave.push({
+        _id: cart[i]._id, name: cart[i].name, price: cart[i].price,
+        image: cart[i]._imageFileID || cart[i].image,
+        quantity: cart[i].quantity, selected: cart[i].selected
+      })
+    }
+    wx.setStorageSync('cart', toSave)
     this.updateCartBadge()
   },
 

@@ -213,7 +213,7 @@ Page({
     })
   },
 
-  closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false, rememberDevice: false }) }
+  closeModal: function () { this.setData({ showModal: false, pwdInput: '', verifying: false, rememberDevice: false }) },
 
   toggleRemember: function () { this.setData({ rememberDevice: !this.data.rememberDevice }) }
 })

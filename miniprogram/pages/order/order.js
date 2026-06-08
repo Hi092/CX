@@ -1,5 +1,7 @@
 // 订单确认页 - 云函数优先，失败无缝直连，带最小报错日志
 var db = wx.cloud.database()
+var cloudImage = require("../../utils/cloudImage")
+
 
 Page({
   data: {
@@ -50,7 +52,7 @@ Page({
       _id: items[j]._id, name: items[j].name, price: items[j].price,
       image: items[j].image, quantity: items[j].quantity
     })
-    this.resolveCloudImageURLs(itemsCopy, function (resolved) {
+    cloudImage.resolveCloudImageURLs(itemsCopy, function (resolved) {
       self.setData({
         items: resolved,
         totalPrice: totalPrice.toFixed(2),
@@ -71,34 +73,6 @@ Page({
       if (addresses[i].isDefault) { this.setData({ address: addresses[i] }); return }
     }
     if (addresses.length > 0) this.setData({ address: addresses[0] })
-  },
-
-  resolveCloudImageURLs: function (items, callback) {
-    if (!items || items.length === 0) { callback(items); return }
-    var fileIDs = []
-    var indices = []
-    for (var i = 0; i < items.length; i++) {
-      var img = items[i] && items[i].image
-      if (img && typeof img === 'string' && img.indexOf('cloud://') === 0) {
-        fileIDs.push(img)
-        indices.push(i)
-      }
-    }
-    if (fileIDs.length === 0) { callback(items); return }
-    wx.cloud.getTempFileURL({ fileList: fileIDs }).then(function (res) {
-      var map = {}
-      var list = res.fileList || []
-      for (var j = 0; j < list.length; j++) {
-        if (list[j].tempFileURL) map[list[j].fileID] = list[j].tempFileURL
-      }
-      for (var k = 0; k < indices.length; k++) {
-        var url = map[fileIDs[k]]
-        if (url) items[indices[k]].image = url
-      }
-      callback(items)
-    }).catch(function () {
-      callback(items)
-    })
   },
 
   chooseAddress: function () { wx.navigateTo({ url: '/pages/my/address/address?select=1' }) },
