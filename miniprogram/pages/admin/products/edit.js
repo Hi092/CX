@@ -77,8 +77,7 @@ Page({
       var db = wx.cloud.database()
       var productData = {
         name: data.name, price: parseFloat(data.price), stock: parseInt(data.stock) || 0,
-        category: data.category, description: data.description || '', image: imageUrl,
-        updateTime: db.serverDate()
+        category: data.category, description: data.description || '', image: imageUrl
       }
       if (data.isEdit) {
         // 走云函数绕过权限

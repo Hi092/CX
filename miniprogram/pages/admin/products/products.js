@@ -163,30 +163,23 @@ Page({
     wx.setStorageSync('shopCategories', cats)
     wx.setStorageSync('shopSettings', cached)
 
-    var docData = {}
-    for (var k in cached) docData[k] = cached[k]
-    docData._type = 'shopConfig'
-    docData.key = 'shopSettings'
-    docData.categories = cats
-    docData.updateTime = db.serverDate()
-
-    db.collection('products').doc(CONFIG_DOC_ID).update({ data: docData }).then(function () {
-      wx.cloud.callFunction({ name: 'updateSettings', data: { data: cached } })
+    wx.cloud.callFunction({
+      name: 'manageProduct',
+      data: { action: 'saveCategories', data: cats }
+    }).then(function (res) {
+      var result = res.result || {}
       wx.hideLoading()
       self.setData({ savingCats: false, showCatPanel: false, categories: cats, allCategories: cats })
-      wx.showToast({ title: '分类已保存', icon: 'success' })
-    }).catch(function () {
-      db.collection('products').doc(CONFIG_DOC_ID).set({ data: docData }).then(function () {
-        wx.cloud.callFunction({ name: 'updateSettings', data: { data: cached } })
-        wx.hideLoading()
-        self.setData({ savingCats: false, showCatPanel: false, categories: cats, allCategories: cats })
+      if (result.success) {
         wx.showToast({ title: '分类已保存', icon: 'success' })
-      }).catch(function (err) {
-        wx.hideLoading()
-        console.error('保存分类失败', err)
-        self.setData({ savingCats: false })
-        wx.showToast({ title: '保存失败', icon: 'none' })
-      })
+      } else {
+        wx.showToast({ title: result.error || '保存失败', icon: 'none' })
+      }
+    }).catch(function (err) {
+      wx.hideLoading()
+      console.error('保存分类失败', err)
+      self.setData({ savingCats: false })
+      wx.showToast({ title: '保存失败', icon: 'none' })
     })
   },
 
@@ -200,23 +193,18 @@ Page({
       title: actionText, content: '确定要' + actionText + '吗？',
       success: function (res) {
         if (res.confirm) {
-          db.collection('products').doc(id).update({ data: { status: newStatus } }).then(function () {
-            wx.showToast({ title: '已' + actionText, icon: 'success' })
-            self.getProducts()
-          }).catch(function () {
-            wx.cloud.callFunction({
-              name: 'manageProduct',
-              data: { action: 'toggleStatus', id: id, data: { status: newStatus } },
-              success: function (res) {
-                if (res.result && res.result.success) {
-                  wx.showToast({ title: '已' + actionText, icon: 'success' })
-                  self.getProducts()
-                } else {
-                  wx.showToast({ title: '操作失败', icon: 'none' })
-                }
-              },
-              fail: function () { wx.showToast({ title: '操作失败', icon: 'none' }) }
-            })
+          wx.cloud.callFunction({
+            name: 'manageProduct',
+            data: { action: 'toggleStatus', id: id, data: { status: newStatus } },
+            success: function (res) {
+              if (res.result && res.result.success) {
+                wx.showToast({ title: '已' + actionText, icon: 'success' })
+                self.getProducts()
+              } else {
+                wx.showToast({ title: '操作失败', icon: 'none' })
+              }
+            },
+            fail: function () { wx.showToast({ title: '操作失败', icon: 'none' }) }
           })
         }
       }
@@ -231,28 +219,22 @@ Page({
       success: function (res) {
         if (res.confirm) {
           wx.showLoading({ title: '删除中...' })
-          db.collection('products').doc(id).remove().then(function () {
-            wx.hideLoading()
-            wx.showToast({ title: '已删除', icon: 'success' })
-            self.getProducts()
-          }).catch(function () {
-            wx.cloud.callFunction({
-              name: 'manageProduct',
-              data: { action: 'delete', id: id },
-              success: function (res) {
-                wx.hideLoading()
-                if (res.result && res.result.success) {
-                  wx.showToast({ title: '已删除', icon: 'success' })
-                  self.getProducts()
-                } else {
-                  wx.showToast({ title: '删除失败', icon: 'none' })
-                }
-              },
-              fail: function () {
-                wx.hideLoading()
+          wx.cloud.callFunction({
+            name: 'manageProduct',
+            data: { action: 'delete', id: id },
+            success: function (res) {
+              wx.hideLoading()
+              if (res.result && res.result.success) {
+                wx.showToast({ title: '已删除', icon: 'success' })
+                self.getProducts()
+              } else {
                 wx.showToast({ title: '删除失败', icon: 'none' })
               }
-            })
+            },
+            fail: function () {
+              wx.hideLoading()
+              wx.showToast({ title: '删除失败', icon: 'none' })
+            }
           })
         }
       }

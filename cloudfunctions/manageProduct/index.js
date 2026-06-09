@@ -42,11 +42,22 @@ exports.main = async (event, context) => {
     }
 
     if (action === 'update') {
+      if (!id) return { success: false, error: '缺少商品ID' }
+      delete data._id
+      delete data._openid
+      delete data.createTime
+      data.updateTime = db.serverDate()
       await db.collection('products').doc(id).update({ data: data })
       return { success: true }
     }
 
     if (action === 'create') {
+      delete data._id
+      delete data._openid
+      data.updateTime = db.serverDate()
+      if (!data.createTime) data.createTime = db.serverDate()
+      if (!data.status) data.status = 'on'
+      if (data.sales === undefined) data.sales = 0
       const res = await db.collection('products').add({ data: data })
       return { success: true, id: res._id }
     }
