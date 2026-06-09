@@ -100,7 +100,6 @@ Page({
           wx.showToast({ title: '保存失败，请重试', icon: 'none' })
         })
       } else {
-        productData.createTime = db.serverDate()
         productData.status = 'on'
         productData.sales = 0
         wx.cloud.callFunction({
