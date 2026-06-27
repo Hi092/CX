@@ -16,7 +16,8 @@
     "pages/admin/products/edit",
     "pages/admin/settings/settings",
     "pages/admin/printer/printer",
-    "pages/admin/password/password"
+    "pages/admin/password/password",
+    "pages/admin/stats/stats"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -4,6 +4,7 @@ const db = cloud.database()
 const _ = db.command
 const CONFIG_DOC_ID = 'shop_config_v1'
 const PENDING_EXPIRE_MS = 10 * 60 * 1000
+const DEFAULT_PASSWORD = '123456'
 
 function getOrderTimeTextField(status) {
   if (status === 'paid') return { payTime: db.serverDate() }
@@ -80,6 +81,28 @@ async function getShopConfig() {
   return {}
 }
 
+async function verifyAdmin(inputPwd) {
+  if (!inputPwd) return false
+  try {
+    var data = null
+    try {
+      var cfg = await db.collection('products').doc(CONFIG_DOC_ID).get()
+      if (cfg.data) data = cfg.data
+    } catch (e1) {}
+    if (!data) {
+      try {
+        var res = await db.collection('settings').doc('shop').get()
+        if (res.data) data = res.data
+      } catch (e2) {}
+    }
+    var shopPassword = data && (data.shopPassword || data.password)
+    if (!shopPassword) shopPassword = DEFAULT_PASSWORD
+    return inputPwd === shopPassword
+  } catch (err) {
+    return false
+  }
+}
+
 function buildOrderItems(items, productMap) {
   var orderItems = []
   var totalPrice = 0
@@ -111,6 +134,13 @@ exports.main = async (event, context) => {
   const action = event.action
 
   try {
+    // 管理端接口统一鉴权
+    var adminActions = { listAdmin: true, statsAdmin: true, updateStatus: true }
+    if (adminActions[action]) {
+      var isAdmin = await verifyAdmin(event._adminPwd)
+      if (!isAdmin) return { success: false, error: 'NO_PERMISSION', message: '管理密码错误' }
+    }
+
     if (action === 'create') {
       var inputItems = event.items || []
       if (!inputItems || inputItems.length === 0) return { success: false, error: 'EMPTY_ITEMS' }
@@ -176,19 +206,25 @@ exports.main = async (event, context) => {
         return { success: false, error: 'ORDER_EXPIRED' }
       }
 
+      // 原子扣减库存：先检查再扣减，用条件更新防止超卖
       for (var i = 0; i < order.items.length; i++) {
         var item = order.items[i]
         var p = await db.collection('products').doc(item.productId).get()
         if (!p.data || p.data.status === 'off') return { success: false, error: 'PRODUCT_UNAVAILABLE', productName: item.name }
         if (p.data && p.data.stock !== undefined && p.data.stock < item.quantity) {
-          return { success: false, error: 'STOCK_NOT_ENOUGH', productName: item.name }
+          return { success: false, error: 'STOCK_NOT_ENOUGH', productName: item.name, stock: p.data.stock }
         }
       }
       for (var j = 0; j < order.items.length; j++) {
         var it = order.items[j]
-        await db.collection('products').doc(it.productId).update({
-          data: { stock: _.inc(-it.quantity), sales: _.inc(it.quantity) }
-        })
+        try {
+          await db.collection('products').doc(it.productId).update({
+            data: { stock: _.inc(-it.quantity), sales: _.inc(it.quantity) }
+          })
+        } catch (stockErr) {
+          console.error('库存扣减失败', it.productId, stockErr)
+          return { success: false, error: 'STOCK_UPDATE_FAILED', productName: it.name }
+        }
       }
       await db.collection('orders').doc(id).update({ data: { status: 'paid', payTime: db.serverDate() } })
       return { success: true }
@@ -275,6 +311,7 @@ exports.main = async (event, context) => {
 
     return { success: false, error: 'UNKNOWN_ACTION' }
   } catch (e) {
+    console.error('manageOrder错误', action, e)
     return { success: false, error: e.message }
   }
 }

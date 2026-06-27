@@ -11,6 +11,7 @@ Page({
     todayIncome: '0.00',
     totalProducts: 0,
     pendingOrders: 0,
+    lowStockProducts: [],
     themeColor: '#4A90D9',
     loading: false
   },
@@ -68,6 +69,7 @@ Page({
   refreshData: function () {
     this.loadShopInfo()
     this.loadStats()
+    this.loadLowStock()
   },
 
   applyShopInfo: function (data) {
@@ -90,6 +92,23 @@ Page({
     }).catch(function (err) {
       console.error('后台首页读取配置失败', err)
     })
+  },
+
+  loadLowStock: function () {
+    var self = this
+    db.collection('products').where({ status: 'on' }).limit(100).get().then(function (res) {
+      var products = res.data || []
+      var lowStock = []
+      for (var i = 0; i < products.length; i++) {
+        var p = products[i]
+        if (p._id === CONFIG_DOC_ID || p._type === 'shopConfig') continue
+        if (p.stock !== undefined && p.stock <= 5) {
+          lowStock.push({ name: p.name, stock: p.stock })
+        }
+      }
+      lowStock.sort(function (a, b) { return a.stock - b.stock })
+      self.setData({ lowStockProducts: lowStock.slice(0, 5) })
+    }).catch(function () {})
   },
 
   loadStats: function () {

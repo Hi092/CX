@@ -23,7 +23,7 @@
   <view class="card">
     <view class="card-header">
       <view class="card-icon" style="background:{{themeColor}}22">
-        <text style="color:{{themeColor}}">🏪</text>
+        <icon type="package" size="20" color="{{themeColor}}"/>
       </view>
       <text class="card-title">店铺信息</text>
     </view>
@@ -67,7 +67,7 @@
   <view class="card">
     <view class="card-header">
       <view class="card-icon" style="background:{{themeColor}}22">
-        <text style="color:{{themeColor}}">⏰</text>
+        <icon type="time" size="20" color="{{themeColor}}"/>
       </view>
       <text class="card-title">经营设置</text>
     </view>
@@ -127,7 +127,7 @@
   <view class="card">
     <view class="card-header">
       <view class="card-icon" style="background:{{themeColor}}22">
-        <text style="color:{{themeColor}}">🎨</text>
+        <icon type="eye" size="20" color="{{themeColor}}"/>
       </view>
       <text class="card-title">主题颜色</text>
       <view class="color-preview" style="background:{{themeColor}}"></view>

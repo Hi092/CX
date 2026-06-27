@@ -18,6 +18,15 @@
     </view>
   </view>
 
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-wrap">
+      <icon type="search" size="16" color="#8e8e93"/>
+      <input class="search-input" placeholder="搜索订单号、客户名、电话..." value="{{searchKey}}" bindinput="onSearch" bindconfirm="doSearch"/>
+      <icon class="search-clear" wx:if="{{searchKey}}" bindtap="clearSearch" type="close" size="16" color="#8e8e93"/>
+    </view>
+  </view>
+
   <!-- Tab栏 -->
   <view class="tab-bar">
     <view class="tab {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">

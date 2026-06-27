@@ -1,0 +1,93 @@
+<!--销售统计页面-->
+<view class="container">
+  <!-- 日期范围选择 -->
+  <view class="date-bar">
+    <view class="date-item {{dateRange === item.key ? 'active' : ''}}"
+          wx:for="{{dateRangeList}}" wx:key="key"
+          style="{{dateRange === item.key ? 'background:' + themeColor + ';color:#fff' : ''}}"
+          bindtap="switchDateRange" data-range="{{item.key}}">
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 核心指标 -->
+  <view class="metrics-grid">
+    <view class="metric-card">
+      <text class="metric-num">{{totalOrders}}</text>
+      <text class="metric-label">总订单</text>
+    </view>
+    <view class="metric-card">
+      <text class="metric-num" style="color:{{themeColor}}">¥{{totalIncome}}</text>
+      <text class="metric-label">总收入</text>
+    </view>
+    <view class="metric-card">
+      <text class="metric-num">¥{{avgOrderPrice}}</text>
+      <text class="metric-label">客单价</text>
+    </view>
+    <view class="metric-card">
+      <text class="metric-num">{{completedOrders}}</text>
+      <text class="metric-label">已完成</text>
+    </view>
+  </view>
+
+  <!-- 销售趋势 -->
+  <view class="section-card">
+    <view class="section-title">销售趋势</view>
+    <view class="chart-area" wx:if="{{trendData.length > 0}}">
+      <view class="bar-chart">
+        <view class="bar-item" wx:for="{{trendData}}" wx:key="index">
+          <view class="bar-value">{{item}}</view>
+          <view class="bar" style="height:{{item / trendMax * 160}}px;background:{{themeColor}}"></view>
+          <view class="bar-label">{{trendLabels[index]}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="empty-chart" wx:else>
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <!-- 热销商品 -->
+  <view class="section-card">
+    <view class="section-title">热销商品 TOP10</view>
+    <view class="product-list" wx:if="{{topProducts.length > 0}}">
+      <view class="product-item" wx:for="{{topProducts}}" wx:key="name">
+        <view class="product-rank {{index < 3 ? 'top' : ''}}">{{index + 1}}</view>
+        <view class="product-info">
+          <text class="product-name">{{item.name}}</text>
+          <view class="product-bar-bg">
+            <view class="product-bar" style="width:{{item.quantity / maxQty * 100}}%;background:{{themeColor}}"></view>
+          </view>
+        </view>
+        <view class="product-stats">
+          <text class="product-qty">{{item.quantity}}件</text>
+          <text class="product-income">¥{{item.income}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty-chart" wx:else>
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <!-- 时段分布 -->
+  <view class="section-card">
+    <view class="section-title">订单时段分布</view>
+    <view class="hour-chart" wx:if="{{hourData.length > 0}}">
+      <view class="hour-item" wx:for="{{hourData}}" wx:key="hour">
+        <view class="hour-label">{{item.hour}}</view>
+        <view class="hour-bar-bg">
+          <view class="hour-bar" style="width:{{item.count / hourMax * 100}}%;background:{{themeColor}}99"></view>
+        </view>
+        <view class="hour-count">{{item.count}}</view>
+      </view>
+    </view>
+    <view class="empty-chart" wx:else>
+      <text>暂无数据</text>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

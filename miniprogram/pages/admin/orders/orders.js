@@ -4,8 +4,10 @@ var _ = db.command
 Page({
   data: {
     orders: [],
+    allOrders: [],
     currentTab: 'paid',
     loading: true,
+    searchKey: '',
     stats: { todayOrders: 0, todayIncome: '0.00', activeCount: 0, paidCount: 0, deliveringCount: 0 },
     themeColor: '#4A90D9',
     badgeCounts: { all: 0, paid: 0, delivering: 0 }
@@ -50,6 +52,42 @@ Page({
     this.getOrders()
   },
 
+  onSearch: function (e) {
+    this.setData({ searchKey: e.detail.value })
+    this.filterOrders()
+  },
+
+  doSearch: function () {
+    this.filterOrders()
+  },
+
+  clearSearch: function () {
+    this.setData({ searchKey: '' })
+    this.filterOrders()
+  },
+
+  filterOrders: function () {
+    var allOrders = this.data.allOrders || []
+    var searchKey = this.data.searchKey
+    if (!searchKey) {
+      this.setData({ orders: allOrders })
+      return
+    }
+    var key = searchKey.toLowerCase()
+    var filtered = []
+    for (var i = 0; i < allOrders.length; i++) {
+      var order = allOrders[i]
+      var match = false
+      if (order.orderNo && order.orderNo.indexOf(key) > -1) match = true
+      if (!match && order.address) {
+        if (order.address.name && order.address.name.toLowerCase().indexOf(key) > -1) match = true
+        if (order.address.phone && order.address.phone.indexOf(key) > -1) match = true
+      }
+      if (match) filtered.push(order)
+    }
+    this.setData({ orders: filtered })
+  },
+
   getBadges: function () {
     var self = this
     var paidQ = db.collection('orders').where({ status: 'paid' }).count()
@@ -78,7 +116,7 @@ Page({
         list[i].statusText = self.getStatusText(list[i].status)
         list[i].createTimeText = self.formatTime(list[i].createTime)
       }
-      self.setData({ orders: list, loading: false })
+      self.setData({ allOrders: list, orders: list, loading: false })
     }).catch(function (err) {
       console.error('商家订单查询失败', err)
       self.setData({ orders: [], loading: false })

@@ -24,22 +24,40 @@
     <view class="stat-card orders">
       <text class="stat-num">{{todayOrders}}</text>
       <text class="stat-label">今日订单</text>
-      <text class="stat-icon">📦</text>
+      <view class="stat-icon"><icon type="list" size="28" color="{{themeColor}}"/></view>
     </view>
     <view class="stat-card income">
       <text class="stat-num">¥{{todayIncome}}</text>
       <text class="stat-label">今日收入</text>
-      <text class="stat-icon">💰</text>
+      <view class="stat-icon"><icon type="money" size="28" color="{{themeColor}}"/></view>
     </view>
     <view class="stat-card products">
       <text class="stat-num">{{totalProducts}}</text>
       <text class="stat-label">商品数量</text>
-      <text class="stat-icon">🛍️</text>
+      <view class="stat-icon"><icon type="package" size="28" color="{{themeColor}}"/></view>
     </view>
     <view class="stat-card pending">
       <text class="stat-num">{{pendingOrders}}</text>
       <text class="stat-label">待配送</text>
-      <text class="stat-icon">🚚</text>
+      <view class="stat-icon"><icon type="truck" size="28" color="{{themeColor}}"/></view>
+    </view>
+  </view>
+
+  <!-- 库存预警 -->
+  <view class="alert-card" wx:if="{{lowStockProducts.length > 0}}">
+    <view class="alert-header">
+      <icon type="info" size="18" color="#FF9500"/>
+      <text class="alert-title">库存预警</text>
+    </view>
+    <view class="alert-list">
+      <view class="alert-item" wx:for="{{lowStockProducts}}" wx:key="name">
+        <text class="alert-name">{{item.name}}</text>
+        <text class="alert-stock" style="color:{{item.stock <= 2 ? '#ff3b30' : '#FF9500'}}">剩余{{item.stock}}件</text>
+      </view>
+    </view>
+    <view class="alert-action" bindtap="goPage" data-url="/pages/admin/products/products">
+      <text style="color:{{themeColor}}">去补货</text>
+      <icon type="arrow-right" size="14" color="{{themeColor}}"/>
     </view>
   </view>
 
@@ -47,7 +65,7 @@
   <view class="menu-card">
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/orders/orders">
       <view class="menu-icon-box" style="background:#E8F5E9">
-        <text style="font-size:24px">📋</text>
+        <icon type="list" size="24" color="#4CAF50"/>
       </view>
       <view class="menu-info">
         <text class="menu-title">订单管理</text>
@@ -58,7 +76,7 @@
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/products/products">
       <view class="menu-icon-box" style="background:#E3F2FD">
-        <text style="font-size:24px">📦</text>
+        <icon type="package" size="24" color="#2196F3"/>
       </view>
       <view class="menu-info">
         <text class="menu-title">商品管理</text>
@@ -66,9 +84,19 @@
       </view>
       <text class="menu-arrow">›</text>
     </view>
+    <view class="menu-item" bindtap="goPage" data-url="/pages/admin/stats/stats">
+      <view class="menu-icon-box" style="background:#E8F5E9">
+        <icon type="money" size="24" color="#4CAF50"/>
+      </view>
+      <view class="menu-info">
+        <text class="menu-title">销售统计</text>
+        <text class="menu-desc">销售趋势、热销商品</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/settings/settings">
       <view class="menu-icon-box" style="background:#FFF3E6">
-        <text style="font-size:24px">⚙️</text>
+        <icon type="settings" size="24" color="#FF9800"/>
       </view>
       <view class="menu-info">
         <text class="menu-title">店铺设置</text>
@@ -78,7 +106,7 @@
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/password/password">
       <view class="menu-icon-box" style="background:#FDE8E8">
-        <text style="font-size:24px">🔐</text>
+        <icon type="lock" size="24" color="#e74c3c"/>
       </view>
       <view class="menu-info">
         <text class="menu-title">密码设置</text>
@@ -88,7 +116,7 @@
     </view>
     <view class="menu-item" bindtap="goPage" data-url="/pages/admin/printer/printer">
       <view class="menu-icon-box" style="background:#E8EAF6">
-        <text style="font-size:24px">🖨️</text>
+        <icon type="download" size="24" color="#3F51B5"/>
       </view>
       <view class="menu-info">
         <text class="menu-title">打印机设置</text>
@@ -101,7 +129,7 @@
   <!-- 退出商家模式 -->
   <view class="logout-btn" bindtap="exitAdmin">
     <view class="logout-icon-box" style="background:#FDE8E8">
-      <text style="font-size:24px">🚪</text>
+      <icon type="close" size="24" color="#e74c3c"/>
     </view>
     <text class="logout-text">退出商家模式</text>
   </view>
