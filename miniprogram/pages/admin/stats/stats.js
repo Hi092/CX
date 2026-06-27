@@ -1,4 +1,4 @@
-// 销售统计页面
+// 销售统计页面 - 支持自定义日期
 var db = wx.cloud.database()
 var _ = db.command
 
@@ -9,8 +9,11 @@ Page({
     dateRangeList: [
       { key: 'today', name: '今日' },
       { key: 'week', name: '本周' },
-      { key: 'month', name: '本月' }
+      { key: 'month', name: '本月' },
+      { key: 'custom', name: '自定义' }
     ],
+    customStartDate: '',
+    customEndDate: '',
     loading: false,
     // 统计数据
     totalOrders: 0,
@@ -32,6 +35,10 @@ Page({
   onLoad: function () {
     var s = wx.getStorageSync('shopSettings')
     if (s && s.themeColor) this.setData({ themeColor: s.themeColor })
+    var now = new Date()
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n }
+    var today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
+    this.setData({ customStartDate: today, customEndDate: today })
     this.loadStats()
   },
 
@@ -43,6 +50,16 @@ Page({
     var range = e.currentTarget.dataset.range
     this.setData({ dateRange: range })
     this.loadStats()
+  },
+
+  onStartDateChange: function (e) {
+    this.setData({ customStartDate: e.detail.value })
+    if (this.data.dateRange === 'custom') this.loadStats()
+  },
+
+  onEndDateChange: function (e) {
+    this.setData({ customEndDate: e.detail.value })
+    if (this.data.dateRange === 'custom') this.loadStats()
   },
 
   getDateRange: function () {
@@ -63,6 +80,15 @@ Page({
     } else if (range === 'month') {
       start = new Date(y, m, 1)
       end = new Date(y, m + 1, 1)
+    } else if (range === 'custom') {
+      var startDate = this.data.customStartDate
+      var endDate = this.data.customEndDate
+      if (startDate && endDate) {
+        var parts = startDate.split('-')
+        start = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+        parts = endDate.split('-')
+        end = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]) + 1)
+      }
     }
 
     return { start: start, end: end }
@@ -75,7 +101,6 @@ Page({
     var startTime = range.start.getTime()
     var endTime = range.end.getTime()
 
-    // 查询所有有效订单
     db.collection('orders')
       .where({ status: _.in(['paid', 'delivering', 'completed']) })
       .orderBy('createTime', 'desc')
@@ -115,20 +140,17 @@ Page({
 
       if (order.status === 'completed') completedOrders++
 
-      // 时段分布
       var ct = this.toDate(order.createTime)
       if (ct) {
         var hour = ct.getHours()
         hourBuckets[hour] = (hourBuckets[hour] || 0) + 1
 
-        // 日趋势
         var dayKey = (ct.getMonth() + 1) + '/' + ct.getDate()
         if (!dayBuckets[dayKey]) dayBuckets[dayKey] = { income: 0, count: 0 }
         dayBuckets[dayKey].income += price
         dayBuckets[dayKey].count++
       }
 
-      // 热销商品
       var items = order.items || []
       for (var k = 0; k < items.length; k++) {
         var item = items[k]
@@ -146,7 +168,6 @@ Page({
     var range = this.data.dateRange
 
     if (range === 'today') {
-      // 按小时
       for (var h = 8; h <= 23; h++) {
         var count = hourBuckets[h] || 0
         trendData.push(count)
@@ -154,8 +175,11 @@ Page({
         if (count > trendMax) trendMax = count
       }
     } else {
-      // 按天
-      var keys = Object.keys(dayBuckets).sort()
+      var keys = Object.keys(dayBuckets).sort(function (a, b) {
+        var pa = a.split('/')
+        var pb = b.split('/')
+        return (parseInt(pa[0]) * 100 + parseInt(pa[1])) - (parseInt(pb[0]) * 100 + parseInt(pb[1]))
+      })
       for (var d = 0; d < keys.length; d++) {
         var dayData = dayBuckets[keys[d]]
         trendData.push(Math.round(dayData.income * 100) / 100)
