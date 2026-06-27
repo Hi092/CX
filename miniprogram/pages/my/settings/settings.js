@@ -82,14 +82,7 @@ Page({
         }
       },
       fail: function () {
-        if (pwd === '123456') {
-          self.closeModal()
-          wx.setStorageSync('isShopOwner', true)
-          wx.showToast({ title: '验证成功', icon: 'success' })
-          setTimeout(function () { wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' }) }, 300)
-        } else {
-          wx.showToast({ title: '密码错误', icon: 'none' })
-        }
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
       }
     })
   },

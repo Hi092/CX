@@ -197,19 +197,8 @@ Page({
         wx.showToast({ title: result.message || '密码错误', icon: 'none' })
       }
     }).catch(function () {
-      if (pwd === '123456') {
-        self.closeModal()
-        wx.setStorageSync('isShopOwner', true)
-        if (self.data.rememberDevice) wx.setStorageSync('adminAutoLogin', true)
-        wx.showToast({ title: '验证成功', icon: 'success' })
-        setTimeout(function () {
-          self.setData({ verifying: false })
-          wx.navigateTo({ url: '/pages/admin/dashboard/dashboard' })
-        }, 300)
-      } else {
-        self.setData({ verifying: false })
-        wx.showToast({ title: '密码错误', icon: 'none' })
-      }
+      self.setData({ verifying: false })
+      wx.showToast({ title: '网络错误，请重试', icon: 'none' })
     })
   },
 

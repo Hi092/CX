@@ -1,17 +1,22 @@
-# CX项目全面优化计划
+# CX项目优化清单
 
-## 高危修复
-1. [ ] 管理端鉴权 — manageOrder/manageProduct/updateSettings/printOrder 加admin密码校验
-2. [ ] 删除硬编码密码后门 — my.js、settings.js 里的 `pwd === '123456'`
-3. [ ] 库存原子扣减 — manageOrder.pay 合并检查和扣减
+## 已完成
+- [x] 管理端鉴权 — manageOrder加admin密码校验
+- [x] 提取公共工具函数 — utils/common.js
+- [x] 云函数鉴权工具 — cloudfunctions/_shared/auth.js
+- [x] 销售统计页面 — stats页面
+- [x] 订单搜索 — orders页面搜索栏
+- [x] 库存预警 — dashboard低库存提醒
+- [x] UI优化 — 去emoji、统一样式
 
-## 中危优化
-4. [ ] 提取公共工具函数 — getTimeMs/isPendingExpired → utils/common.js
-5. [ ] 修复onLoad/onShow重复请求 — category、cart、dashboard、settings
-6. [ ] 优化统计查询 — dashboard用where过滤日期，my.js用count()统计badge
-7. [ ] 配置存储统一 — 逐步迁移到settings集合，products里只放商品
-
-## 低危清理
-8. [ ] 空catch加日志
-9. [ ] 删除生产环境console.log
-10. [ ] 代码清理
+## 待完成（按优先级）
+- [ ] 1. 去掉硬编码密码后门 — my.js、settings.js
+- [ ] 2. manageProduct云函数加鉴权
+- [ ] 3. updateSettings云函数加鉴权
+- [ ] 4. printOrder云函数加鉴权
+- [ ] 5. 前端管理接口调用传密码
+- [ ] 6. 修复onLoad/onShow重复请求
+- [ ] 7. 优化dashboard统计查询（where过滤）
+- [ ] 8. 优化my.js badge统计（用count）
+- [ ] 9. 空catch加日志
+- [ ] 10. 删除生产环境console.log
