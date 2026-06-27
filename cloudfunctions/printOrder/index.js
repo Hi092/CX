@@ -4,19 +4,44 @@ const cloud = require('wx-server-sdk')
 const net = require('net')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+const db = cloud.database()
+const CONFIG_DOC_ID = 'shop_config_v1'
+const DEFAULT_PASSWORD = '123456'
+
+async function verifyAdmin(inputPwd) {
+  if (!inputPwd) return false
+  try {
+    var data = null
+    try {
+      var cfg = await db.collection('products').doc(CONFIG_DOC_ID).get()
+      if (cfg.data) data = cfg.data
+    } catch (e1) {}
+    if (!data) {
+      try {
+        var res = await db.collection('settings').doc('shop').get()
+        if (res.data) data = res.data
+      } catch (e2) {}
+    }
+    var shopPassword = data && (data.shopPassword || data.password)
+    if (!shopPassword) shopPassword = DEFAULT_PASSWORD
+    return inputPwd === shopPassword
+  } catch (err) {
+    return false
+  }
+}
 
 // ESC/POS 指令集
 var ESC = {
-  INIT: Buffer.from([0x1B, 0x40]),           // 初始化打印机
-  BOLD_ON: Buffer.from([0x1B, 0x45, 0x01]),  // 加粗开
-  BOLD_OFF: Buffer.from([0x1B, 0x45, 0x00]), // 加粗关
-  CENTER: Buffer.from([0x1B, 0x61, 0x01]),   // 居中
-  LEFT: Buffer.from([0x1B, 0x61, 0x00]),     // 左对齐
-  FEED: Buffer.from([0x1B, 0x64, 0x03]),     // 走纸3行
-  CUT: Buffer.from([0x1D, 0x56, 0x00]),      // 切纸
-  SIZE_NORMAL: Buffer.from([0x1D, 0x21, 0x00]), // 正常大小
-  SIZE_DOUBLE_W: Buffer.from([0x1D, 0x21, 0x20]), // 双倍宽度
-  SIZE_DOUBLE: Buffer.from([0x1D, 0x21, 0x11]),   // 双倍大小
+  INIT: Buffer.from([0x1B, 0x40]),
+  BOLD_ON: Buffer.from([0x1B, 0x45, 0x01]),
+  BOLD_OFF: Buffer.from([0x1B, 0x45, 0x00]),
+  CENTER: Buffer.from([0x1B, 0x61, 0x01]),
+  LEFT: Buffer.from([0x1B, 0x61, 0x00]),
+  FEED: Buffer.from([0x1B, 0x64, 0x03]),
+  CUT: Buffer.from([0x1D, 0x56, 0x00]),
+  SIZE_NORMAL: Buffer.from([0x1D, 0x21, 0x00]),
+  SIZE_DOUBLE_W: Buffer.from([0x1D, 0x21, 0x20]),
+  SIZE_DOUBLE: Buffer.from([0x1D, 0x21, 0x11]),
 }
 
 function buildTestPrint(paper) {
@@ -56,7 +81,6 @@ function buildOrderPrint(order, paper) {
   bufs.push(Buffer.from('下单时间: ' + (order.createTime || '') + '\n', 'utf8'))
   bufs.push(Buffer.from('--------------------------------\n', 'utf8'))
 
-  // 商品列表
   var items = order.items || []
   for (var i = 0; i < items.length; i++) {
     var item = items[i]
@@ -118,7 +142,6 @@ function sendToPrinter(ip, port, data) {
   })
 }
 
-// 云函数入口函数
 exports.main = async (event, context) => {
   var action = event.action || 'test'
   var printerIp = event.printerIp
@@ -130,6 +153,10 @@ exports.main = async (event, context) => {
   }
 
   try {
+    // 管理端鉴权
+    var isAdmin = await verifyAdmin(event._adminPwd)
+    if (!isAdmin) return { success: false, error: 'NO_PERMISSION', message: '管理密码错误' }
+
     var data
     if (action === 'test') {
       data = buildTestPrint(printerPaper)
